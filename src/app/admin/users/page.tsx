@@ -145,7 +145,7 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-serif text-white">Users</h1>
-        <p className="text-dark-400 text-sm">{users.length} registered users</p>
+        <p className="text-primary/70 text-sm">{users.length} registered users</p>
       </div>
 
       {/* Stats */}
@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
         ].map((stat, i) => (
           <div key={i} className="glass-card-gold rounded-xl p-4 text-center">
             <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-dark-400 text-sm">{stat.label}</p>
+            <p className="text-dark-200 text-sm">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -271,7 +271,7 @@ export default function AdminUsersPage() {
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
             <User className="w-12 h-12 text-dark-500 mx-auto mb-3" />
-            <p className="text-dark-400">No users found</p>
+            <p className="text-primary/70">No users found</p>
           </div>
         )}
       </div>
@@ -331,12 +331,12 @@ export default function AdminUsersPage() {
                 <div className="glass-card rounded-lg p-4 text-center">
                   <Package className="w-6 h-6 text-primary mx-auto mb-2" />
                   <p className="text-2xl font-bold text-dark-200">{selectedUser.totalOrders}</p>
-                  <p className="text-dark-500 text-xs">Total Orders</p>
+                  <p className="text-primary/60 text-xs">Total Orders</p>
                 </div>
                 <div className="glass-card rounded-lg p-4 text-center">
                   <p className="text-primary text-lg mb-2">₹</p>
                   <p className="text-2xl font-bold text-dark-200">{selectedUser.totalSpent.toLocaleString()}</p>
-                  <p className="text-dark-500 text-xs">Total Spent</p>
+                  <p className="text-primary/60 text-xs">Total Spent</p>
                 </div>
               </div>
 

@@ -94,7 +94,7 @@ export default function AdminDashboard() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-serif text-white">Dashboard</h1>
-        <p className="text-dark-400 text-sm">Welcome back! Here&apos;s what&apos;s happening today.</p>
+        <p className="text-primary/70 text-sm">Welcome back! Here&apos;s what&apos;s happening today.</p>
       </div>
 
       {/* Stats Grid */}
@@ -108,8 +108,8 @@ export default function AdminDashboard() {
               <ArrowUpRight className="w-4 h-4 text-dark-500 group-hover:text-primary transition" />
             </div>
             <p className="text-2xl font-bold text-white">{stat.value}</p>
-            <p className="text-sm text-dark-400">{stat.label}</p>
-            <p className="text-xs text-dark-500 mt-1">{stat.subValue}</p>
+            <p className="text-sm text-dark-200">{stat.label}</p>
+            <p className="text-xs text-primary/60 mt-1">{stat.subValue}</p>
           </Link>
         ))}
       </div>
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
             {lowStockProducts.length === 0 && (
               <div className="text-center py-8">
                 <Package className="w-10 h-10 text-green-500 mx-auto mb-2" />
-                <p className="text-dark-400 text-sm">All products are well stocked!</p>
+                <p className="text-primary/70 text-sm">All products are well stocked!</p>
               </div>
             )}
           </div>

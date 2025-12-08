@@ -122,7 +122,7 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-serif text-white">Orders</h1>
-        <p className="text-dark-400 text-sm">{orders.length} total orders</p>
+        <p className="text-primary/70 text-sm">{orders.length} total orders</p>
       </div>
 
       {/* Stats */}
@@ -241,7 +241,7 @@ export default function AdminOrdersPage() {
         {filteredOrders.length === 0 && (
           <div className="text-center py-12">
             <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
-            <p className="text-dark-400">No orders found</p>
+            <p className="text-primary/70">No orders found</p>
           </div>
         )}
       </div>
@@ -254,7 +254,7 @@ export default function AdminOrdersPage() {
             <div className="flex items-center justify-between p-5 border-b border-primary/20">
               <div>
                 <h3 className="text-primary font-medium text-lg">{selectedOrder.order_number || selectedOrder.id.slice(0, 8)}</h3>
-                <p className="text-dark-500 text-xs">
+                <p className="text-primary/60 text-xs">
                   {new Date(selectedOrder.created_at).toLocaleDateString('en-IN', {
                     day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                   })}
@@ -270,7 +270,7 @@ export default function AdminOrdersPage() {
               {/* Customer Info */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="glass-card rounded-lg p-4">
-                  <p className="text-dark-500 text-xs uppercase tracking-wider mb-2">Customer</p>
+                  <p className="text-primary/70 text-xs uppercase tracking-wider mb-2">Customer</p>
                   <p className="text-dark-200 font-medium">{selectedOrder.customer_name}</p>
                   <p className="text-dark-400 text-sm flex items-center gap-2 mt-1">
                     <Phone className="w-3 h-3" /> {selectedOrder.customer_phone}
@@ -280,7 +280,7 @@ export default function AdminOrdersPage() {
                   )}
                 </div>
                 <div className="glass-card rounded-lg p-4">
-                  <p className="text-dark-500 text-xs uppercase tracking-wider mb-2">Delivery Address</p>
+                  <p className="text-primary/70 text-xs uppercase tracking-wider mb-2">Delivery Address</p>
                   <p className="text-dark-300 text-sm flex items-start gap-2">
                     <MapPin className="w-3 h-3 mt-1 flex-shrink-0" /> {formatAddress(selectedOrder.shipping_address)}
                   </p>
@@ -289,7 +289,7 @@ export default function AdminOrdersPage() {
 
               {/* Order Items */}
               <div>
-                <p className="text-dark-500 text-xs uppercase tracking-wider mb-3">Order Items</p>
+                <p className="text-primary/70 text-xs uppercase tracking-wider mb-3">Order Items</p>
                 <div className="space-y-3">
                   {selectedOrder.order_items?.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between glass-card rounded-lg p-3">
@@ -329,7 +329,7 @@ export default function AdminOrdersPage() {
 
               {/* Status Update */}
               <div className="glass-card rounded-lg p-4">
-                <p className="text-dark-500 text-xs uppercase tracking-wider mb-3">Update Status</p>
+                <p className="text-primary/70 text-xs uppercase tracking-wider mb-3">Update Status</p>
                 <div className="flex flex-wrap gap-2">
                   {statusOptions.map(status => (
                     <button
@@ -349,7 +349,7 @@ export default function AdminOrdersPage() {
               {/* Tracking Number */}
               {(selectedOrder.status === 'SHIPPED' || selectedOrder.status === 'DELIVERED') && (
                 <div className="glass-card rounded-lg p-4">
-                  <p className="text-dark-500 text-xs uppercase tracking-wider mb-3">Tracking Information</p>
+                  <p className="text-primary/70 text-xs uppercase tracking-wider mb-3">Tracking Information</p>
                   <div className="flex gap-2">
                     <input
                       type="text"

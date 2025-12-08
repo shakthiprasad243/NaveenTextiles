@@ -286,7 +286,7 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-serif text-white">Products</h1>
-          <p className="text-dark-400 text-sm">{products.length} total products</p>
+          <p className="text-primary/70 text-sm">{products.length} total products</p>
         </div>
         <button onClick={openAddModal} className="btn-glossy px-4 py-2.5 rounded-lg text-sm font-medium text-dark-900 flex items-center gap-2">
           <Plus className="w-4 h-4" /> Add Product
@@ -411,7 +411,7 @@ export default function AdminProductsPage() {
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
             <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
-            <p className="text-dark-400">No products found</p>
+            <p className="text-primary/70">No products found</p>
           </div>
         )}
       </div>
@@ -421,7 +421,7 @@ export default function AdminProductsPage() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="glass-card-gold rounded-xl p-6 max-w-sm w-full animate-fadeIn">
             <h3 className="text-dark-200 font-medium text-lg mb-2">Delete Product?</h3>
-            <p className="text-dark-400 text-sm mb-6">This action cannot be undone. The product will be permanently removed.</p>
+            <p className="text-dark-300 text-sm mb-6">This action cannot be undone. The product will be permanently removed.</p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-lg text-sm text-dark-300 border border-dark-600 hover:border-dark-500">
                 Cancel
