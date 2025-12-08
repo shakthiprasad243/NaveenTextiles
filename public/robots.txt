@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin pages from indexing
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+
+# Sitemap
+Sitemap: https://naveentextiles.store/sitemap.xml

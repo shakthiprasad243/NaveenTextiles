@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C9A227"/>
+      <stop offset="50%" style="stop-color:#D4AF37"/>
+      <stop offset="100%" style="stop-color:#C9A227"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background (dark navy) -->
+  <rect width="400" height="400" fill="#0a1628"/>
+  
+  <!-- Curved Text: NAVEEN TEXTILES -->
+  <path id="textArc" d="M 60,200 A 140,140 0 0,1 340,200" fill="none"/>
+  <text font-family="Georgia, Times, serif" font-size="38" font-weight="bold" fill="#D4AF37" letter-spacing="6">
+    <textPath href="#textArc" startOffset="50%" text-anchor="middle">NAVEEN TEXTILES</textPath>
+  </text>
+  
+  <!-- Main Circle -->
+  <circle cx="200" cy="220" r="70" stroke="#D4AF37" stroke-width="3" fill="none"/>
+  
+  <!-- Letter N -->
+  <text x="200" y="245" font-family="Georgia, Times, serif" font-size="72" font-weight="bold" fill="#D4AF37" text-anchor="middle">N</text>
+  
+  <!-- Left Laurel Branch -->
+  <g fill="#D4AF37" transform="translate(200, 220)">
+    <!-- Left side leaves -->
+    <ellipse cx="-85" cy="20" rx="8" ry="18" transform="rotate(-30 -85 20)"/>
+    <ellipse cx="-90" cy="0" rx="8" ry="18" transform="rotate(-15 -90 0)"/>
+    <ellipse cx="-88" cy="-20" rx="8" ry="18" transform="rotate(0 -88 -20)"/>
+    <ellipse cx="-82" cy="-40" rx="8" ry="18" transform="rotate(15 -82 -40)"/>
+    <ellipse cx="-72" cy="-58" rx="8" ry="18" transform="rotate(30 -72 -58)"/>
+    <ellipse cx="-58" cy="-72" rx="8" ry="18" transform="rotate(45 -58 -72)"/>
+    <ellipse cx="-40" cy="-82" rx="8" ry="16" transform="rotate(60 -40 -82)"/>
+    
+    <!-- Left stem -->
+    <path d="M -75 45 Q -85 20 -85 -10 Q -80 -40 -55 -75" stroke="#D4AF37" stroke-width="2" fill="none"/>
+    
+    <!-- Right side leaves -->
+    <ellipse cx="85" cy="20" rx="8" ry="18" transform="rotate(30 85 20)"/>
+    <ellipse cx="90" cy="0" rx="8" ry="18" transform="rotate(15 90 0)"/>
+    <ellipse cx="88" cy="-20" rx="8" ry="18" transform="rotate(0 88 -20)"/>
+    <ellipse cx="82" cy="-40" rx="8" ry="18" transform="rotate(-15 82 -40)"/>
+    <ellipse cx="72" cy="-58" rx="8" ry="18" transform="rotate(-30 72 -58)"/>
+    <ellipse cx="58" cy="-72" rx="8" ry="18" transform="rotate(-45 58 -72)"/>
+    <ellipse cx="40" cy="-82" rx="8" ry="16" transform="rotate(-60 40 -82)"/>
+    
+    <!-- Right stem -->
+    <path d="M 75 45 Q 85 20 85 -10 Q 80 -40 55 -75" stroke="#D4AF37" stroke-width="2" fill="none"/>
+    
+    <!-- Bottom crossing -->
+    <path d="M -75 45 L -60 55 L 0 60 L 60 55 L 75 45" stroke="#D4AF37" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Star at bottom -->
+  <polygon points="200,295 203,305 213,305 205,311 208,321 200,315 192,321 195,311 187,305 197,305" fill="#D4AF37"/>
+  
+  <!-- Tagline -->
+  <text x="200" y="360" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#D4AF37" text-anchor="middle" letter-spacing="3">WHERE COMFORT MEETS</text>
+  <text x="200" y="382" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#D4AF37" text-anchor="middle" letter-spacing="3">CONFIDENCE</text>
+</svg>
