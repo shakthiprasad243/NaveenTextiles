@@ -36,31 +36,23 @@ export async function PATCH(
         .select('product_variant_id, qty')
         .eq('order_id', orderId);
 
-      // Return stock
+      // Return stock using direct update (no RPC)
       if (items) {
         for (const item of items) {
-          try {
-            await supabase.rpc('release_inventory', {
-              p_variant_id: item.product_variant_id,
-              p_qty: item.qty
-            });
-          } catch {
-            // Manual update if RPC doesn't exist - get current values first
-            const { data: variant } = await supabase
+          const { data: variant } = await supabase
+            .from('product_variants')
+            .select('stock_qty, reserved_qty')
+            .eq('id', item.product_variant_id)
+            .single();
+          
+          if (variant) {
+            await supabase
               .from('product_variants')
-              .select('stock_qty, reserved_qty')
-              .eq('id', item.product_variant_id)
-              .single();
-            
-            if (variant) {
-              await supabase
-                .from('product_variants')
-                .update({ 
-                  stock_qty: variant.stock_qty + item.qty,
-                  reserved_qty: Math.max(0, variant.reserved_qty - item.qty)
-                })
-                .eq('id', item.product_variant_id);
-            }
+              .update({ 
+                stock_qty: variant.stock_qty + item.qty,
+                reserved_qty: Math.max(0, variant.reserved_qty - item.qty)
+              })
+              .eq('id', item.product_variant_id);
           }
         }
       }

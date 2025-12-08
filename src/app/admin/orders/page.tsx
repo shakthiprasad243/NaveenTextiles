@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, DbOrder, DbOrderItem } from '@/lib/supabase';
+import { supabase, DbOrderItem } from '@/lib/supabase';
 import { Search, ChevronDown, Eye, Package, Phone, MapPin, Clock, X, Truck, Loader2 } from 'lucide-react';
 
 type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PACKED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
@@ -57,7 +57,7 @@ export default function AdminOrdersPage() {
         .from('orders')
         .select(`*, order_items (*)`)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       setOrders(data || []);
     } catch (err) {
@@ -69,8 +69,8 @@ export default function AdminOrdersPage() {
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = (order.order_number || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.customer_phone.includes(searchQuery);
+      order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer_phone.includes(searchQuery);
     const matchesStatus = !filterStatus || order.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -81,9 +81,9 @@ export default function AdminOrdersPage() {
         .from('orders')
         .update({ status: newStatus })
         .eq('id', orderId);
-      
+
       if (error) throw error;
-      
+
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
@@ -255,8 +255,8 @@ export default function AdminOrdersPage() {
               <div>
                 <h3 className="text-primary font-medium text-lg">{selectedOrder.order_number || selectedOrder.id.slice(0, 8)}</h3>
                 <p className="text-dark-500 text-xs">
-                  {new Date(selectedOrder.created_at).toLocaleDateString('en-IN', { 
-                    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                  {new Date(selectedOrder.created_at).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
                   })}
                 </p>
               </div>
@@ -335,11 +335,10 @@ export default function AdminOrdersPage() {
                     <button
                       key={status}
                       onClick={() => updateOrderStatus(selectedOrder.id, status)}
-                      className={`px-4 py-2 rounded-lg text-xs font-medium capitalize transition ${
-                        selectedOrder.status === status
+                      className={`px-4 py-2 rounded-lg text-xs font-medium capitalize transition ${selectedOrder.status === status
                           ? statusColors[status]
                           : 'glass-card text-dark-400 hover:text-dark-200'
-                      }`}
+                        }`}
                     >
                       {status.toLowerCase()}
                     </button>

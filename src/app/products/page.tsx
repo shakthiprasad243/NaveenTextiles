@@ -52,7 +52,7 @@ function ProductsContent() {
   const mainCategory = searchParams.get('main');
   const subCategory = searchParams.get('sub');
   const category = searchParams.get('category');
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,18 +66,18 @@ function ProductsContent() {
           .from('products')
           .select(`*, product_variants (*)`)
           .eq('active', true);
-        
+
         if (mainCategory) {
           query = query.eq('main_category', mainCategory);
         }
         if (subCategory || category) {
           query = query.eq('category', subCategory || category);
         }
-        
+
         const { data, error: fetchError } = await query.order('created_at', { ascending: false });
-        
+
         if (fetchError) throw fetchError;
-        
+
         const transformedProducts = (data || []).map(transformProduct);
         setProducts(transformedProducts);
       } catch (err) {
@@ -87,11 +87,11 @@ function ProductsContent() {
         setLoading(false);
       }
     }
-    
+
     fetchProducts();
   }, [mainCategory, subCategory, category]);
 
-  const categories = mainCategories;
+  // const categories = mainCategories;
   const subCategories = subCategoriesMap;
 
   // Filter states
@@ -137,20 +137,20 @@ function ProductsContent() {
 
     // Filter by colors
     if (selectedColors.length > 0) {
-      filtered = filtered.filter(p => 
+      filtered = filtered.filter(p =>
         p.variations.some(v => selectedColors.includes(v.color))
       );
     }
 
     // Filter by sizes
     if (selectedSizes.length > 0) {
-      filtered = filtered.filter(p => 
+      filtered = filtered.filter(p =>
         p.variations.some(v => selectedSizes.includes(v.size))
       );
     }
 
     // Filter by price range
-    filtered = filtered.filter(p => 
+    filtered = filtered.filter(p =>
       p.price >= selectedPriceRange.min && p.price <= selectedPriceRange.max
     );
 
@@ -225,11 +225,10 @@ function ProductsContent() {
       <div className="flex gap-3 overflow-x-auto pb-4 mb-4 scrollbar-hide">
         <Link
           href="/products"
-          className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm transition-all ${
-            !mainCategory && !category
+          className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm transition-all ${!mainCategory && !category
               ? 'btn-glossy text-dark-900 font-medium'
               : 'glass-card-gold text-dark-200 hover:text-primary'
-          }`}
+            }`}
         >
           All
         </Link>
@@ -237,11 +236,10 @@ function ProductsContent() {
           <Link
             key={cat}
             href={`/products?main=${encodeURIComponent(cat)}`}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm transition-all ${
-              mainCategory === cat
+            className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm transition-all ${mainCategory === cat
                 ? 'btn-glossy text-dark-900 font-medium'
                 : 'glass-card-gold text-dark-200 hover:text-primary'
-            }`}
+              }`}
           >
             {cat}
           </Link>
@@ -253,11 +251,10 @@ function ProductsContent() {
         <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
           <Link
             href={`/products?main=${encodeURIComponent(mainCategory)}`}
-            className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs transition-all ${
-              !subCategory
+            className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs transition-all ${!subCategory
                 ? 'bg-primary/20 text-primary gold-border'
                 : 'glass-card text-dark-300 hover:text-primary'
-            }`}
+              }`}
           >
             All {mainCategory}
           </Link>
@@ -265,11 +262,10 @@ function ProductsContent() {
             <Link
               key={sub}
               href={`/products?main=${encodeURIComponent(mainCategory)}&sub=${encodeURIComponent(sub)}`}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs transition-all ${
-                subCategory === sub
+              className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs transition-all ${subCategory === sub
                   ? 'bg-primary/20 text-primary gold-border'
                   : 'glass-card text-dark-300 hover:text-primary'
-              }`}
+                }`}
             >
               {sub}
             </Link>
@@ -397,8 +393,8 @@ function MobileFilterSheet({
   filteredCount: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  
-  const activeFiltersCount = selectedColors.length + selectedSizes.length + 
+
+  const activeFiltersCount = selectedColors.length + selectedSizes.length +
     (selectedPriceRange.min > priceRange.min || selectedPriceRange.max < priceRange.max ? 1 : 0);
 
   const handleColorToggle = (color: string) => {
@@ -436,7 +432,7 @@ function MobileFilterSheet({
 
       {/* Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 z-50"
           onClick={() => setIsOpen(false)}
         />
@@ -473,11 +469,10 @@ function MobileFilterSheet({
                   <button
                     key={range.label}
                     onClick={() => onPriceChange({ min: range.min, max: range.max })}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${
-                      selectedPriceRange.min === range.min && selectedPriceRange.max === range.max
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${selectedPriceRange.min === range.min && selectedPriceRange.max === range.max
                         ? 'bg-primary/20 text-primary'
                         : 'text-dark-300 hover:bg-dark-700'
-                    }`}
+                      }`}
                   >
                     {range.label}
                   </button>
@@ -493,11 +488,10 @@ function MobileFilterSheet({
                   <button
                     key={color}
                     onClick={() => handleColorToggle(color)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-                      selectedColors.includes(color)
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${selectedColors.includes(color)
                         ? 'bg-primary/20 text-primary'
                         : 'text-dark-300 hover:bg-dark-700'
-                    }`}
+                      }`}
                   >
                     <span className="w-4 h-4 rounded-full border border-dark-500" style={{ backgroundColor: getColorHex(color) }} />
                     {color}
@@ -514,11 +508,10 @@ function MobileFilterSheet({
                   <button
                     key={size}
                     onClick={() => handleSizeToggle(size)}
-                    className={`px-4 py-2 rounded-lg text-sm transition ${
-                      selectedSizes.includes(size)
+                    className={`px-4 py-2 rounded-lg text-sm transition ${selectedSizes.includes(size)
                         ? 'bg-primary/20 text-primary border border-primary/30'
                         : 'glass-card text-dark-300'
-                    }`}
+                      }`}
                   >
                     {size}
                   </button>

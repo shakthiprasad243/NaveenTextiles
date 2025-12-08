@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, DbUser } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export interface User {
   id: string;
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ...parsed,
           createdAt: new Date(parsed.createdAt)
         });
-      } catch (e) {
+      } catch {
         localStorage.removeItem('naveen_user');
       }
     }
@@ -205,7 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(updatedUser);
         localStorage.setItem('naveen_user', JSON.stringify(updatedUser));
       }
-    } catch (err) {
+    } catch {
       // Still update locally even if Supabase fails
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);

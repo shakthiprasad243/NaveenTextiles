@@ -28,7 +28,7 @@ export default function ReturnsPage() {
       {/* Why No Returns */}
       <div className="glass-card-gold rounded-xl p-6 mb-8">
         <h2 className="text-primary font-medium mb-4 flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5" /> Why We Don't Accept Returns
+          <ShieldCheck className="w-5 h-5" /> Why We Don&apos;t Accept Returns
         </h2>
         <div className="grid sm:grid-cols-2 gap-4">
           {[
@@ -53,8 +53,8 @@ export default function ReturnsPage() {
         <h2 className="text-primary font-medium mb-4 flex items-center gap-2">
           <RefreshCw className="w-5 h-5" /> Exchange Policy
         </h2>
-        <p className="text-dark-400 text-sm mb-4">We understand that sometimes sizes may not fit as expected. Here's our exchange policy:</p>
-        
+        <p className="text-dark-400 text-sm mb-4">We understand that sometimes sizes may not fit as expected. Here&apos;s our exchange policy:</p>
+
         <div className="space-y-4">
           <div className="bg-dark-700/30 rounded-lg p-4">
             <h4 className="text-dark-200 font-medium text-sm mb-2">Eligible for Exchange</h4>
@@ -84,7 +84,7 @@ export default function ReturnsPage() {
           <Package className="w-5 h-5" /> Damaged or Defective Products
         </h2>
         <p className="text-dark-400 text-sm mb-4">
-          In the rare case that you receive a damaged or defective product, we're here to help:
+          In the rare case that you receive a damaged or defective product, we&apos;re here to help:
         </p>
         <ul className="space-y-2 text-dark-400 text-sm">
           <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" /> Contact us within 24 hours of delivery</li>

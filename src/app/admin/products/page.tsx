@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product, ProductVariation } from '@/lib/types';
+import { Product } from '@/lib/types';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Search, X, Package, Save, ChevronDown, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 const subCategoriesMap: Record<string, string[]> = {
@@ -66,7 +67,7 @@ export default function AdminProductsPage() {
         .from('products')
         .select(`*, product_variants (*)`)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       setProducts((data || []).map(transformProduct));
     } catch (err) {
@@ -79,7 +80,7 @@ export default function AdminProductsPage() {
   // Filter products
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         p.category.toLowerCase().includes(searchQuery.toLowerCase());
+      p.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !filterCategory || p.mainCategory === filterCategory;
     return matchesSearch && matchesCategory;
   });
@@ -120,7 +121,7 @@ export default function AdminProductsPage() {
     try {
       setSaving(true);
       const slug = formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      
+
       if (editingProduct) {
         // Update existing product
         const { error: productError } = await supabase
@@ -139,7 +140,7 @@ export default function AdminProductsPage() {
 
         // Delete existing variants and create new ones
         await supabase.from('product_variants').delete().eq('product_id', editingProduct.id);
-        
+
         const variants = formData.variations
           .filter(v => v.size && v.color)
           .map(v => ({
@@ -224,7 +225,7 @@ export default function AdminProductsPage() {
         .from('products')
         .update({ active: !product.active })
         .eq('id', id);
-      
+
       if (error) throw error;
       setProducts(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
     } catch (err) {
@@ -343,9 +344,9 @@ export default function AdminProductsPage() {
                   <tr key={product.id} className="border-b border-dark-700/50 hover:bg-dark-700/30 transition">
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg bg-dark-700 overflow-hidden flex-shrink-0">
+                        <div className="w-12 h-12 rounded-lg bg-dark-700 overflow-hidden flex-shrink-0 relative">
                           {product.images[0] ? (
-                            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                            <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Package className="w-5 h-5 text-dark-500" />
@@ -373,11 +374,10 @@ export default function AdminProductsPage() {
                     <td className="py-4 px-4">
                       <button
                         onClick={() => toggleProductStatus(product.id)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition ${
-                          product.active
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition ${product.active
                             ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                             : 'bg-dark-600 text-dark-400 hover:bg-dark-500'
-                        }`}
+                          }`}
                       >
                         {product.active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                         {product.active ? 'Active' : 'Hidden'}

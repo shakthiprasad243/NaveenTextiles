@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, DbUser } from '@/lib/supabase';
-import { Search, User, Shield, ShieldOff, Eye, Mail, Phone, MapPin, Calendar, Package, X, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { Search, User, Shield, ShieldOff, Eye, Mail, Phone, Calendar, Package, X, Loader2 } from 'lucide-react';
 
 interface UserData {
   id: string;
@@ -30,20 +30,20 @@ export default function AdminUsersPage() {
   async function fetchUsers() {
     try {
       setLoading(true);
-      
+
       // Fetch users
       const { data: usersData, error: usersError } = await supabase
         .from('users')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (usersError) throw usersError;
 
       // Fetch admin users
       const { data: adminData } = await supabase
         .from('admin_users')
         .select('user_id');
-      
+
       const adminUserIds = new Set((adminData || []).map(a => a.user_id));
 
       // Fetch order stats for each user
@@ -84,11 +84,11 @@ export default function AdminUsersPage() {
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.phone.includes(searchQuery);
-    const matchesFilter = filterType === 'all' || 
-                         (filterType === 'admin' && user.isAdmin) ||
-                         (filterType === 'blocked' && user.isBlocked);
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.phone.includes(searchQuery);
+    const matchesFilter = filterType === 'all' ||
+      (filterType === 'admin' && user.isAdmin) ||
+      (filterType === 'blocked' && user.isBlocked);
     return matchesSearch && matchesFilter;
   });
 
@@ -181,11 +181,10 @@ export default function AdminUsersPage() {
               <button
                 key={type}
                 onClick={() => setFilterType(type)}
-                className={`px-4 py-2.5 rounded-lg text-sm capitalize transition ${
-                  filterType === type
+                className={`px-4 py-2.5 rounded-lg text-sm capitalize transition ${filterType === type
                     ? 'bg-primary/20 text-primary'
                     : 'glass-card text-dark-400 hover:text-dark-200'
-                }`}
+                  }`}
               >
                 {type}
               </button>
@@ -231,16 +230,14 @@ export default function AdminUsersPage() {
                     <p className="text-primary text-xs">₹{user.totalSpent.toLocaleString()}</p>
                   </td>
                   <td className="py-4 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      user.isAdmin ? 'bg-blue-500/20 text-blue-400' : 'bg-dark-600 text-dark-300'
-                    }`}>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${user.isAdmin ? 'bg-blue-500/20 text-blue-400' : 'bg-dark-600 text-dark-300'
+                      }`}>
                       {user.isAdmin ? 'Admin' : 'Customer'}
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      user.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
-                    }`}>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${user.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
+                      }`}>
                       {user.isBlocked ? 'Blocked' : 'Active'}
                     </span>
                   </td>
@@ -255,11 +252,10 @@ export default function AdminUsersPage() {
                       </button>
                       <button
                         onClick={() => toggleBlock(user.id)}
-                        className={`p-2 rounded-lg transition ${
-                          user.isBlocked
+                        className={`p-2 rounded-lg transition ${user.isBlocked
                             ? 'text-green-400 hover:bg-green-500/10'
                             : 'text-red-400 hover:bg-red-500/10'
-                        }`}
+                          }`}
                         title={user.isBlocked ? 'Unblock' : 'Block'}
                       >
                         {user.isBlocked ? <Shield className="w-4 h-4" /> : <ShieldOff className="w-4 h-4" />}
@@ -302,14 +298,12 @@ export default function AdminUsersPage() {
                 <div>
                   <h4 className="text-dark-200 font-medium text-lg">{selectedUser.name}</h4>
                   <div className="flex gap-2 mt-1">
-                    <span className={`px-2 py-0.5 rounded text-xs ${
-                      selectedUser.isAdmin ? 'bg-blue-500/20 text-blue-400' : 'bg-dark-600 text-dark-300'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded text-xs ${selectedUser.isAdmin ? 'bg-blue-500/20 text-blue-400' : 'bg-dark-600 text-dark-300'
+                      }`}>
                       {selectedUser.isAdmin ? 'Admin' : 'Customer'}
                     </span>
-                    <span className={`px-2 py-0.5 rounded text-xs ${
-                      selectedUser.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded text-xs ${selectedUser.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
+                      }`}>
                       {selectedUser.isBlocked ? 'Blocked' : 'Active'}
                     </span>
                   </div>
@@ -350,22 +344,20 @@ export default function AdminUsersPage() {
               <div className="space-y-3">
                 <button
                   onClick={() => toggleAdmin(selectedUser.id)}
-                  className={`w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${
-                    selectedUser.isAdmin
+                  className={`w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${selectedUser.isAdmin
                       ? 'bg-dark-600 text-dark-300 hover:bg-dark-500'
                       : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
-                  }`}
+                    }`}
                 >
                   <Shield className="w-4 h-4" />
                   {selectedUser.isAdmin ? 'Remove Admin Access' : 'Make Admin'}
                 </button>
                 <button
                   onClick={() => toggleBlock(selectedUser.id)}
-                  className={`w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${
-                    selectedUser.isBlocked
+                  className={`w-full py-3 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${selectedUser.isBlocked
                       ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                       : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                  }`}
+                    }`}
                 >
                   {selectedUser.isBlocked ? <Shield className="w-4 h-4" /> : <ShieldOff className="w-4 h-4" />}
                   {selectedUser.isBlocked ? 'Unblock User' : 'Block User'}

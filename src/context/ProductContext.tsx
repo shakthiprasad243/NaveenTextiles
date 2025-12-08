@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { Product, ProductVariation } from '@/lib/types';
+import { Product } from '@/lib/types';
 import { products as initialProducts, mainCategories, subCategories } from '@/lib/data';
 
 interface ProductContextType {

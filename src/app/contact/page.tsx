@@ -21,7 +21,7 @@ export default function ContactPage() {
       <div className="text-center mb-12">
         <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-medium">Get in Touch</p>
         <h1 className="text-4xl font-serif text-white mt-2">Contact Us</h1>
-        <p className="text-dark-400 mt-3 max-w-xl mx-auto">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+        <p className="text-gray-600 mb-8">Have questions? We&apos;re here to help. Send us a message and we&apos;ll respond as soon as possible.</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-10">
@@ -64,8 +64,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-dark-200 font-medium">Business Hours</p>
-                  <p className="text-dark-400 text-sm mt-1">Monday - Saturday: 10:00 AM - 8:00 PM</p>
-                  <p className="text-dark-400 text-sm">Sunday: Closed</p>
+                  <p className="text-gray-600">Monday - Saturday: 9:00 AM - 8:00 PM<br />Sunday: Closed</p>
                 </div>
               </div>
             </div>
@@ -89,28 +88,28 @@ export default function ContactPage() {
                 <Send className="w-8 h-8 text-green-500" />
               </div>
               <h4 className="text-dark-200 font-medium text-lg">Message Sent!</h4>
-              <p className="text-dark-400 text-sm mt-2">We'll get back to you soon.</p>
+              <p className="text-dark-400 text-sm mt-2">We&apos;ll get back to you soon.</p>
               <button onClick={() => setSubmitted(false)} className="mt-6 text-primary hover:text-primary-light text-sm">Send another message</button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="text-dark-300 text-sm mb-2 block">Your Name</label>
-                <input type="text" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500" placeholder="Enter your name" />
+                <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500" placeholder="Enter your name" />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-dark-300 text-sm mb-2 block">Email</label>
-                  <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500" placeholder="your@email.com" />
+                  <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500" placeholder="your@email.com" />
                 </div>
                 <div>
                   <label className="text-dark-300 text-sm mb-2 block">Phone</label>
-                  <input type="tel" required value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500" placeholder="+91 98765 43210" />
+                  <input type="tel" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500" placeholder="+91 98765 43210" />
                 </div>
               </div>
               <div>
                 <label className="text-dark-300 text-sm mb-2 block">Message</label>
-                <textarea required rows={4} value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500 resize-none" placeholder="How can we help you?" />
+                <textarea required rows={4} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500 resize-none" placeholder="How can we help you?" />
               </div>
               <button type="submit" className="w-full btn-glossy py-3 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2">
                 <Send className="w-4 h-4" /> Send via WhatsApp

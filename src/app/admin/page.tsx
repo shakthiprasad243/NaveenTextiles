@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, DbProduct, DbProductVariant, DbOrder } from '@/lib/supabase';
+import { supabase, DbProductVariant } from '@/lib/supabase';
 import { Package, ShoppingCart, AlertTriangle, TrendingUp, ArrowUpRight, Clock, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface Product {
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
       </div>
     );
   }
-  
+
   const pendingOrders = orders.filter(o => o.status === 'PENDING').length;
   const lowStockItems = products.filter(p => p.variations.some(v => v.stock < 5)).length;
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-serif text-white">Dashboard</h1>
-        <p className="text-dark-400 text-sm">Welcome back! Here's what's happening today.</p>
+        <p className="text-dark-400 text-sm">Welcome back! Here&apos;s what&apos;s happening today.</p>
       </div>
 
       {/* Stats Grid */}
@@ -136,12 +137,11 @@ export default function AdminDashboard() {
                 </div>
                 <div className="text-right">
                   <p className="text-primary font-medium text-sm">₹{(order.total || 0).toLocaleString()}</p>
-                  <span className={`text-xs px-2 py-0.5 rounded capitalize ${
-                    order.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' :
-                    order.status === 'SHIPPED' ? 'bg-blue-500/20 text-blue-400' :
-                    order.status === 'DELIVERED' ? 'bg-green-500/20 text-green-400' :
-                    'bg-dark-600 text-dark-300'
-                  }`}>
+                  <span className={`text-xs px-2 py-0.5 rounded capitalize ${order.status === 'PENDING' ? 'bg-yellow-500/20 text-yellow-400' :
+                      order.status === 'SHIPPED' ? 'bg-blue-500/20 text-blue-400' :
+                        order.status === 'DELIVERED' ? 'bg-green-500/20 text-green-400' :
+                          'bg-dark-600 text-dark-300'
+                    }`}>
                     {order.status.toLowerCase()}
                   </span>
                 </div>
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-dark-700 overflow-hidden">
                       {product.images[0] ? (
-                        <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                        <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Package className="w-5 h-5 text-dark-500" />

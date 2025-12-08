@@ -9,9 +9,9 @@ import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
-  const [form, setForm] = useState({ 
-    name: '', 
-    phone: '', 
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
     email: '',
     line1: '',
     line2: '',
@@ -88,11 +88,11 @@ export default function CheckoutPage() {
     } catch (err: any) {
       console.error('Checkout error:', err);
       setError(err.message || 'Something went wrong. Please try again.');
-      
+
       // Fallback: Generate order locally and open WhatsApp
       const fallbackOrderId = generateOrderNumber();
       setOrderId(fallbackOrderId);
-      
+
       const message = generateWhatsAppMessage(
         fallbackOrderId,
         form.name,
@@ -101,10 +101,10 @@ export default function CheckoutPage() {
         items.map(i => ({ product_name: i.name, size: i.size, color: i.color, qty: i.quantity, unit_price: i.price })),
         total
       );
-      
+
       const whatsappUrl = getWhatsAppOrderUrl('9876543210', message);
       window.open(whatsappUrl, '_blank');
-      
+
       clearCart();
       setSubmitted(true);
     } finally {
@@ -122,7 +122,7 @@ export default function CheckoutPage() {
         <p className="text-dark-300 mb-2">
           Order ID: <span className="font-mono text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400">{orderId}</span>
         </p>
-        <p className="text-dark-400 mb-8">Complete your order on WhatsApp. We'll confirm shortly.</p>
+        <p className="text-dark-400 mb-8">Complete your order on WhatsApp. We&apos;ll confirm shortly.</p>
         <Link href="/products" className="btn-glossy inline-block text-dark-900 px-8 py-3 rounded-lg font-medium">
           Continue Shopping
         </Link>
@@ -256,8 +256,8 @@ export default function CheckoutPage() {
               <p className="text-red-400 text-sm text-center">{error}</p>
             )}
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-green-500 hover:to-green-400 transition-all shadow-lg shadow-green-500/20 disabled:opacity-50"
             >
@@ -288,7 +288,7 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
-            
+
             <div className="mt-4 pt-4 border-t border-dark-700/50 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-dark-400">Subtotal</span>

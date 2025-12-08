@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     // Verify cron secret (optional security)
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
-    
+
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Cancel orders that have expired reservations
-    const { data: expiredOrders, error: ordersError } = await supabase
+    const { data: expiredOrders } = await supabase
       .from('orders')
       .select('id, order_number')
       .eq('status', 'PENDING')
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           .from('orders')
           .update({ status: 'CANCELLED' })
           .eq('id', order.id);
-        
+
         cancelledOrders++;
         console.log(`[CRON] Cancelled expired order: ${order.order_number}`);
       }

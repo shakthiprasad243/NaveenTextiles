@@ -36,7 +36,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  
+
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
@@ -51,12 +51,12 @@ export default function ProductPage() {
           .select(`*, product_variants (*)`)
           .eq('id', productId)
           .single();
-        
+
         if (fetchError || !data) {
           setError(true);
           return;
         }
-        
+
         const transformed = transformProduct(data);
         setProduct(transformed);
         setSelectedSize(transformed.variations[0]?.size || '');
@@ -68,7 +68,7 @@ export default function ProductPage() {
         setLoading(false);
       }
     }
-    
+
     fetchProduct();
   }, [productId]);
 
@@ -85,8 +85,8 @@ export default function ProductPage() {
     notFound();
   }
 
-  const sizes = [...new Set(product.variations.map(v => v.size))];
-  const colors = [...new Set(product.variations.filter(v => v.size === selectedSize).map(v => v.color))];
+  const sizes = Array.from(new Set(product.variations.map(v => v.size)));
+  const colors = Array.from(new Set(product.variations.filter(v => v.size === selectedSize).map(v => v.color)));
   const currentVariation = product.variations.find(v => v.size === selectedSize && v.color === selectedColor);
   const inStock = currentVariation && currentVariation.stock > 0;
 
@@ -131,8 +131,8 @@ export default function ProductPage() {
                 <button
                   key={size}
                   onClick={() => { setSelectedSize(size); setSelectedColor(product.variations.find(v => v.size === size)?.color || ''); }}
-                  className={`px-5 py-2 rounded-lg transition-all ${selectedSize === size 
-                    ? 'bg-gradient-to-r from-primary/20 to-gold-700/20 border border-primary/50 text-primary shadow-lg shadow-primary/10' 
+                  className={`px-5 py-2 rounded-lg transition-all ${selectedSize === size
+                    ? 'bg-gradient-to-r from-primary/20 to-gold-700/20 border border-primary/50 text-primary shadow-lg shadow-primary/10'
                     : 'glass-card text-dark-300 hover:text-white hover:border-white/20'}`}
                 >
                   {size}
@@ -150,8 +150,8 @@ export default function ProductPage() {
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`px-5 py-2 rounded-lg transition-all ${selectedColor === color 
-                      ? 'bg-gradient-to-r from-primary/20 to-gold-700/20 border border-primary/50 text-primary shadow-lg shadow-primary/10' 
+                    className={`px-5 py-2 rounded-lg transition-all ${selectedColor === color
+                      ? 'bg-gradient-to-r from-primary/20 to-gold-700/20 border border-primary/50 text-primary shadow-lg shadow-primary/10'
                       : 'glass-card text-dark-300 hover:text-white hover:border-white/20'}`}
                   >
                     {color}
@@ -184,13 +184,12 @@ export default function ProductPage() {
           <button
             onClick={handleAddToCart}
             disabled={!inStock}
-            className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-              added 
-                ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-500/30' 
-                : inStock 
-                  ? 'btn-glossy text-dark-900 hover:scale-[1.02]' 
+            className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${added
+                ? 'bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-500/30'
+                : inStock
+                  ? 'btn-glossy text-dark-900 hover:scale-[1.02]'
                   : 'bg-dark-600 text-dark-400 cursor-not-allowed'
-            }`}
+              }`}
           >
             {added ? <><Check className="w-5 h-5" /> Added to Cart!</> : <><ShoppingCart className="w-5 h-5" /> Add to Cart</>}
           </button>
