@@ -355,13 +355,13 @@ export default function AdminProductsPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-dark-200 font-medium truncate">{product.name}</p>
-                          <p className="text-dark-300 text-xs truncate md:hidden">{product.category}</p>
+                          <p className="text-primary/70 text-xs truncate md:hidden">{product.category}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-4 hidden md:table-cell">
-                      <span className="text-dark-200">{product.mainCategory}</span>
-                      <span className="text-dark-300 text-xs block">{product.category}</span>
+                      <span className="text-white">{product.mainCategory}</span>
+                      <span className="text-primary/70 text-xs block">{product.category}</span>
                     </td>
                     <td className="py-4 px-4">
                       <span className="text-primary font-medium">₹{product.price.toLocaleString()}</span>
