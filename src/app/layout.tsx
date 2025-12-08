@@ -55,6 +55,11 @@ export const metadata: Metadata = {
   verification: {
     // Add your verification codes here after setting up
     // google: 'your-google-verification-code',
+  },
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png'
   }
 };
 
@@ -62,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/logo.png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="theme-color" content="#D4AF37" />
       </head>
