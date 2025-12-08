@@ -132,7 +132,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="text-dark-200 text-sm font-medium">{order.order_number || order.id.slice(0, 8)}</p>
-                    <p className="text-dark-500 text-xs">{order.customer_name}</p>
+                    <p className="text-dark-300 text-xs">{order.customer_name}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <p className="text-dark-200 text-sm font-medium truncate max-w-[150px]">{product.name}</p>
-                      <p className="text-dark-500 text-xs">{product.category}</p>
+                      <p className="text-primary/70 text-xs">{product.category}</p>
                     </div>
                   </div>
                   <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded">

@@ -187,14 +187,14 @@ export default function AdminOrdersPage() {
                 <tr key={order.id} className="border-b border-dark-700/50 hover:bg-dark-700/30 transition">
                   <td className="py-4 px-4">
                     <p className="text-dark-200 font-mono font-medium">{order.order_number || order.id.slice(0, 8)}</p>
-                    <p className="text-dark-500 text-xs flex items-center gap-1 mt-1">
+                    <p className="text-dark-300 text-xs flex items-center gap-1 mt-1">
                       <Clock className="w-3 h-3" />
                       {new Date(order.created_at).toLocaleDateString()}
                     </p>
                   </td>
                   <td className="py-4 px-4">
-                    <p className="text-dark-200">{order.customer_name}</p>
-                    <p className="text-dark-500 text-xs">{order.customer_phone}</p>
+                    <p className="text-white">{order.customer_name}</p>
+                    <p className="text-dark-300 text-xs">{order.customer_phone}</p>
                   </td>
                   <td className="py-4 px-4 hidden md:table-cell">
                     <p className="text-dark-300">{order.order_items?.length || 0} item(s)</p>
@@ -298,8 +298,8 @@ export default function AdminOrdersPage() {
                           <Package className="w-5 h-5 text-dark-500" />
                         </div>
                         <div>
-                          <p className="text-dark-200 text-sm font-medium">{item.product_name}</p>
-                          <p className="text-dark-500 text-xs">Size: {item.size} • Color: {item.color} • Qty: {item.qty}</p>
+                          <p className="text-white text-sm font-medium">{item.product_name}</p>
+                          <p className="text-dark-300 text-xs">Size: {item.size} • Color: {item.color} • Qty: {item.qty}</p>
                         </div>
                       </div>
                       <p className="text-primary font-medium">₹{((item.unit_price || 0) * (item.qty || 1)).toLocaleString()}</p>

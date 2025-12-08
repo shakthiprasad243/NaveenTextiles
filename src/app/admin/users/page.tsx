@@ -216,14 +216,14 @@ export default function AdminUsersPage() {
                         {user.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-dark-200 font-medium">{user.name}</p>
-                        <p className="text-dark-500 text-xs md:hidden">{user.email}</p>
+                        <p className="text-white font-medium">{user.name}</p>
+                        <p className="text-dark-300 text-xs md:hidden">{user.email}</p>
                       </div>
                     </div>
                   </td>
                   <td className="py-4 px-4 hidden md:table-cell">
-                    <p className="text-dark-300 text-sm">{user.email}</p>
-                    <p className="text-dark-500 text-xs">{user.phone}</p>
+                    <p className="text-white text-sm">{user.email}</p>
+                    <p className="text-dark-300 text-xs">{user.phone}</p>
                   </td>
                   <td className="py-4 px-4 hidden sm:table-cell">
                     <p className="text-dark-200">{user.totalOrders} orders</p>
