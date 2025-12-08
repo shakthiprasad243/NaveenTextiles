@@ -91,7 +91,7 @@ export default function ProductPage() {
   const inStock = currentVariation && currentVariation.stock > 0;
 
   const handleAddToCart = () => {
-    if (!inStock) return;
+    if (!inStock || !currentVariation) return;
     addItem({
       productId: product.id,
       name: product.name,
@@ -99,7 +99,8 @@ export default function ProductPage() {
       size: selectedSize,
       color: selectedColor,
       price: product.price,
-      quantity
+      quantity,
+      maxStock: currentVariation.stock
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -110,7 +111,7 @@ export default function ProductPage() {
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image */}
         <div className="glossy-card relative aspect-square rounded-2xl overflow-hidden gold-glow">
-          <Image src={product.images[0]} alt={product.name} fill className="object-cover" priority />
+          <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority />
           <div className="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-white/5" />
         </div>
 

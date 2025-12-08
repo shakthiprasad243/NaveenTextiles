@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, getProductById } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
 
 // Get single product
 export async function GET(
@@ -7,8 +8,24 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const product = await getProductById(params.id);
-    return NextResponse.json({ product });
+    // Use admin client to get any product (including inactive)
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+    
+    const { data, error } = await client
+      .from('products')
+      .select(`*, product_variants (*)`)
+      .eq('id', params.id)
+      .single();
+      
+    if (error) throw error;
+    return NextResponse.json({ 
+      product: data,
+      // Include key fields at root level for easier access
+      id: data?.id,
+      name: data?.name,
+      slug: data?.slug,
+      base_price: data?.base_price
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Product not found' },
@@ -23,6 +40,9 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Use admin client if available, otherwise try with regular client
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+
     const body = await request.json();
     const { name, slug, description, base_price, main_category, category, active, variants } = body;
 
@@ -36,7 +56,7 @@ export async function PATCH(
     if (category !== undefined) updateData.category = category;
     if (active !== undefined) updateData.active = active;
 
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await client
       .from('products')
       .update(updateData)
       .eq('id', params.id)
@@ -50,7 +70,7 @@ export async function PATCH(
       for (const variant of variants) {
         if (variant.id) {
           // Update existing variant
-          await supabase
+          await client
             .from('product_variants')
             .update({
               size: variant.size,
@@ -62,7 +82,7 @@ export async function PATCH(
             .eq('id', variant.id);
         } else {
           // Create new variant
-          await supabase
+          await client
             .from('product_variants')
             .insert({
               product_id: params.id,
@@ -78,7 +98,7 @@ export async function PATCH(
     }
 
     // Fetch updated product with variants
-    const { data: updatedProduct } = await supabase
+    const { data: updatedProduct } = await client
       .from('products')
       .select('*, product_variants (*)')
       .eq('id', params.id)
@@ -86,7 +106,12 @@ export async function PATCH(
 
     return NextResponse.json({ 
       success: true, 
-      product: updatedProduct 
+      product: updatedProduct,
+      // Include key fields at root level for easier access
+      id: updatedProduct?.id,
+      name: updatedProduct?.name,
+      slug: updatedProduct?.slug,
+      base_price: updatedProduct?.base_price
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -102,8 +127,11 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Use admin client if available, otherwise try with regular client
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+
     // Variants will be deleted automatically due to CASCADE
-    const { error } = await supabase
+    const { error } = await client
       .from('products')
       .delete()
       .eq('id', params.id);

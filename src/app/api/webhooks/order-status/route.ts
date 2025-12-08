@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase, getWhatsAppOrderUrl } from '@/lib/supabase';
+import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
 
 // Webhook for order status changes - sends WhatsApp notifications
 export async function POST(request: NextRequest) {
@@ -14,8 +15,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate status
+    const validStatuses = ['PENDING', 'CONFIRMED', 'PACKED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+    if (!validStatuses.includes(new_status)) {
+      return NextResponse.json(
+        { error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Use admin client if available for better access
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+
     // Get order details
-    const { data: order, error } = await supabase
+    const { data: order, error } = await client
       .from('orders')
       .select('*, order_items (*)')
       .eq('id', order_id)

@@ -2,12 +2,23 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, AlertCircle } from 'lucide-react';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, total } = useCart();
+  const [stockError, setStockError] = useState<string | null>(null);
+
+  const handleIncrement = (productId: string, size: string, color: string, currentQty: number, maxStock?: number) => {
+    if (maxStock && currentQty >= maxStock) {
+      setStockError(`Maximum ${maxStock} items available for this variant`);
+      setTimeout(() => setStockError(null), 3000);
+      return;
+    }
+    updateQuantity(productId, size, color, currentQty + 1);
+  };
 
   if (items.length === 0) {
     return (
@@ -32,7 +43,7 @@ export default function CartPage() {
         {items.map(item => (
           <div key={`${item.productId}-${item.size}-${item.color}`} className="glossy-card flex gap-4 p-4 rounded-xl shine-effect">
             <div className="relative w-24 h-24 flex-shrink-0 bg-dark-500 rounded-lg overflow-hidden">
-              <Image src={item.image} alt={item.name} fill className="object-cover" />
+              <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark-900/50 to-transparent" />
             </div>
             <div className="flex-1 min-w-0">
@@ -49,7 +60,11 @@ export default function CartPage() {
                   <Minus className="w-3 h-3 text-dark-300" />
                 </button>
                 <span className="w-8 text-center text-sm text-dark-200 font-medium">{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.productId, item.size, item.color, item.quantity + 1)} className="p-1.5 glass-card rounded hover:bg-white/10 transition">
+                <button 
+                  onClick={() => handleIncrement(item.productId, item.size, item.color, item.quantity, item.maxStock)} 
+                  className={`p-1.5 glass-card rounded hover:bg-white/10 transition ${item.maxStock && item.quantity >= item.maxStock ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={item.maxStock ? item.quantity >= item.maxStock : false}
+                >
                   <Plus className="w-3 h-3 text-dark-300" />
                 </button>
               </div>
@@ -57,6 +72,14 @@ export default function CartPage() {
           </div>
         ))}
       </div>
+
+      {/* Stock Error Message */}
+      {stockError && (
+        <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400 text-sm">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          {stockError}
+        </div>
+      )}
 
       {/* Summary */}
       <div className="glass-card p-6 rounded-xl mb-6 gold-glow">

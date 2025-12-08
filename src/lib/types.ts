@@ -25,6 +25,7 @@ export interface CartItem {
   color: string;
   price: number;
   quantity: number;
+  maxStock?: number;
 }
 
 export type OrderStatus = 'pending' | 'confirmed' | 'packed' | 'shipped' | 'delivered' | 'cancelled';

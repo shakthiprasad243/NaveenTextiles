@@ -1,0 +1,202 @@
+{
+  "meta": {
+    "project": "Naveen Textiles e-Commerce Platform",
+    "date": "2025-12-05",
+    "prepared_by": "Development Team"
+  },
+  "product_overview": "Naveen Textiles is a premium textile e-commerce platform tailored for Indian consumers, featuring a mobile-first design, WhatsApp-integrated checkout, and comprehensive admin and user management.",
+  "core_goals": [
+    "Provide a seamless and intuitive online shopping experience for textile products.",
+    "Enable easy product discovery through advanced filtering and search capabilities.",
+    "Integrate WhatsApp for order communication and checkout completion.",
+    "Support robust user authentication and profile management.",
+    "Offer an efficient admin dashboard for product, order, and user management.",
+    "Ensure responsive design optimized across devices.",
+    "Maintain high performance and security standards."
+  ],
+  "key_features": [
+    "Homepage with hero carousel, featured products, and category navigation.",
+    "Product listing with filtering by main and sub categories, price, color, size, and sort options.",
+    "Detailed product pages with image galleries, variant selection, and add to cart functionality.",
+    "Shopping cart management including item quantity updates, removals, and order summary with shipping calculation.",
+    "Checkout flow capturing customer and shipping details, generating order numbers, integrating WhatsApp for order finalization.",
+    "User authentication with registration, login, session management, and profile/order history management.",
+    "Admin panel with dashboards, product CRUD, order status updates, and user management.",
+    "Static informational pages such as FAQs, contact, shipping, returns, terms, and privacy.",
+    "Responsive, mobile-first UI using Tailwind CSS with brand color theming.",
+    "Integration with Supabase for backend database and data management.",
+    "Hosting and deployment via Vercel with environment-based configuration."
+  ],
+  "user_flow_summary": [
+    "User visits homepage and browses featured products or navigates via category menus.",
+    "User applies filters to product listings and selects a product to view details.",
+    "User selects size, color, and quantity variants, then adds product to the cart.",
+    "User reviews cart contents, updates quantities or removes items as needed.",
+    "User proceeds to checkout, filling in required customer and shipping information.",
+    "User places order, triggering order creation, inventory reservation, and automated WhatsApp message generation for order confirmation.",
+    "Registered users can log in or register, access their profile, manage addresses, and view order history.",
+    "Admin users log into the admin dashboard to monitor metrics, manage products, orders, and users."
+  ],
+  "validation_criteria": [
+    "Product listings display correct items filtered by user-selected criteria without page reload.",
+    "Product detail pages show accurate variant availability and pricing.",
+    "Cart operations (add/update/remove) behave correctly and validate stock and quantity limits.",
+    "Checkout process collects all required data, generates unique order numbers, and sends correct WhatsApp messages.",
+    "User authentication securely manages sessions and persists user state.",
+    "Admin panel reflects real-time data for products, orders, and users, allowing CRUD operations.",
+    "Responsive UI renders correctly across mobile, tablet, and desktop devices.",
+    "APIs respond with expected status codes and data formats as per specifications.",
+    "Security measures prevent common vulnerabilities like CSRF, XSS, and ensure safe data handling.",
+    "Performance metrics meet targets for loading times and interactivity."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js 14",
+      "React 18",
+      "Tailwind CSS",
+      "Supabase",
+      "PostgreSQL"
+    ],
+    "features": [
+      {
+        "name": "Home Page",
+        "description": "Landing page with hero carousel, featured products, and category navigation",
+        "files": [
+          "src/app/page.tsx",
+          "src/components/HeroCarousel.tsx"
+        ]
+      },
+      {
+        "name": "Product Listing",
+        "description": "Browse all products with filtering by category, main category, and search functionality",
+        "files": [
+          "src/app/products/page.tsx",
+          "src/components/ProductFilters.tsx",
+          "src/components/ProductCard.tsx"
+        ]
+      },
+      {
+        "name": "Product Detail",
+        "description": "View single product details with variants (size, color), images, and add to cart functionality",
+        "files": [
+          "src/app/products/[id]/page.tsx"
+        ]
+      },
+      {
+        "name": "Shopping Cart",
+        "description": "View cart items, update quantities, remove items, and see order summary with shipping calculation",
+        "files": [
+          "src/app/cart/page.tsx",
+          "src/context/CartContext.tsx"
+        ]
+      },
+      {
+        "name": "Checkout",
+        "description": "Enter customer details, shipping address, select payment method, and place order with WhatsApp integration",
+        "files": [
+          "src/app/checkout/page.tsx"
+        ]
+      },
+      {
+        "name": "User Authentication",
+        "description": "Login and registration with phone number, session management",
+        "files": [
+          "src/app/login/page.tsx",
+          "src/context/AuthContext.tsx"
+        ]
+      },
+      {
+        "name": "User Account",
+        "description": "View and manage user profile, saved addresses, and order history",
+        "files": [
+          "src/app/account/page.tsx",
+          "src/app/account/addresses/page.tsx",
+          "src/app/account/orders/page.tsx"
+        ]
+      },
+      {
+        "name": "Admin Dashboard",
+        "description": "Admin panel with overview statistics, recent orders, and quick actions",
+        "files": [
+          "src/app/admin/page.tsx",
+          "src/app/admin/layout.tsx"
+        ]
+      },
+      {
+        "name": "Admin Products Management",
+        "description": "CRUD operations for products - list, create, edit, delete products and variants",
+        "files": [
+          "src/app/admin/products/page.tsx"
+        ]
+      },
+      {
+        "name": "Admin Orders Management",
+        "description": "View and manage orders, update order status, view order details",
+        "files": [
+          "src/app/admin/orders/page.tsx"
+        ]
+      },
+      {
+        "name": "Admin Users Management",
+        "description": "View and manage users, view user details and order history",
+        "files": [
+          "src/app/admin/users/page.tsx"
+        ]
+      },
+      {
+        "name": "Header Navigation",
+        "description": "Site header with logo, navigation menu, search, cart icon with count, and user menu",
+        "files": [
+          "src/components/Header.tsx"
+        ]
+      },
+      {
+        "name": "Footer",
+        "description": "Site footer with links to policies, contact info, and social media",
+        "files": [
+          "src/components/Footer.tsx"
+        ]
+      },
+      {
+        "name": "Contact Page",
+        "description": "Contact form and business contact information",
+        "files": [
+          "src/app/contact/page.tsx"
+        ]
+      },
+      {
+        "name": "FAQ Page",
+        "description": "Frequently asked questions with expandable answers",
+        "files": [
+          "src/app/faqs/page.tsx"
+        ]
+      },
+      {
+        "name": "Policy Pages",
+        "description": "Static pages for shipping policy, returns policy, terms of service, and privacy policy",
+        "files": [
+          "src/app/shipping/page.tsx",
+          "src/app/returns/page.tsx",
+          "src/app/terms/page.tsx",
+          "src/app/privacy/page.tsx"
+        ]
+      },
+      {
+        "name": "Product Context",
+        "description": "Global state management for products data fetching and caching",
+        "files": [
+          "src/context/ProductContext.tsx"
+        ]
+      },
+      {
+        "name": "Supabase Integration",
+        "description": "Database client and helper functions for products, orders, users",
+        "files": [
+          "src/lib/supabase.ts",
+          "src/lib/supabase-admin.ts"
+        ]
+      }
+    ]
+  }
+}

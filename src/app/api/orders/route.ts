@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOrder, getOrdersByPhone, getOrderByNumber } from '@/lib/supabase';
+import { supabase, generateOrderNumber, generateWhatsAppMessage } from '@/lib/supabase';
+import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
 
 // Create new order
 export async function POST(request: NextRequest) {
@@ -15,19 +16,107 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const order = await createOrder({
-      customer_name,
-      customer_phone,
-      customer_email,
-      shipping_address,
-      items,
-      payment_method
-    });
+    // Use admin client if available, otherwise fall back to regular client
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+
+    // Normalize items to handle different formats
+    const normalizedItems = await Promise.all(items.map(async (item: any) => {
+      // If item has product_id but not product_variant_id, try to get the first variant
+      if (item.product_id && !item.product_variant_id) {
+        const { data: variants } = await client
+          .from('product_variants')
+          .select('id, price')
+          .eq('product_id', item.product_id)
+          .limit(1);
+        
+        if (variants && variants.length > 0) {
+          return {
+            ...item,
+            product_variant_id: variants[0].id,
+            unit_price: item.unit_price || variants[0].price || 0,
+            qty: item.qty || item.quantity || 1
+          };
+        }
+      }
+      
+      // Normalize qty/quantity
+      return {
+        ...item,
+        qty: item.qty || item.quantity || 1,
+        unit_price: item.unit_price || 0
+      };
+    }));
+
+    const orderNumber = generateOrderNumber();
+    const subtotal = normalizedItems.reduce((sum: number, item: any) => sum + ((item.unit_price || 0) * (item.qty || 1)), 0);
+    const shipping = subtotal >= 1000 ? 0 : 50;
+    const total = subtotal + shipping;
+
+    // Create order
+    const { data: order, error: orderError } = await client
+      .from('orders')
+      .insert({
+        order_number: orderNumber,
+        customer_name,
+        customer_phone,
+        customer_email,
+        shipping_address: typeof shipping_address === 'string' ? { line1: shipping_address } : shipping_address,
+        subtotal,
+        shipping,
+        total,
+        payment_method: payment_method || 'COD',
+        status: 'PENDING',
+        whatsapp_message: generateWhatsAppMessage(orderNumber, customer_name, customer_phone, shipping_address, normalizedItems, total),
+        reserved_until: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+      })
+      .select()
+      .single();
+
+    if (orderError) throw orderError;
+
+    // Create order items
+    const orderItems = normalizedItems.map((item: any) => ({
+      order_id: order.id,
+      product_variant_id: item.product_variant_id,
+      product_name: item.product_name || 'Product',
+      size: item.size || '',
+      color: item.color || '',
+      qty: item.qty || 1,
+      unit_price: item.unit_price || 0,
+      line_total: (item.unit_price || 0) * (item.qty || 1)
+    }));
+
+    const { error: itemsError } = await client.from('order_items').insert(orderItems);
+    if (itemsError) throw itemsError;
+
+    // Reserve inventory
+    for (const item of normalizedItems) {
+      if (!item.product_variant_id) continue;
+      
+      const { data: variant } = await client
+        .from('product_variants')
+        .select('stock_qty, reserved_qty')
+        .eq('id', item.product_variant_id)
+        .single();
+      
+      if (variant) {
+        await client
+          .from('product_variants')
+          .update({ 
+            stock_qty: Math.max(0, variant.stock_qty - (item.qty || 1)),
+            reserved_qty: variant.reserved_qty + (item.qty || 1)
+          })
+          .eq('id', item.product_variant_id);
+      }
+    }
 
     const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
     return NextResponse.json({ 
       success: true, 
       order,
+      // Also include these at root level for easier access
+      order_number: order.order_number,
+      order_id: order.id,
       whatsapp_url: `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(order.whatsapp_message || '')}`
     });
   } catch (error: any) {
@@ -46,14 +135,27 @@ export async function GET(request: NextRequest) {
     const phone = searchParams.get('phone');
     const orderNumber = searchParams.get('order_number');
 
+    // Use admin client if available for better access
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+
     if (orderNumber) {
-      const order = await getOrderByNumber(orderNumber);
-      return NextResponse.json({ order });
+      const { data, error } = await client
+        .from('orders')
+        .select(`*, order_items (*)`)
+        .eq('order_number', orderNumber)
+        .single();
+      if (error) throw error;
+      return NextResponse.json({ order: data });
     }
 
     if (phone) {
-      const orders = await getOrdersByPhone(phone);
-      return NextResponse.json({ orders });
+      const { data, error } = await client
+        .from('orders')
+        .select(`*, order_items (*)`)
+        .eq('customer_phone', phone)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return NextResponse.json({ orders: data });
     }
 
     return NextResponse.json(

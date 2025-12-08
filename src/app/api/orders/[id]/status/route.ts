@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateOrderStatus, supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
 
 // Update order status (for admin)
 export async function PATCH(
@@ -18,11 +19,22 @@ export async function PATCH(
       );
     }
 
-    const order = await updateOrderStatus(orderId, status);
+    // Use admin client if available
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+
+    // Update order status
+    const { data: order, error: updateError } = await client
+      .from('orders')
+      .update({ status })
+      .eq('id', orderId)
+      .select()
+      .single();
+    
+    if (updateError) throw updateError;
 
     // If order is confirmed, release the reservation timer
     if (status === 'CONFIRMED') {
-      await supabase
+      await client
         .from('orders')
         .update({ reserved_until: null })
         .eq('id', orderId);
@@ -31,7 +43,7 @@ export async function PATCH(
     // If order is cancelled, release inventory
     if (status === 'CANCELLED') {
       // Get order items
-      const { data: items } = await supabase
+      const { data: items } = await client
         .from('order_items')
         .select('product_variant_id, qty')
         .eq('order_id', orderId);
@@ -39,14 +51,14 @@ export async function PATCH(
       // Return stock using direct update (no RPC)
       if (items) {
         for (const item of items) {
-          const { data: variant } = await supabase
+          const { data: variant } = await client
             .from('product_variants')
             .select('stock_qty, reserved_qty')
             .eq('id', item.product_variant_id)
             .single();
           
           if (variant) {
-            await supabase
+            await client
               .from('product_variants')
               .update({ 
                 stock_qty: variant.stock_qty + item.qty,
@@ -58,7 +70,7 @@ export async function PATCH(
       }
 
       // Delete reservations
-      await supabase
+      await client
         .from('inventory_reservations')
         .delete()
         .eq('order_id', orderId);

@@ -171,7 +171,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-dark-700 overflow-hidden">
                       {product.images[0] ? (
-                        <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                        <Image src={product.images[0]} alt={product.name} fill sizes="40px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Package className="w-5 h-5 text-dark-500" />

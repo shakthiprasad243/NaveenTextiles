@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "get all products with filtering",
+    "description": "Verify that the GET /api/products endpoint returns a list of products filtered correctly by main_category, category, and active status parameters."
+  },
+  {
+    "id": "TC002",
+    "title": "create new product with variants",
+    "description": "Verify that the POST /api/products endpoint allows an admin to create a new product with required fields and optional variants, and returns appropriate error for missing required fields."
+  },
+  {
+    "id": "TC003",
+    "title": "get product by id",
+    "description": "Verify that the GET /api/products/{id} endpoint returns the correct product details for a valid product ID and returns 404 for a non-existent product ID."
+  },
+  {
+    "id": "TC004",
+    "title": "update product details and variants",
+    "description": "Verify that the PATCH /api/products/{id} endpoint allows an admin to update product details and variants, and returns appropriate error on server failure."
+  },
+  {
+    "id": "TC005",
+    "title": "delete product and variants",
+    "description": "Verify that the DELETE /api/products/{id} endpoint allows an admin to delete a product and its variants, and handles server errors gracefully."
+  },
+  {
+    "id": "TC006",
+    "title": "create new order with customer details",
+    "description": "Verify that the POST /api/orders endpoint creates a new order with required customer details and items, generates a valid WhatsApp checkout URL, and returns errors for missing required fields."
+  },
+  {
+    "id": "TC007",
+    "title": "get orders by phone or order number",
+    "description": "Verify that the GET /api/orders endpoint returns orders filtered by phone number or order number, and returns error if neither parameter is provided."
+  },
+  {
+    "id": "TC008",
+    "title": "update order status with inventory handling",
+    "description": "Verify that the PATCH /api/orders/{id}/status endpoint allows an admin to update order status, handles inventory release on cancellation, and returns errors for invalid status or server issues."
+  },
+  {
+    "id": "TC009",
+    "title": "cleanup expired reservations cron job",
+    "description": "Verify that the POST /api/cron/cleanup-reservations endpoint triggers the cleanup of expired inventory reservations and cancels expired orders, enforcing authorization and handling errors."
+  },
+  {
+    "id": "TC010",
+    "title": "order status change webhook processing",
+    "description": "Verify that the POST /api/webhooks/order-status endpoint processes order status change notifications, triggers WhatsApp messages, and returns appropriate errors for missing data or non-existent orders."
+  }
+]

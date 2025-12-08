@@ -1,0 +1,662 @@
+[
+  {
+    "id": "TC001",
+    "title": "Homepage Load and Display",
+    "description": "Verify that the homepage loads successfully with hero carousel, featured products, and category navigation displayed correctly on desktop and mobile devices.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the homepage on desktop viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify hero carousel is visible and functional"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify featured products section is displayed with correct items"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify category navigation menu is present and usable"
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to mobile size"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify homepage reflows responsively and all key components remain accessible and usable"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Product Listing Filtering and Sorting",
+    "description": "Verify filters (main category, subcategory, price, color, size) and sorting options correctly filter and reorder product listings without page reload.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to product listing page"
+      },
+      {
+        "type": "action",
+        "description": "Apply filter by main category"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product items displayed belong only to selected main category"
+      },
+      {
+        "type": "action",
+        "description": "Apply filter by subcategory"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product items displayed belong to both main and selected subcategory"
+      },
+      {
+        "type": "action",
+        "description": "Apply filter by price range"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all displayed products fall within selected price range"
+      },
+      {
+        "type": "action",
+        "description": "Apply color and size filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify products match selected color and size filters"
+      },
+      {
+        "type": "action",
+        "description": "Sort products by price ascending"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product listings are sorted by price low to high"
+      },
+      {
+        "type": "action",
+        "description": "Sort products by popularity or newest"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product listings reorder accordingly"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Product Detail Display and Variant Selection",
+    "description": "Ensure product detail page correctly displays image gallery, variant options (size, color), pricing updates, and add-to-cart functionality with stock validation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to a product detail page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify main product image and thumbnail gallery are visible and operational"
+      },
+      {
+        "type": "assertion",
+        "description": "Check variant options for size and color are displayed and selectable"
+      },
+      {
+        "type": "action",
+        "description": "Select each variant combination and observe price and availability update"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify price changes accordingly and correct stock availability is shown"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to add available variant to cart with quantity exceeding stock"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appropriate validation message prevents adding invalid quantity"
+      },
+      {
+        "type": "action",
+        "description": "Add valid quantity of selected variant to cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify item is added to cart and cart count updates"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Shopping Cart Management",
+    "description": "Validate cart page operations including item quantity updates, removals, and order summary with dynamic shipping cost calculation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Add multiple items with different variants to the cart"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the cart page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all added items, variants, quantities, and prices are displayed correctly"
+      },
+      {
+        "type": "action",
+        "description": "Update quantity of one item within stock limits"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify quantity updates and order summary recalculates totals correctly"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to update quantity exceeding available stock"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error message is shown and operation is prevented"
+      },
+      {
+        "type": "action",
+        "description": "Remove one item from the cart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify item is removed and order summary updates accordingly"
+      },
+      {
+        "type": "action",
+        "description": "Verify shipping cost is calculated dynamically based on order details"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Checkout Process with WhatsApp Integration",
+    "description": "Verify full checkout process captures customer and shipping details, generates unique order number, reserves inventory, and triggers correct WhatsApp order confirmation message.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to checkout page with items in cart"
+      },
+      {
+        "type": "action",
+        "description": "Fill in all required customer information fields (name, phone, email)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in shipping address details completely and correctly"
+      },
+      {
+        "type": "action",
+        "description": "Select payment method if applicable"
+      },
+      {
+        "type": "action",
+        "description": "Place the order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a unique order number is generated and displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system reserves inventory for ordered items"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify automated WhatsApp message with order details is generated and sent to customer"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "User Registration and Login Authentication",
+    "description": "Ensure new users can register with phone number, and existing users can login securely with session persistence and error handling for invalid credentials.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to registration page"
+      },
+      {
+        "type": "action",
+        "description": "Fill in registration form with valid data including phone number"
+      },
+      {
+        "type": "action",
+        "description": "Submit registration"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account is created and user is logged in automatically or redirected appropriately"
+      },
+      {
+        "type": "action",
+        "description": "Logout and navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Attempt login with correct credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is successful and session is persisted on page reload"
+      },
+      {
+        "type": "action",
+        "description": "Logout and attempt login with incorrect credentials"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify proper error message is shown and access is denied"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "User Profile and Order History Management",
+    "description": "Verify logged-in users can access and update profile info, manage saved addresses, and view complete past order history accurately.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as registered user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to user profile page"
+      },
+      {
+        "type": "action",
+        "description": "Update personal information and save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updates persist and reflect correctly"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to manage addresses page"
+      },
+      {
+        "type": "action",
+        "description": "Add a new shipping address"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new address is saved and appears in address list"
+      },
+      {
+        "type": "action",
+        "description": "Edit and delete existing addresses"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify address updates and removals are reflected accurately"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to order history page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify list shows all past orders with correct statuses and details"
+      },
+      {
+        "type": "action",
+        "description": "Select an order to view detailed order information"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order details page displays correct items, quantities, prices, and status"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Admin Dashboard Overview and Metrics",
+    "description": "Confirm admin dashboard loads statistics, latest orders, and quick action links correctly and updates in real-time where applicable.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to admin dashboard page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify overview metrics (total sales, orders, customers) are displayed correctly"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recent orders list loads with appropriate information and links"
+      },
+      {
+        "type": "action",
+        "description": "Trigger refresh or simulate new order addition"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard updates to reflect new data in real-time or on manual refresh"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Admin Product Management CRUD Operations",
+    "description": "Test create, read, update, and delete functionality for products and their variants within the admin panel.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to admin products management page"
+      },
+      {
+        "type": "action",
+        "description": "Create a new product with complete details including variants"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify new product appears in product list with accurate details"
+      },
+      {
+        "type": "action",
+        "description": "Select a product to edit"
+      },
+      {
+        "type": "action",
+        "description": "Update product details such as name, price, variants"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updates are saved and reflected in product list and detail views"
+      },
+      {
+        "type": "action",
+        "description": "Delete a product"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product is removed from listing and cannot be accessed"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Admin Order Management and Status Updates",
+    "description": "Verify admin can view detailed order information, update order statuses, and see changes reflected immediately.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to admin order management page"
+      },
+      {
+        "type": "action",
+        "description": "Select an order from the list to view details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order details display items, customer info, status, and timestamps correctly"
+      },
+      {
+        "type": "action",
+        "description": "Update order status (e.g. from 'Pending' to 'Shipped')"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify status update is saved and reflected in order list and user order history"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Admin User Management and Order History Access",
+    "description": "Ensure admin can view user lists, access individual user details and order histories, and perform user-related operations.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin user"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to admin users management page"
+      },
+      {
+        "type": "action",
+        "description": "Select a user from the user list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify detailed user profile information is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Access the selected user's order history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify order history lists all orders correctly with statuses and details"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Static Informational Pages Rendering",
+    "description": "Verify FAQs, contact, shipping policy, returns, terms of service, and privacy policy pages load correctly with appropriate content and UI functionality.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to FAQs page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all FAQs are displayed and answers expand/collapse correctly"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to contact page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify contact form and business contact info are visible and functional"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to shipping, returns, terms, and privacy policy pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify each page loads appropriate static content with proper formatting"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Responsive UI Verification",
+    "description": "Test UI responsiveness and mobile-first design across different device sizes ensuring layout, navigation, and functionality remain intact.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load site on desktop resolution"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all UI components load correctly and navigation menus are accessible"
+      },
+      {
+        "type": "action",
+        "description": "Resize viewport to tablet resolution"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI reflows properly, menus collapse or expand as intended"
+      },
+      {
+        "type": "action",
+        "description": "Simulate mobile device viewport"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify mobile navigation menu, buttons, and content remain usable and visually consistent"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "API Endpoint Functional and Error Handling Tests",
+    "description": "Verify that all API endpoints respond with expected status codes and data formats on valid and invalid inputs, including error scenarios.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send valid request to product listing API with filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 and data matches filter criteria"
+      },
+      {
+        "type": "action",
+        "description": "Send invalid request with malformed filters to product listing API"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 400 or appropriate error code with error message"
+      },
+      {
+        "type": "action",
+        "description": "Send valid request to checkout API with complete order data"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 201 and order number returned"
+      },
+      {
+        "type": "action",
+        "description": "Send request with missing required checkout fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 422 with field validation errors"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Security Testing for Authentication and CSRF/XSS Prevention",
+    "description": "Validate security measures for user authentication flows and protection against common vulnerabilities such as CSRF and XSS attacks.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt login with XSS payload in username or password fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify input is sanitized and no script execution or error occurs"
+      },
+      {
+        "type": "action",
+        "description": "Perform CSRF attack simulation by submitting forged form requests"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify requests are rejected or validated against CSRF tokens"
+      },
+      {
+        "type": "action",
+        "description": "Attempt unauthorized access to admin pages without login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied and user is redirected to login"
+      },
+      {
+        "type": "action",
+        "description": "Test session persistence and expiration behavior after login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify sessions time out appropriately and user is logged out"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Performance and Loading Time Checks",
+    "description": "Ensure all main pages including homepage, product listing, product detail, cart, and checkout load within target time thresholds on typical network conditions.",
+    "category": "performance",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Measure page load time for homepage under standard network conditions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify load time is within performance target (e.g. under 3 seconds)"
+      },
+      {
+        "type": "action",
+        "description": "Measure product listing page load time with multiple filters applied"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify load and filter update times are performant without full page reload"
+      },
+      {
+        "type": "action",
+        "description": "Measure load times for product detail page, cart, and checkout pages"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify each page loads efficiently with quick interactivity"
+      }
+    ]
+  }
+]
