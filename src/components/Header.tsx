@@ -258,14 +258,6 @@ export default function Header() {
               </div>
             </div>
           ))}
-          {user?.isAdmin && (
-            <>
-              <div className="h-px bg-primary/20 my-4" />
-              <Link href="/admin" className="flex items-center gap-2 text-primary hover:text-primary-light text-sm font-medium" onClick={() => setMenuOpen(false)}>
-                <Shield className="w-4 h-4" /> Admin Panel
-              </Link>
-            </>
-          )}
         </nav>
       )}
     </header>
