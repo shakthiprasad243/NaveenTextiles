@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getGoogleDriveImageUrl } from '@/lib/utils';
 
 const slides = [
   {
@@ -82,7 +83,7 @@ export default function HeroCarousel() {
           <div
             className="absolute inset-0 bg-cover bg-center scale-105 transition-transform duration-[4000ms]"
             style={{ 
-              backgroundImage: `url(${s.image})`,
+              backgroundImage: `url(${getGoogleDriveImageUrl(s.image)})`,
               transform: i === current ? 'scale(1.1)' : 'scale(1.05)'
             }}
           />

@@ -2,6 +2,76 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase, generateOrderNumber, generateWhatsAppMessage } from '@/lib/supabase';
 import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
 
+// Delete order(s)
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { order_id, order_ids } = body;
+
+    if (!order_id && !order_ids?.length) {
+      return NextResponse.json(
+        { error: 'Provide order_id or order_ids array' },
+        { status: 400 }
+      );
+    }
+
+    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+    const idsToDelete = order_ids || [order_id];
+
+    // First, restore inventory for cancelled/deleted orders
+    for (const id of idsToDelete) {
+      const { data: orderItems } = await client
+        .from('order_items')
+        .select('product_variant_id, qty')
+        .eq('order_id', id);
+
+      if (orderItems) {
+        for (const item of orderItems) {
+          if (!item.product_variant_id) continue;
+          
+          const { data: variant } = await client
+            .from('product_variants')
+            .select('stock_qty, reserved_qty')
+            .eq('id', item.product_variant_id)
+            .single();
+          
+          if (variant) {
+            await client
+              .from('product_variants')
+              .update({ 
+                stock_qty: variant.stock_qty + item.qty,
+                reserved_qty: Math.max(0, variant.reserved_qty - item.qty)
+              })
+              .eq('id', item.product_variant_id);
+          }
+        }
+      }
+
+      // Delete order items first (foreign key constraint)
+      await client.from('order_items').delete().eq('order_id', id);
+    }
+
+    // Delete orders
+    const { error } = await client
+      .from('orders')
+      .delete()
+      .in('id', idsToDelete);
+
+    if (error) throw error;
+
+    return NextResponse.json({ 
+      success: true, 
+      deleted_count: idsToDelete.length 
+    });
+  } catch (error: any) {
+    console.error('Order deletion error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete order(s)' },
+      { status: 500 }
+    );
+  }
+}
+
 // Create new order
 export async function POST(request: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Product } from '@/lib/types';
 import { formatPrice } from '@/lib/utils';
+import GoogleDriveImage from './GoogleDriveImage';
 
 export default function ProductCard({ product }: { product: Product }) {
   const inStock = product.variations.some(v => v.stock > 0);
@@ -9,8 +9,8 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link href={`/products/${product.id}`} className="group glossy-card rounded-xl overflow-hidden hover:gold-glow transition-all duration-300 hover:-translate-y-1">
       <div className="relative aspect-square bg-dark-500 overflow-hidden">
-        <Image
-          src={product.images[0]}
+        <GoogleDriveImage
+          src={product.images[0] || ''}
           alt={product.name}
           fill
           className="object-cover group-hover:scale-110 transition duration-500"

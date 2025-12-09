@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Product } from '@/lib/types';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Search, X, Package, Save, ChevronDown, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import GoogleDriveImage from '@/components/GoogleDriveImage';
 
 const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 const subCategoriesMap: Record<string, string[]> = {
@@ -346,7 +346,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-lg bg-dark-700 overflow-hidden flex-shrink-0 relative">
                           {product.images[0] ? (
-                            <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
+                            <GoogleDriveImage src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Package className="w-5 h-5 text-dark-500" />

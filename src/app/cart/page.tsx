@@ -1,11 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import { Minus, Plus, Trash2, ShoppingBag, AlertCircle } from 'lucide-react';
+import GoogleDriveImage from '@/components/GoogleDriveImage';
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, total } = useCart();
@@ -43,7 +43,7 @@ export default function CartPage() {
         {items.map(item => (
           <div key={`${item.productId}-${item.size}-${item.color}`} className="glossy-card flex gap-4 p-4 rounded-xl shine-effect">
             <div className="relative w-24 h-24 flex-shrink-0 bg-dark-500 rounded-lg overflow-hidden">
-              <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover" />
+              <GoogleDriveImage src={item.image} alt={item.name} fill sizes="96px" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-dark-900/50 to-transparent" />
             </div>
             <div className="flex-1 min-w-0">

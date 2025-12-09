@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase, DbProductVariant } from '@/lib/supabase';
 import { Package, ShoppingCart, AlertTriangle, TrendingUp, ArrowUpRight, Clock, Loader2 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
+import GoogleDriveImage from '@/components/GoogleDriveImage';
 
 interface Product {
   id: string;
@@ -169,9 +169,9 @@ export default function AdminDashboard() {
               return (
                 <div key={product.id} className="flex items-center justify-between p-3 glass-card rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-dark-700 overflow-hidden">
+                    <div className="w-10 h-10 rounded-lg bg-dark-700 overflow-hidden relative">
                       {product.images[0] ? (
-                        <Image src={product.images[0]} alt={product.name} fill sizes="40px" className="object-cover" />
+                        <GoogleDriveImage src={product.images[0]} alt={product.name} fill sizes="40px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Package className="w-5 h-5 text-dark-500" />

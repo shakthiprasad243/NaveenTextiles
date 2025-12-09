@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
@@ -9,6 +8,7 @@ import { Minus, Plus, ShoppingCart, Check, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Product } from '@/lib/types';
+import GoogleDriveImage from '@/components/GoogleDriveImage';
 
 // Transform Supabase data to local Product type
 function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVariant[] }): Product {
@@ -111,7 +111,14 @@ export default function ProductPage() {
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image */}
         <div className="glossy-card relative aspect-square rounded-2xl overflow-hidden gold-glow">
-          <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority />
+          <GoogleDriveImage 
+            src={product.images[0] || ''} 
+            alt={product.name} 
+            fill 
+            sizes="(max-width: 768px) 100vw, 50vw" 
+            className="object-cover" 
+            priority 
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-white/5" />
         </div>
 
