@@ -49,25 +49,25 @@ export default function OrdersPage() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (user?.phone) {
-      fetchOrders();
-    }
-  }, [user?.phone]);
-
-  async function fetchOrders() {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/orders?phone=${encodeURIComponent(user?.phone || '')}`);
-      const data = await response.json();
-      if (data.orders) {
-        setOrders(data.orders);
+    async function fetchOrders() {
+      if (!user?.phone) return;
+      
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/orders?phone=${encodeURIComponent(user.phone)}`);
+        const data = await response.json();
+        if (data.orders) {
+          setOrders(data.orders);
+        }
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching orders:', err);
-    } finally {
-      setLoading(false);
     }
-  }
+    
+    fetchOrders();
+  }, [user?.phone]);
 
   async function handleDeleteOrder(orderId: string) {
     try {

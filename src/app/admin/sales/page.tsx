@@ -36,34 +36,34 @@ export default function SalesReportPage() {
   }, []);
 
   useEffect(() => {
-    if (fromDate && toDate) {
-      fetchSalesData();
-    }
-  }, [fromDate, toDate, statusFilter]);
+    async function fetchData() {
+      if (!fromDate || !toDate) return;
+      
+      try {
+        setLoading(true);
+        let query = supabase
+          .from('orders')
+          .select(`*, order_items (product_name, qty, unit_price)`)
+          .gte('created_at', `${fromDate}T00:00:00`)
+          .lte('created_at', `${toDate}T23:59:59`)
+          .order('created_at', { ascending: false });
 
-  async function fetchSalesData() {
-    try {
-      setLoading(true);
-      let query = supabase
-        .from('orders')
-        .select(`*, order_items (product_name, qty, unit_price)`)
-        .gte('created_at', `${fromDate}T00:00:00`)
-        .lte('created_at', `${toDate}T23:59:59`)
-        .order('created_at', { ascending: false });
+        if (statusFilter) {
+          query = query.eq('status', statusFilter);
+        }
 
-      if (statusFilter) {
-        query = query.eq('status', statusFilter);
+        const { data, error } = await query;
+        if (error) throw error;
+        setOrders(data || []);
+      } catch (err) {
+        console.error('Error fetching sales data:', err);
+      } finally {
+        setLoading(false);
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setOrders(data || []);
-    } catch (err) {
-      console.error('Error fetching sales data:', err);
-    } finally {
-      setLoading(false);
     }
-  }
+    
+    fetchData();
+  }, [fromDate, toDate, statusFilter]);
 
   const filteredOrders = orders;
 
@@ -72,7 +72,6 @@ export default function SalesReportPage() {
   const totalOrders = filteredOrders.length;
   const deliveredOrders = filteredOrders.filter(o => o.status === 'DELIVERED').length;
   const pendingOrders = filteredOrders.filter(o => o.status === 'PENDING').length;
-  const cancelledOrders = filteredOrders.filter(o => o.status === 'CANCELLED').length;
   const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
   const exportToCSV = () => {
