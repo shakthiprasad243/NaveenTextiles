@@ -91,6 +91,23 @@ export interface DbOrderItem {
   line_total: number | null;
 }
 
+export interface DbOffer {
+  id: string;
+  title: string;
+  description: string;
+  code: string;
+  discount_type: 'percentage' | 'fixed' | 'bogo';
+  discount_value: number;
+  min_order_value: number | null;
+  max_discount: number | null;
+  valid_from: string;
+  valid_till: string | null;
+  active: boolean;
+  usage_limit: number | null;
+  used_count: number;
+  created_at: string;
+}
+
 // ============ API Functions ============
 
 // Products

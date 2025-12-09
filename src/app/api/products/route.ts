@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
+import { validateProduct } from '@/lib/validators';
 
-// Get all products (supports both active-only and all products)
+// Disable caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Get all products (supports both active-only and all products with pagination)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -10,6 +15,11 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || undefined;
     const active = searchParams.get('active');
     const includeInactive = searchParams.get('include_inactive') === 'true';
+    
+    // Pagination parameters
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')));
+    const offset = (page - 1) * limit;
 
     // Use admin client if we need to include inactive products
     const client = includeInactive && isAdminClientConfigured() ? supabaseAdmin : supabase;
@@ -17,7 +27,7 @@ export async function GET(request: NextRequest) {
     let query = client.from('products').select(`
       *,
       product_variants (*)
-    `);
+    `, { count: 'exact' });
 
     if (mainCategory) query = query.eq('main_category', mainCategory);
     if (category) query = query.eq('category', category);
@@ -25,10 +35,30 @@ export async function GET(request: NextRequest) {
     else if (active === 'false') query = query.eq('active', false);
     else if (!includeInactive) query = query.eq('active', true);
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+    
     if (error) throw error;
 
-    return NextResponse.json({ products: data });
+    // Transform products to include variants with product_variant_id
+    const transformedProducts = (data || []).map((product: any) => ({
+      ...product,
+      variants: (product.product_variants || []).map((v: any) => ({
+        ...v,
+        product_variant_id: v.id // Add product_variant_id alias for compatibility
+      }))
+    }));
+
+    return NextResponse.json({ 
+      products: transformedProducts,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit)
+      }
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch products' },
@@ -44,14 +74,19 @@ export async function POST(request: NextRequest) {
     const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
 
     const body = await request.json();
-    const { name, slug, description, base_price, main_category, category, active, variants } = body;
-
-    if (!name || base_price === undefined) {
+    
+    // Validate input
+    const validation = validateProduct(body);
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: 'Name and base_price are required' },
+        { error: validation.error },
         { status: 400 }
       );
     }
+    
+    const { name, slug, description, base_price, main_category, category, active } = body;
+    // Support both 'variants' and 'product_variants' keys for flexibility
+    const variants = body.variants || body.product_variants;
 
     // Generate slug if not provided - add timestamp for uniqueness
     const baseSlug = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -81,7 +116,7 @@ export async function POST(request: NextRequest) {
         sku: v.sku || `${productSlug}-${Date.now()}-${index}`,
         size: v.size,
         color: v.color,
-        price: v.price,
+        price: v.price || base_price,
         stock_qty: v.stock_qty || 0,
         images: v.images || []
       }));
@@ -111,7 +146,7 @@ export async function POST(request: NextRequest) {
       name: completeProduct?.name,
       slug: completeProduct?.slug,
       base_price: completeProduct?.base_price
-    });
+    }, { status: 201 });
   } catch (error: any) {
     console.error('Product creation error:', error);
     return NextResponse.json(

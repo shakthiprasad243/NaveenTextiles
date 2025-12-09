@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/utils';
 import { generateOrderNumber, generateWhatsAppMessage, getWhatsAppOrderUrl } from '@/lib/supabase';
 import { MessageCircle, CheckCircle, Sparkles, Loader2, MapPin, User, Phone } from 'lucide-react';
@@ -9,6 +10,7 @@ import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
+  const { user } = useAuth();
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -19,6 +21,18 @@ export default function CheckoutPage() {
     state: '',
     postal_code: ''
   });
+
+  // Pre-fill form with user profile data
+  useEffect(() => {
+    if (user) {
+      setForm(prev => ({
+        ...prev,
+        name: prev.name || user.name || '',
+        phone: prev.phone || user.phone || '',
+        email: prev.email || user.email || ''
+      }));
+    }
+  }, [user]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState('');
@@ -53,7 +67,7 @@ export default function CheckoutPage() {
           country: 'India'
         },
         items: items.map(item => ({
-          product_variant_id: item.productId, // This should be variant ID in real implementation
+          product_variant_id: item.variantId || item.productId,
           product_name: item.name,
           size: item.size,
           color: item.color,

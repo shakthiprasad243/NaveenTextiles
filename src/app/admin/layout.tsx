@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Package, ShoppingCart, Users, Shield, ArrowLeft, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Shield, ArrowLeft, TrendingUp, Tag } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
@@ -44,6 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/products', icon: Package, label: 'Products' },
     { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { href: '/admin/offers', icon: Tag, label: 'Offers' },
     { href: '/admin/sales', icon: TrendingUp, label: 'Sales' },
     { href: '/admin/users', icon: Users, label: 'Users' }
   ];

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { supabase, DbOrderItem } from '@/lib/supabase';
+import { DbOrderItem } from '@/lib/supabase';
 import { Search, ChevronDown, Eye, Package, Phone, MapPin, Clock, X, Truck, Loader2, Trash2, AlertTriangle, CheckSquare, Square, FileText, Printer } from 'lucide-react';
 import Invoice from '@/components/Invoice';
 
@@ -61,13 +61,14 @@ export default function AdminOrdersPage() {
   async function fetchOrders() {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`*, order_items (*)`)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setOrders(data || []);
+      // Use admin API to bypass RLS
+      const response = await fetch('/api/admin/orders');
+      const data = await response.json();
+      
+      console.log('Admin orders API response:', { ok: response.ok, ordersCount: data.orders?.length, error: data.error });
+      
+      if (!response.ok) throw new Error(data.error);
+      setOrders(data.orders || []);
     } catch (err) {
       console.error('Error fetching orders:', err);
     } finally {
@@ -86,12 +87,16 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update');
+      }
 
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
       if (selectedOrder?.id === orderId) {

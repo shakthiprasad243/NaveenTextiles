@@ -4,17 +4,5 @@
   "scope": "codebase",
   "localEndpoint": "http://localhost:3000",
   "loginUser": "admin@naveentextiles.com",
-  "loginPassword": "admin123",
-  "executionArgs": {
-    "projectName": "v1",
-    "projectPath": "/Users/shakthiprasad/Desktop/coursify/v1",
-    "testIds": [
-      "TC004"
-    ],
-    "additionalInstruction": "Re-run TC004 Shopping Cart Management test to verify stock limit validation fix",
-    "envs": {
-      "API_KEY": "sk-user-R0YLnNObnnBwBciX9nbhUg1MIQzIpD0eZlbA4JelB5a93wnxgHYrx6Yc9cCxbq7-xOqCSGG0uBQse_VkW0gqIYUJbQ6oCwB1kN2voHr8GU3J-MwOMLsFX-4TPEBhiGzeS8Y"
-    }
-  },
-  "proxy": "http://546a2adc-d546-4a9f-a8ab-b99cd985fa54:2byfV15WcrN5pAOIS43eHIqFWRW1XnU1@tun.testsprite.com:8080"
+  "loginPassword": "Admin@123"
 }

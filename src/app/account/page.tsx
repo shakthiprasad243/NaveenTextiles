@@ -5,13 +5,29 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { User, Package, MapPin, Phone, Mail, Edit2, LogOut, Shield, ChevronRight, Clock } from 'lucide-react';
 import Link from 'next/link';
-import { orders } from '@/lib/data';
+
+interface OrderItem {
+  product_name: string;
+  qty: number;
+  unit_price: number;
+}
+
+interface Order {
+  id: string;
+  order_number: string;
+  total: number;
+  status: string;
+  created_at: string;
+  order_items: OrderItem[];
+}
 
 export default function AccountPage() {
   const { user, isLoading, logout, updateProfile } = useAuth();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ name: '', phone: '', address: '' });
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -19,8 +35,64 @@ export default function AccountPage() {
     }
     if (user) {
       setEditData({ name: user.name, phone: user.phone, address: user.address || '' });
+      fetchUserOrders();
     }
   }, [user, isLoading, router]);
+
+  async function fetchUserOrders() {
+    if (!user) return;
+    
+    try {
+      setOrdersLoading(true);
+      const allOrders: Order[] = [];
+      const existingIds = new Set<string>();
+      
+      // Fetch by email
+      if (user.email) {
+        try {
+          const response = await fetch(`/api/orders?email=${encodeURIComponent(user.email)}`);
+          const data = await response.json();
+          if (data.orders) {
+            data.orders.forEach((order: Order) => {
+              if (!existingIds.has(order.id)) {
+                existingIds.add(order.id);
+                allOrders.push(order);
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error fetching by email:', e);
+        }
+      }
+      
+      // Also fetch by phone
+      if (user.phone) {
+        try {
+          const normalizedPhone = user.phone.replace(/\D/g, '').slice(-10);
+          const response = await fetch(`/api/orders?phone=${encodeURIComponent(normalizedPhone)}`);
+          const data = await response.json();
+          if (data.orders) {
+            data.orders.forEach((order: Order) => {
+              if (!existingIds.has(order.id)) {
+                existingIds.add(order.id);
+                allOrders.push(order);
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error fetching by phone:', e);
+        }
+      }
+      
+      // Sort by date
+      allOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setUserOrders(allOrders);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    } finally {
+      setOrdersLoading(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -31,9 +103,6 @@ export default function AccountPage() {
   }
 
   if (!user) return null;
-
-  // Get user's orders (demo)
-  const userOrders = orders.filter(o => o.customerPhone === user.phone);
 
   const handleSaveProfile = () => {
     updateProfile(editData);
@@ -195,7 +264,11 @@ export default function AccountPage() {
               </Link>
             </div>
 
-            {userOrders.length > 0 ? (
+            {ordersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : userOrders.length > 0 ? (
               <div className="space-y-3">
                 {userOrders.slice(0, 3).map((order) => (
                   <div key={order.id} className="flex items-center justify-between p-4 glass-card rounded-lg">
@@ -204,22 +277,22 @@ export default function AccountPage() {
                         <Package className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="text-dark-200 text-sm font-medium">{order.id}</p>
-                        <p className="text-dark-500 text-xs">{order.items.length} item(s) • ₹{order.total}</p>
+                        <p className="text-dark-200 text-sm font-medium">{order.order_number || order.id.slice(0, 8)}</p>
+                        <p className="text-dark-500 text-xs">{order.order_items?.length || 0} item(s) • ₹{order.total?.toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <span className={`px-2 py-1 rounded text-xs ${
-                        order.status === 'delivered' ? 'bg-green-500/20 text-green-400' :
-                        order.status === 'shipped' ? 'bg-blue-500/20 text-blue-400' :
-                        order.status === 'cancelled' ? 'bg-red-500/20 text-red-400' :
+                        order.status?.toUpperCase() === 'DELIVERED' ? 'bg-green-500/20 text-green-400' :
+                        order.status?.toUpperCase() === 'SHIPPED' ? 'bg-blue-500/20 text-blue-400' :
+                        order.status?.toUpperCase() === 'CANCELLED' ? 'bg-red-500/20 text-red-400' :
                         'bg-primary/20 text-primary'
                       }`}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        {order.status?.charAt(0).toUpperCase() + order.status?.slice(1).toLowerCase()}
                       </span>
                       <p className="text-dark-500 text-xs mt-1 flex items-center justify-end gap-1">
                         <Clock className="w-3 h-3" />
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {new Date(order.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

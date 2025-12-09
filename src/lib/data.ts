@@ -3,10 +3,10 @@ import { Product, Order } from './types';
 export const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 
 export const subCategories: Record<string, string[]> = {
-  'Men': ['Shirts', 'Kurtas', 'Trousers', 'Ethnic Wear', 'Fabrics'],
-  'Women': ['Sarees', 'Kurtas', 'Dress Materials', 'Dupattas', 'Blouses'],
-  'Kids': ['Boys Wear', 'Girls Wear', 'School Uniforms', 'Ethnic Kids'],
-  'Home & Living': ['Bedsheets', 'Curtains', 'Cushion Covers', 'Table Linen']
+  'Men': ['Shirts', 'Pants', 'Trousers', 'Kurtas', 'Ethnic Wear', 'Fabrics', 'Jeans', 'T-Shirts', 'Jackets'],
+  'Women': ['Sarees', 'Kurtas', 'Dress Materials', 'Dupattas', 'Blouses', 'Lehengas', 'Salwar Suits', 'Tops', 'Pants', 'Skirts'],
+  'Kids': ['Boys Wear', 'Girls Wear', 'School Uniforms', 'Ethnic Kids', 'T-Shirts', 'Pants', 'Dresses'],
+  'Home & Living': ['Bedsheets', 'Curtains', 'Cushion Covers', 'Table Linen', 'Towels', 'Blankets', 'Pillow Covers']
 };
 
 export const categories = ['Shirts', 'Sarees', 'Kurtas', 'Fabrics', 'Accessories'];

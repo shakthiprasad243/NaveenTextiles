@@ -5,11 +5,11 @@ import { supabaseAdmin, isAdminClientConfigured } from '@/lib/supabase-admin';
 // Update order status (for admin)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { status } = await request.json();
-    const orderId = params.id;
+    const { id: orderId } = await params;
 
     const validStatuses = ['PENDING', 'CONFIRMED', 'PACKED', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {

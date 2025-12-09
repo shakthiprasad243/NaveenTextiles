@@ -105,23 +105,32 @@ export default function AdminUsersPage() {
     if (!user) return;
 
     try {
-      if (user.isAdmin) {
-        // Remove admin
-        await supabase.from('admin_users').delete().eq('user_id', userId);
-        await supabase.from('users').update({ is_admin: false }).eq('id', userId);
-      } else {
-        // Make admin
-        await supabase.from('admin_users').insert({ user_id: userId, role: 'admin' });
-        await supabase.from('users').update({ is_admin: true }).eq('id', userId);
+      // Use API endpoint to toggle admin role (uses admin client on server)
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ makeAdmin: !user.isAdmin }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update user role');
       }
 
+      // Update local state
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, isAdmin: !u.isAdmin } : u));
       if (selectedUser?.id === userId) {
         setSelectedUser(prev => prev ? { ...prev, isAdmin: !prev.isAdmin } : null);
       }
-    } catch (err) {
+
+      // Show success message
+      alert(result.message || 'User role updated successfully');
+    } catch (err: any) {
       console.error('Error toggling admin:', err);
-      alert('Failed to update user role');
+      alert(err.message || 'Failed to update user role');
     }
   };
 

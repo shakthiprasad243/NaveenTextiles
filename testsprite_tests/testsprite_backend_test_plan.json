@@ -1,52 +1,52 @@
 [
   {
     "id": "TC001",
-    "title": "get all products with filtering",
-    "description": "Verify that the GET /api/products endpoint returns a list of products filtered correctly by main_category, category, and active status parameters."
+    "title": "get_system_health_status",
+    "description": "Test the /api/health GET endpoint to verify it returns the system health status including database connectivity, uptime, version, and environment. Validate response codes 200 for healthy system and 503 for unhealthy system."
   },
   {
     "id": "TC002",
-    "title": "create new product with variants",
-    "description": "Verify that the POST /api/products endpoint allows an admin to create a new product with required fields and optional variants, and returns appropriate error for missing required fields."
+    "title": "get_all_products_with_pagination_and_filtering",
+    "description": "Test the /api/products GET endpoint to retrieve products with various query parameters like main_category, category, active, include_inactive, page, and limit. Validate pagination info and filtering correctness."
   },
   {
     "id": "TC003",
-    "title": "get product by id",
-    "description": "Verify that the GET /api/products/{id} endpoint returns the correct product details for a valid product ID and returns 404 for a non-existent product ID."
+    "title": "create_new_product_with_required_fields",
+    "description": "Test the /api/products POST endpoint to create a new product with required fields such as name, base_price, main_category, and category. Validate success response 201 and error responses for validation and server errors."
   },
   {
     "id": "TC004",
-    "title": "update product details and variants",
-    "description": "Verify that the PATCH /api/products/{id} endpoint allows an admin to update product details and variants, and returns appropriate error on server failure."
+    "title": "get_single_product_by_id",
+    "description": "Test the /api/products/{id} GET endpoint to fetch product details by UUID. Validate 200 response with product details and 404 when product is not found."
   },
   {
     "id": "TC005",
-    "title": "delete product and variants",
-    "description": "Verify that the DELETE /api/products/{id} endpoint allows an admin to delete a product and its variants, and handles server errors gracefully."
+    "title": "update_product_details",
+    "description": "Test the /api/products/{id} PATCH endpoint to update product information including name, slug, description, base_price, main_category, category, active status, and variants. Validate 200 success and 500 server error responses."
   },
   {
     "id": "TC006",
-    "title": "create new order with customer details",
-    "description": "Verify that the POST /api/orders endpoint creates a new order with required customer details and items, generates a valid WhatsApp checkout URL, and returns errors for missing required fields."
+    "title": "delete_product_by_id",
+    "description": "Test the /api/products/{id} DELETE endpoint to delete a product by UUID. Validate 200 success and 500 server error responses."
   },
   {
     "id": "TC007",
-    "title": "get orders by phone or order number",
-    "description": "Verify that the GET /api/orders endpoint returns orders filtered by phone number or order number, and returns error if neither parameter is provided."
+    "title": "get_orders_by_phone_email_or_order_number",
+    "description": "Test the /api/orders GET endpoint to retrieve orders filtered by phone, email, or order number. Validate 200 success with orders found and 400 error for missing required parameters."
   },
   {
     "id": "TC008",
-    "title": "update order status with inventory handling",
-    "description": "Verify that the PATCH /api/orders/{id}/status endpoint allows an admin to update order status, handles inventory release on cancellation, and returns errors for invalid status or server issues."
+    "title": "create_new_order_with_inventory_validation",
+    "description": "Test the /api/orders POST endpoint to create a new order with customer details, shipping address, items, and payment method. Validate stock availability, order creation success 201, and error responses for validation and server errors."
   },
   {
     "id": "TC009",
-    "title": "cleanup expired reservations cron job",
-    "description": "Verify that the POST /api/cron/cleanup-reservations endpoint triggers the cleanup of expired inventory reservations and cancels expired orders, enforcing authorization and handling errors."
+    "title": "update_order_status_by_id",
+    "description": "Test the /api/orders/{id}/status PATCH endpoint to update the status of an order. Validate allowed status values, 200 success, 400 invalid status, and 500 server error responses."
   },
   {
     "id": "TC010",
-    "title": "order status change webhook processing",
-    "description": "Verify that the POST /api/webhooks/order-status endpoint processes order status change notifications, triggers WhatsApp messages, and returns appropriate errors for missing data or non-existent orders."
+    "title": "get_active_offers",
+    "description": "Test the /api/offers GET endpoint to retrieve the list of active promotional offers. Validate 200 success response with offers data."
   }
 ]

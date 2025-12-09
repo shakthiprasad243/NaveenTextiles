@@ -19,6 +19,7 @@ export interface Product {
 
 export interface CartItem {
   productId: string;
+  variantId?: string;
   name: string;
   image: string;
   size: string;

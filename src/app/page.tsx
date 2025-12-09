@@ -1,19 +1,33 @@
 import Link from 'next/link';
 import ProductCard from '@/components/ProductCard';
 import HeroCarousel from '@/components/HeroCarousel';
+import OffersSection from '@/components/OffersSection';
 import { ArrowRight, Truck, Shield, MessageCircle } from 'lucide-react';
-import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
+import { DbProduct, DbProductVariant, DbOffer } from '@/lib/supabase';
+import { getAdminClient } from '@/lib/supabase-admin';
 import { Product } from '@/lib/types';
 
 const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 
 // Transform Supabase data to local Product type
 function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVariant[] }): Product {
+  // Collect all unique images from all variants
+  const allImages: string[] = [];
+  dbProduct.product_variants.forEach(v => {
+    if (v.images && Array.isArray(v.images)) {
+      v.images.forEach(img => {
+        if (img && !allImages.includes(img)) {
+          allImages.push(img);
+        }
+      });
+    }
+  });
+
   return {
     id: dbProduct.id,
     name: dbProduct.name,
     description: dbProduct.description || '',
-    images: dbProduct.product_variants[0]?.images || [],
+    images: allImages,
     category: dbProduct.category || '',
     mainCategory: dbProduct.main_category || '',
     price: dbProduct.base_price,
@@ -28,23 +42,63 @@ function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVa
 }
 
 async function getFeaturedProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from('products')
-    .select(`*, product_variants (*)`)
-    .eq('active', true)
-    .order('created_at', { ascending: false })
-    .limit(4);
-  
-  if (error) {
-    console.error('Error fetching products:', error);
+  try {
+    // Use admin client to bypass RLS
+    const client = getAdminClient();
+    
+    const { data, error } = await client
+      .from('products')
+      .select(`*, product_variants (*)`)
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+      .limit(4);
+    
+    if (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
+    
+    return (data || []).map(transformProduct);
+  } catch (err) {
+    console.error('Error fetching products:', err);
     return [];
   }
-  
-  return (data || []).map(transformProduct);
+}
+
+async function getActiveOffers(): Promise<DbOffer[]> {
+  try {
+    // Use admin client to bypass RLS
+    const client = getAdminClient();
+    const now = new Date().toISOString();
+    
+    const { data, error } = await client
+      .from('offers')
+      .select('*')
+      .eq('active', true)
+      .lte('valid_from', now)
+      .order('created_at', { ascending: false })
+      .limit(3);
+    
+    if (error) {
+      console.error('Error fetching offers:', error);
+      return [];
+    }
+    
+    // Filter valid_till in JS
+    const validOffers = (data || []).filter(offer => 
+      !offer.valid_till || new Date(offer.valid_till) >= new Date()
+    );
+    
+    return validOffers;
+  } catch (err) {
+    console.error('Error fetching offers:', err);
+    return [];
+  }
 }
 
 export default async function HomePage() {
   const featured = await getFeaturedProducts();
+  const offers = await getActiveOffers();
 
   return (
     <div>
@@ -86,6 +140,11 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Ongoing Offers */}
+      {offers.length > 0 && (
+        <OffersSection offers={offers} />
+      )}
 
       {/* Featured Products */}
       <section className="max-w-6xl mx-auto px-4 py-12">

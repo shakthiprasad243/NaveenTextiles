@@ -9,14 +9,27 @@ import Link from 'next/link';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Product } from '@/lib/types';
 import GoogleDriveImage from '@/components/GoogleDriveImage';
+import ProductCard from '@/components/ProductCard';
 
 // Transform Supabase data to local Product type
 function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVariant[] }): Product {
+  // Collect all unique images from all variants
+  const allImages: string[] = [];
+  dbProduct.product_variants.forEach(v => {
+    if (v.images && Array.isArray(v.images)) {
+      v.images.forEach(img => {
+        if (img && !allImages.includes(img)) {
+          allImages.push(img);
+        }
+      });
+    }
+  });
+
   return {
     id: dbProduct.id,
     name: dbProduct.name,
     description: dbProduct.description || '',
-    images: dbProduct.product_variants[0]?.images || [],
+    images: allImages,
     category: dbProduct.category || '',
     mainCategory: dbProduct.main_category || '',
     price: dbProduct.base_price,
@@ -34,8 +47,10 @@ export default function ProductPage() {
   const params = useParams();
   const productId = params.id as string;
   const [product, setProduct] = useState<Product | null>(null);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState('');
@@ -61,6 +76,42 @@ export default function ProductPage() {
         setProduct(transformed);
         setSelectedSize(transformed.variations[0]?.size || '');
         setSelectedColor(transformed.variations[0]?.color || '');
+
+        // Fetch similar products from same category
+        let { data: similarData } = await supabase
+          .from('products')
+          .select(`*, product_variants (*)`)
+          .eq('category', data.category)
+          .eq('active', true)
+          .neq('id', productId)
+          .limit(4);
+
+        // If no products in same category, try same main category
+        if (!similarData || similarData.length === 0) {
+          const { data: mainCatData } = await supabase
+            .from('products')
+            .select(`*, product_variants (*)`)
+            .eq('main_category', data.main_category)
+            .eq('active', true)
+            .neq('id', productId)
+            .limit(4);
+          similarData = mainCatData;
+        }
+
+        // If still no products, just get any other active products
+        if (!similarData || similarData.length === 0) {
+          const { data: anyData } = await supabase
+            .from('products')
+            .select(`*, product_variants (*)`)
+            .eq('active', true)
+            .neq('id', productId)
+            .limit(4);
+          similarData = anyData;
+        }
+
+        if (similarData && similarData.length > 0) {
+          setSimilarProducts(similarData.map(transformProduct));
+        }
       } catch (err) {
         console.error('Error fetching product:', err);
         setError(true);
@@ -94,6 +145,7 @@ export default function ProductPage() {
     if (!inStock || !currentVariation) return;
     addItem({
       productId: product.id,
+      variantId: currentVariation.variantId,
       name: product.name,
       image: product.images[0],
       size: selectedSize,
@@ -109,17 +161,45 @@ export default function ProductPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-        {/* Image */}
-        <div className="glossy-card relative aspect-square rounded-2xl overflow-hidden gold-glow">
-          <GoogleDriveImage 
-            src={product.images[0] || ''} 
-            alt={product.name} 
-            fill 
-            sizes="(max-width: 768px) 100vw, 50vw" 
-            className="object-cover" 
-            priority 
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-white/5" />
+        {/* Image Gallery */}
+        <div className="space-y-4">
+          {/* Main Image */}
+          <div className="glossy-card relative aspect-square rounded-2xl overflow-hidden gold-glow">
+            <GoogleDriveImage 
+              src={product.images[selectedImageIndex] || product.images[0] || ''} 
+              alt={product.name} 
+              fill 
+              sizes="(max-width: 768px) 100vw, 50vw" 
+              className="object-cover" 
+              priority 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-white/5" />
+          </div>
+          
+          {/* Thumbnail Gallery */}
+          {product.images.length > 1 && (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {product.images.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
+                    selectedImageIndex === index 
+                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-dark-900' 
+                      : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <GoogleDriveImage 
+                    src={img} 
+                    alt={`${product.name} ${index + 1}`} 
+                    fill 
+                    sizes="80px" 
+                    className="object-cover" 
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Details */}
@@ -184,8 +264,9 @@ export default function ProductPage() {
           </div>
 
           {/* Stock Status */}
-          <p className={`text-sm mb-6 ${inStock ? 'text-green-400' : 'text-red-400'}`}>
-            {inStock ? `✓ ${currentVariation?.stock} in stock` : '✗ Out of stock'}
+          <p className={`text-sm mb-6 flex items-center gap-2 ${inStock ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`w-2 h-2 rounded-full ${inStock ? 'bg-green-400' : 'bg-red-400'}`} />
+            {inStock ? 'In Stock' : 'Out of Stock'}
           </p>
 
           {/* Add to Cart */}
@@ -207,6 +288,26 @@ export default function ProductPage() {
           </Link>
         </div>
       </div>
+
+      {/* Similar Products Section */}
+      {similarProducts.length > 0 && (
+        <div className="mt-16">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-serif text-white">You May Also Like</h2>
+            <Link 
+              href={`/products?category=${encodeURIComponent(product.category)}`}
+              className="text-primary text-sm hover:text-primary-light transition"
+            >
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            {similarProducts.map((similarProduct) => (
+              <ProductCard key={similarProduct.id} product={similarProduct} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

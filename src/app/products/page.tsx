@@ -4,8 +4,8 @@ import { useState, useMemo, useEffect, Suspense } from 'react';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Package, ChevronDown, Loader2 } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Package, ChevronDown, Loader2, Search, X } from 'lucide-react';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Product } from '@/lib/types';
 
@@ -30,10 +30,10 @@ function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVa
 
 const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 const subCategoriesMap: Record<string, string[]> = {
-  'Men': ['Shirts', 'Kurtas', 'Trousers', 'Ethnic Wear', 'Fabrics'],
-  'Women': ['Sarees', 'Kurtas', 'Dress Materials', 'Dupattas', 'Blouses'],
-  'Kids': ['Boys Wear', 'Girls Wear', 'School Uniforms', 'Ethnic Kids'],
-  'Home & Living': ['Bedsheets', 'Curtains', 'Cushion Covers', 'Table Linen']
+  'Men': ['Shirts', 'Pants', 'Trousers', 'Kurtas', 'Ethnic Wear', 'Fabrics', 'Jeans', 'T-Shirts', 'Jackets'],
+  'Women': ['Sarees', 'Kurtas', 'Dress Materials', 'Dupattas', 'Blouses', 'Lehengas', 'Salwar Suits', 'Tops', 'Pants', 'Skirts'],
+  'Kids': ['Boys Wear', 'Girls Wear', 'School Uniforms', 'Ethnic Kids', 'T-Shirts', 'Pants', 'Dresses'],
+  'Home & Living': ['Bedsheets', 'Curtains', 'Cushion Covers', 'Table Linen', 'Towels', 'Blankets', 'Pillow Covers']
 };
 
 // Loading fallback component
@@ -49,13 +49,39 @@ function ProductsLoading() {
 // Main products content component
 function ProductsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const mainCategory = searchParams.get('main');
   const subCategory = searchParams.get('sub');
   const category = searchParams.get('category');
+  const searchQuery = searchParams.get('search') || '';
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState(searchQuery);
+
+  // Handle search submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchInput.trim()) {
+      params.set('search', searchInput.trim());
+    }
+    if (mainCategory) params.set('main', mainCategory);
+    if (subCategory) params.set('sub', subCategory);
+    if (category) params.set('category', category);
+    router.push(`/products?${params.toString()}`);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchInput('');
+    const params = new URLSearchParams();
+    if (mainCategory) params.set('main', mainCategory);
+    if (subCategory) params.set('sub', subCategory);
+    if (category) params.set('category', category);
+    router.push(`/products?${params.toString()}`);
+  };
 
   // Fetch products from Supabase
   useEffect(() => {
@@ -73,6 +99,11 @@ function ProductsContent() {
         if (subCategory || category) {
           query = query.eq('category', subCategory || category);
         }
+        
+        // Add search filter using ilike for case-insensitive search
+        if (searchQuery) {
+          query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`);
+        }
 
         const { data, error: fetchError } = await query.order('created_at', { ascending: false });
 
@@ -89,7 +120,12 @@ function ProductsContent() {
     }
 
     fetchProducts();
-  }, [mainCategory, subCategory, category]);
+  }, [mainCategory, subCategory, category, searchQuery]);
+
+  // Update search input when URL changes
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
 
   // const categories = mainCategories;
   const subCategories = subCategoriesMap;
@@ -135,17 +171,19 @@ function ProductsContent() {
   const filteredProducts = useMemo(() => {
     let filtered = [...categoryFiltered];
 
-    // Filter by colors
+    // Filter by colors (case-insensitive)
     if (selectedColors.length > 0) {
+      const lowerColors = selectedColors.map(c => c.toLowerCase());
       filtered = filtered.filter(p =>
-        p.variations.some(v => selectedColors.includes(v.color))
+        p.variations.some(v => lowerColors.includes(v.color.toLowerCase()))
       );
     }
 
-    // Filter by sizes
+    // Filter by sizes (case-insensitive)
     if (selectedSizes.length > 0) {
+      const lowerSizes = selectedSizes.map(s => s.toLowerCase());
       filtered = filtered.filter(p =>
-        p.variations.some(v => selectedSizes.includes(v.size))
+        p.variations.some(v => lowerSizes.includes(v.size.toLowerCase()))
       );
     }
 
@@ -220,6 +258,41 @@ function ProductsContent() {
         </p>
         <h1 className="text-3xl font-serif text-white mt-1">{pageTitle}</h1>
       </div>
+
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="mb-6">
+        <div className="relative max-w-2xl">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search products by name, category, or description..."
+            className="w-full pl-12 pr-24 py-3.5 glass-card-gold rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute right-20 top-1/2 -translate-y-1/2 p-1.5 text-dark-400 hover:text-dark-200 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-4 py-2 rounded-lg text-sm font-medium text-dark-900"
+          >
+            Search
+          </button>
+        </div>
+        {searchQuery && (
+          <p className="mt-2 text-dark-400 text-sm">
+            Showing results for &quot;<span className="text-primary">{searchQuery}</span>&quot;
+            <button onClick={clearSearch} className="ml-2 text-primary hover:underline">Clear</button>
+          </p>
+        )}
+      </form>
 
       {/* Main Category Pills */}
       <div className="flex gap-3 overflow-x-auto pb-4 mb-4 scrollbar-hide">

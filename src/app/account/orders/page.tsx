@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Package, ChevronLeft, Clock, MapPin, Phone, Truck, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { Package, ChevronLeft, Clock, MapPin, Phone, Truck, Trash2, AlertTriangle, Loader2, Search } from 'lucide-react';
 import Link from 'next/link';
 
 interface OrderItem {
@@ -41,6 +41,8 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -48,17 +50,84 @@ export default function OrdersPage() {
     }
   }, [user, isLoading, router]);
 
+  // Search for order by order number
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    
+    try {
+      setSearching(true);
+      const response = await fetch(`/api/orders?order_number=${encodeURIComponent(searchQuery.trim())}`);
+      const data = await response.json();
+      if (data.order) {
+        // Add to orders if not already present
+        setOrders(prev => {
+          const exists = prev.some(o => o.id === data.order.id);
+          if (exists) return prev;
+          return [data.order, ...prev];
+        });
+        setSearchQuery('');
+      } else {
+        alert('Order not found. Please check the order number.');
+      }
+    } catch (err) {
+      console.error('Error searching order:', err);
+      alert('Failed to search order');
+    } finally {
+      setSearching(false);
+    }
+  }
+
   useEffect(() => {
     async function fetchOrders() {
-      if (!user?.phone) return;
+      if (!user) return;
       
       try {
         setLoading(true);
-        const response = await fetch(`/api/orders?phone=${encodeURIComponent(user.phone)}`);
-        const data = await response.json();
-        if (data.orders) {
-          setOrders(data.orders);
+        let allOrders: Order[] = [];
+        const existingIds = new Set<string>();
+        
+        // Try fetching by email first (most reliable identifier)
+        if (user.email) {
+          try {
+            const emailResponse = await fetch(`/api/orders?email=${encodeURIComponent(user.email)}`);
+            const emailData = await emailResponse.json();
+            if (emailData.orders && emailData.orders.length > 0) {
+              emailData.orders.forEach((order: Order) => {
+                if (!existingIds.has(order.id)) {
+                  existingIds.add(order.id);
+                  allOrders.push(order);
+                }
+              });
+            }
+          } catch (e) {
+            console.error('Error fetching by email:', e);
+          }
         }
+        
+        // Also try fetching by phone number if available
+        if (user.phone) {
+          try {
+            // Normalize phone number - remove non-digits and get last 10 digits
+            const normalizedPhone = user.phone.replace(/\D/g, '').slice(-10);
+            const phoneResponse = await fetch(`/api/orders?phone=${encodeURIComponent(normalizedPhone)}`);
+            const phoneData = await phoneResponse.json();
+            if (phoneData.orders && phoneData.orders.length > 0) {
+              phoneData.orders.forEach((order: Order) => {
+                if (!existingIds.has(order.id)) {
+                  existingIds.add(order.id);
+                  allOrders.push(order);
+                }
+              });
+            }
+          } catch (e) {
+            console.error('Error fetching by phone:', e);
+          }
+        }
+        
+        // Sort by created_at descending
+        allOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setOrders(allOrders);
       } catch (err) {
         console.error('Error fetching orders:', err);
       } finally {
@@ -67,7 +136,7 @@ export default function OrdersPage() {
     }
     
     fetchOrders();
-  }, [user?.phone]);
+  }, [user]);
 
   async function handleDeleteOrder(orderId: string) {
     try {
@@ -134,7 +203,39 @@ export default function OrdersPage() {
         </Link>
         <h1 className="text-3xl font-serif text-white">My Orders</h1>
         <p className="text-dark-400 mt-1">Track and manage your orders</p>
+        
+        {/* Search by Order Number */}
+        <form onSubmit={handleSearch} className="mt-4 flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by order number (e.g., NT-ABC123)"
+              className="w-full pl-10 pr-4 py-2.5 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={searching || !searchQuery.trim()}
+            className="px-4 py-2.5 btn-glossy rounded-lg text-sm font-medium text-dark-900 disabled:opacity-50 flex items-center gap-2"
+          >
+            {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            Find
+          </button>
+        </form>
       </div>
+
+      {/* Debug info - shows what identifiers are being used */}
+      {user && orders.length === 0 && !loading && (
+        <div className="mb-4 p-3 glass-card rounded-lg text-xs text-dark-500">
+          <p>Looking for orders with:</p>
+          <p>• Email: {user.email || 'Not set'}</p>
+          <p>• Phone: {user.phone || 'Not set'}</p>
+          <p className="mt-2 text-dark-400">Tip: Use the search box above to find orders by order number (e.g., NT-ABC123)</p>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-20">

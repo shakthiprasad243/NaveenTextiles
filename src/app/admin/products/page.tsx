@@ -8,19 +8,31 @@ import GoogleDriveImage from '@/components/GoogleDriveImage';
 
 const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 const subCategoriesMap: Record<string, string[]> = {
-  'Men': ['Shirts', 'Kurtas', 'Trousers', 'Ethnic Wear', 'Fabrics'],
-  'Women': ['Sarees', 'Kurtas', 'Dress Materials', 'Dupattas', 'Blouses'],
-  'Kids': ['Boys Wear', 'Girls Wear', 'School Uniforms', 'Ethnic Kids'],
-  'Home & Living': ['Bedsheets', 'Curtains', 'Cushion Covers', 'Table Linen']
+  'Men': ['Shirts', 'Pants', 'Trousers', 'Kurtas', 'Ethnic Wear', 'Fabrics', 'Jeans', 'T-Shirts', 'Jackets'],
+  'Women': ['Sarees', 'Kurtas', 'Dress Materials', 'Dupattas', 'Blouses', 'Lehengas', 'Salwar Suits', 'Tops', 'Pants', 'Skirts'],
+  'Kids': ['Boys Wear', 'Girls Wear', 'School Uniforms', 'Ethnic Kids', 'T-Shirts', 'Pants', 'Dresses'],
+  'Home & Living': ['Bedsheets', 'Curtains', 'Cushion Covers', 'Table Linen', 'Towels', 'Blankets', 'Pillow Covers']
 };
 
 // Transform Supabase data to local Product type
 function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVariant[] }): Product {
+  // Collect all unique images from all variants
+  const allImages: string[] = [];
+  dbProduct.product_variants.forEach(v => {
+    if (v.images && Array.isArray(v.images)) {
+      v.images.forEach(img => {
+        if (img && !allImages.includes(img)) {
+          allImages.push(img);
+        }
+      });
+    }
+  });
+
   return {
     id: dbProduct.id,
     name: dbProduct.name,
     description: dbProduct.description || '',
-    images: dbProduct.product_variants[0]?.images || [],
+    images: allImages,
     category: dbProduct.category || '',
     mainCategory: dbProduct.main_category || '',
     price: dbProduct.base_price,
@@ -120,15 +132,16 @@ export default function AdminProductsPage() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const slug = formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const baseSlug = formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      // Add timestamp suffix for new products to ensure uniqueness
+      const slug = editingProduct ? baseSlug : `${baseSlug}-${Date.now().toString(36)}`;
 
       if (editingProduct) {
-        // Update existing product
+        // Update existing product (keep existing slug to avoid breaking links)
         const { error: productError } = await supabase
           .from('products')
           .update({
             name: formData.name,
-            slug,
             description: formData.description,
             base_price: parseFloat(formData.price) || 0,
             main_category: formData.mainCategory,
@@ -196,9 +209,12 @@ export default function AdminProductsPage() {
 
       await fetchProducts();
       setShowModal(false);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error saving product:', err);
-      alert('Failed to save product. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 
+        (typeof err === 'object' && err !== null && 'message' in err) ? String((err as { message: unknown }).message) : 
+        'Unknown error';
+      alert(`Failed to save product: ${errorMessage}`);
     } finally {
       setSaving(false);
     }

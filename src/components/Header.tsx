@@ -2,31 +2,42 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Menu, X, User, ChevronDown, LogIn, Shield, LogOut, Package } from 'lucide-react';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ShoppingCart, Menu, X, User, ChevronDown, LogIn, Shield, LogOut, Package, Search, Loader2, Tag, TrendingUp } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
+
+interface SearchSuggestion {
+  id: string;
+  name: string;
+  category: string;
+  mainCategory: string;
+  price: number;
+  image?: string;
+}
 
 const mainCategories = ['Men', 'Women', 'Kids', 'Home & Living'];
 
 const megaMenuData: Record<string, { title: string; items: string[] }[]> = {
   'Men': [
-    { title: 'Topwear', items: ['Shirts', 'T-Shirts', 'Kurtas', 'Formal Shirts'] },
-    { title: 'Bottomwear', items: ['Trousers', 'Jeans', 'Shorts', 'Track Pants'] },
+    { title: 'Topwear', items: ['Shirts', 'T-Shirts', 'Kurtas', 'Jackets'] },
+    { title: 'Bottomwear', items: ['Pants', 'Trousers', 'Jeans', 'Shorts'] },
     { title: 'Ethnic Wear', items: ['Kurta Sets', 'Sherwanis', 'Nehru Jackets', 'Dhotis'] },
     { title: 'Fabrics', items: ['Shirt Fabrics', 'Trouser Fabrics', 'Suit Fabrics', 'Cotton Fabrics'] }
   ],
   'Women': [
-    { title: 'Indian Wear', items: ['Sarees', 'Kurtas', 'Dress Materials', 'Lehenga Choli'] },
-    { title: 'Western Wear', items: ['Tops', 'Dresses', 'Jeans', 'Skirts'] },
-    { title: 'Accessories', items: ['Dupattas', 'Stoles', 'Blouses', 'Petticoats'] },
+    { title: 'Indian Wear', items: ['Sarees', 'Kurtas', 'Dress Materials', 'Lehengas'] },
+    { title: 'Western Wear', items: ['Tops', 'Pants', 'Skirts', 'Dresses'] },
+    { title: 'Accessories', items: ['Dupattas', 'Blouses', 'Salwar Suits', 'Stoles'] },
     { title: 'Fabrics', items: ['Silk Fabrics', 'Cotton Fabrics', 'Georgette', 'Chiffon'] }
   ],
   'Kids': [
-    { title: 'Boys Clothing', items: ['T-Shirts', 'Shirts', 'Jeans', 'Shorts'] },
+    { title: 'Boys Clothing', items: ['T-Shirts', 'Shirts', 'Pants', 'Shorts'] },
     { title: 'Girls Clothing', items: ['Dresses', 'Tops', 'Leggings', 'Skirts'] },
     { title: 'Ethnic Wear', items: ['Boys Kurta Sets', 'Girls Lehengas', 'Ethnic Dresses'] },
-    { title: 'School Wear', items: ['Uniforms', 'School Shoes', 'Bags', 'Accessories'] }
+    { title: 'School Wear', items: ['School Uniforms', 'School Shoes', 'Bags', 'Accessories'] }
   ],
   'Home & Living': [
     { title: 'Bedding', items: ['Bedsheets', 'Pillow Covers', 'Blankets', 'Mattress Protectors'] },
@@ -37,11 +48,90 @@ const megaMenuData: Record<string, { title: string; items: string[] }[]> = {
 };
 
 export default function Header() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [categorySuggestions, setCategorySuggestions] = useState<string[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const { itemCount } = useCart();
   const { user, logout } = useAuth();
+
+  // Debounced search for suggestions
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (!query.trim() || query.length < 2) {
+      setSuggestions([]);
+      setCategorySuggestions([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      // Fetch matching products
+      const { data: products } = await supabase
+        .from('products')
+        .select(`id, name, category, main_category, base_price, product_variants(images)`)
+        .eq('active', true)
+        .or(`name.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`)
+        .limit(5);
+
+      if (products) {
+        const formattedSuggestions: SearchSuggestion[] = products.map(p => ({
+          id: p.id,
+          name: p.name,
+          category: p.category || '',
+          mainCategory: p.main_category || '',
+          price: p.base_price,
+          image: p.product_variants?.[0]?.images?.[0]
+        }));
+        setSuggestions(formattedSuggestions);
+
+        // Extract unique categories from results
+        const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+        setCategorySuggestions(categories.slice(0, 3));
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  // Debounce effect for search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchSuggestions(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, fetchSuggestions]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery('');
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (productId: string) => {
+    router.push(`/products/${productId}`);
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSuggestions([]);
+  };
+
+  const handleCategoryClick = (category: string) => {
+    router.push(`/products?search=${encodeURIComponent(category)}`);
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSuggestions([]);
+  };
 
   return (
     <header className="sticky top-0 z-50">
@@ -90,6 +180,15 @@ export default function Header() {
 
             {/* Right Section */}
             <div className="flex items-center gap-2 md:gap-4 relative z-50">
+              {/* Search Button */}
+              <button 
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="p-2 text-dark-200 hover:text-primary transition"
+                aria-label="Search products"
+              >
+                <Search className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+
               <Link href="/cart" className="relative p-2 text-dark-200 hover:text-primary transition">
                 <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
                 {itemCount > 0 && (
@@ -153,6 +252,160 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Search Overlay */}
+      {searchOpen && (
+        <div className="absolute left-0 right-0 top-full z-[100]">
+          <div className="glass-card-gold border-t border-primary/20 shadow-xl">
+            <div className="max-w-3xl mx-auto px-4 py-4">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products, categories..."
+                  className="w-full pl-12 pr-24 py-3.5 glass-card rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition"
+                  autoFocus
+                />
+                {isSearching && (
+                  <Loader2 className="absolute right-24 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
+                )}
+                {searchQuery && !isSearching && (
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery(''); setSuggestions([]); }}
+                    className="absolute right-20 top-1/2 -translate-y-1/2 p-1.5 text-dark-400 hover:text-dark-200 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-4 py-2 rounded-lg text-sm font-medium text-dark-900"
+                >
+                  Search
+                </button>
+              </form>
+
+              {/* Search Suggestions */}
+              {searchQuery.length >= 2 && (suggestions.length > 0 || categorySuggestions.length > 0) && (
+                <div className="mt-4 space-y-4">
+                  {/* Category Suggestions */}
+                  {categorySuggestions.length > 0 && (
+                    <div>
+                      <p className="text-xs text-dark-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <Tag className="w-3 h-3" /> Categories
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {categorySuggestions.map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => handleCategoryClick(cat)}
+                            className="px-3 py-1.5 glass-card rounded-lg text-sm text-dark-300 hover:text-primary hover:bg-primary/10 transition flex items-center gap-1"
+                          >
+                            <Search className="w-3 h-3" />
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Product Suggestions */}
+                  {suggestions.length > 0 && (
+                    <div>
+                      <p className="text-xs text-dark-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <Package className="w-3 h-3" /> Products
+                      </p>
+                      <div className="space-y-2">
+                        {suggestions.map(product => (
+                          <button
+                            key={product.id}
+                            onClick={() => handleSuggestionClick(product.id)}
+                            className="w-full flex items-center gap-3 p-2 glass-card rounded-lg hover:bg-primary/10 transition text-left group"
+                          >
+                            {/* Product Image */}
+                            <div className="w-12 h-12 rounded-lg bg-dark-700 overflow-hidden flex-shrink-0">
+                              {product.image ? (
+                                <img 
+                                  src={product.image} 
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Package className="w-5 h-5 text-dark-500" />
+                                </div>
+                              )}
+                            </div>
+                            {/* Product Info */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-dark-200 text-sm font-medium truncate group-hover:text-primary transition">
+                                {product.name}
+                              </p>
+                              <p className="text-dark-500 text-xs">
+                                {product.mainCategory} {product.category && `› ${product.category}`}
+                              </p>
+                            </div>
+                            {/* Price */}
+                            <p className="text-primary font-medium text-sm">
+                              ₹{product.price.toLocaleString()}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                      {/* View All Results */}
+                      <button
+                        onClick={handleSearch}
+                        className="w-full mt-2 py-2 text-center text-sm text-primary hover:text-primary-light transition"
+                      >
+                        View all results for &quot;{searchQuery}&quot; →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* No Results */}
+              {searchQuery.length >= 2 && !isSearching && suggestions.length === 0 && categorySuggestions.length === 0 && (
+                <div className="mt-4 text-center py-4">
+                  <p className="text-dark-400 text-sm">No products found for &quot;{searchQuery}&quot;</p>
+                  <p className="text-dark-500 text-xs mt-1">Try a different search term</p>
+                </div>
+              )}
+
+              {/* Popular Searches - Show when no query */}
+              {searchQuery.length < 2 && (
+                <div className="mt-4">
+                  <p className="text-xs text-dark-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" /> Popular Searches
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Shirts', 'Sarees', 'Kurtas', 'Bedsheets', 'Cotton', 'Silk'].map(term => (
+                      <button
+                        key={term}
+                        onClick={() => {
+                          router.push(`/products?search=${encodeURIComponent(term)}`);
+                          setSearchOpen(false);
+                        }}
+                        className="px-3 py-1.5 glass-card rounded-lg text-sm text-dark-400 hover:text-primary hover:bg-primary/10 transition"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Click outside to close */}
+          <div 
+            className="fixed inset-0 -z-10" 
+            onClick={() => { setSearchOpen(false); setSuggestions([]); }}
+          />
+        </div>
+      )}
 
       {/* Mega Menu Dropdown */}
       <div 

@@ -23,6 +23,8 @@ export default function LoginPage() {
   const { login, register } = useAuth();
   const router = useRouter();
 
+  const [success, setSuccess] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -32,7 +34,12 @@ export default function LoginPage() {
       if (isLogin) {
         const result = await login(formData.email, formData.password);
         if (result.success) {
-          router.push('/account');
+          setSuccess(true);
+          // Small delay to show success state before redirect
+          setTimeout(() => {
+            router.push('/account');
+            router.refresh();
+          }, 500);
         } else {
           setError(result.error || 'Login failed');
         }
@@ -44,7 +51,11 @@ export default function LoginPage() {
         }
         const result = await register(formData);
         if (result.success) {
-          router.push('/account');
+          setSuccess(true);
+          setTimeout(() => {
+            router.push('/account');
+            router.refresh();
+          }, 500);
         } else {
           setError(result.error || 'Registration failed');
         }
@@ -157,13 +168,19 @@ export default function LoginPage() {
               <p className="text-red-400 text-sm text-center">{error}</p>
             )}
 
+            {success && (
+              <p className="text-green-400 text-sm text-center">Login Successful! Redirecting...</p>
+            )}
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || success}
               className="w-full btn-glossy py-3 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
+              ) : success ? (
+                'Success!'
               ) : (
                 isLogin ? 'Sign In' : 'Create Account'
               )}
