@@ -25,21 +25,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Handle cases where Clerk is not available (e.g., during build)
-  let clerkUser, isLoaded, signOut;
-  try {
-    const userHook = useUser();
-    const clerkHook = useClerk();
-    clerkUser = userHook.user;
-    isLoaded = userHook.isLoaded;
-    signOut = clerkHook.signOut;
-  } catch (error) {
-    // Clerk hooks not available, set defaults
-    clerkUser = null;
-    isLoaded = true;
-    signOut = async () => {};
-  }
-  
+  const { user: clerkUser, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
