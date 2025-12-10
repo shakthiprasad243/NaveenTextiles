@@ -59,21 +59,31 @@ export async function POST(req: Request) {
     const phone = phone_numbers[0]?.phone_number;
     const name = `${first_name || ''} ${last_name || ''}`.trim() || 'User';
 
+    console.log(`Processing ${eventType} for user: ${email} (ID: ${id})`);
+
     try {
-      // Check if user already exists to preserve admin status
-      const { data: existingUser } = await supabase
+      // Check if user already exists by Clerk ID
+      const { data: existingUserByClerkId } = await supabase
         .from('users')
-        .select('is_admin')
+        .select('*')
         .eq('clerk_user_id', id)
         .single();
 
+      // Check if user exists by email (for linking existing accounts)
+      const { data: existingUserByEmail } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
       // Determine admin status from multiple sources (priority order):
-      // 1. Clerk public metadata role
-      // 2. Clerk private metadata role  
-      // 3. Clerk unsafe metadata role
+      // 1. Clerk public metadata (isAdmin or role)
+      // 2. Clerk private metadata (isAdmin or role)
+      // 3. Clerk unsafe metadata (isAdmin or role)
       // 4. Email-based admin configuration
-      // 5. Preserve existing admin status
+      // 5. Preserve existing admin status from database
       let isAdmin = false;
+      let adminSource = 'none';
 
       // Check Clerk metadata for admin role
       const clerkRole = public_metadata?.role || private_metadata?.role || unsafe_metadata?.role;
@@ -81,38 +91,95 @@ export async function POST(req: Request) {
       
       if (clerkRole === 'admin' || clerkIsAdmin === true) {
         isAdmin = true;
-        console.log(`Admin role detected in Clerk metadata for user ${email}`);
+        adminSource = 'clerk_metadata';
+        console.log(`✅ Admin role detected in Clerk metadata for user ${email}`);
       } else if (email && shouldBeAdmin(email)) {
         isAdmin = true;
-        console.log(`Admin role assigned based on email configuration for ${email}`);
-      } else if (existingUser?.is_admin) {
+        adminSource = 'email_config';
+        console.log(`✅ Admin role assigned based on email configuration for ${email}`);
+      } else if (existingUserByClerkId?.is_admin || existingUserByEmail?.is_admin) {
         isAdmin = true;
-        console.log(`Preserving existing admin status for user ${email}`);
+        adminSource = 'existing_database';
+        console.log(`✅ Preserving existing admin status for user ${email}`);
       }
 
-      // Sync profile data with role-based admin assignment
-      const { error } = await supabase
-        .from('users')
-        .upsert({
-          clerk_user_id: id,
-          email,
-          name,
-          phone,
-          profile_image_url: image_url,
-          is_admin: isAdmin,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'clerk_user_id'
-        });
+      // Prepare user data
+      const userData = {
+        clerk_user_id: id,
+        email,
+        name,
+        phone: phone || '',
+        profile_image_url: image_url || null,
+        is_admin: isAdmin,
+        admin_source: adminSource,
+        last_synced_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      if (error) {
-        console.error('Error syncing user to Supabase:', error);
-        return new Response('Error syncing user', { status: 500 });
+      let result;
+      let action;
+
+      if (existingUserByClerkId) {
+        // Update existing user by Clerk ID
+        const { data, error } = await supabase
+          .from('users')
+          .update(userData)
+          .eq('clerk_user_id', id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+        action = 'updated_by_clerk_id';
+      } else if (existingUserByEmail && !existingUserByEmail.clerk_user_id) {
+        // Link existing user by email (add Clerk ID)
+        const { data, error } = await supabase
+          .from('users')
+          .update({
+            ...userData,
+            created_at: existingUserByEmail.created_at // Preserve original creation date
+          })
+          .eq('email', email)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+        action = 'linked_existing_user';
+        console.log(`🔗 Linked existing user ${email} with Clerk ID ${id}`);
+      } else {
+        // Create new user
+        const { data, error } = await supabase
+          .from('users')
+          .insert({
+            ...userData,
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+        action = 'created_new_user';
+        console.log(`🆕 Created new user ${email} with Clerk ID ${id}`);
       }
 
-      console.log(`User profile synced successfully to Supabase (Admin: ${isAdmin}, Source: ${clerkRole || clerkIsAdmin ? 'Clerk Role' : email && shouldBeAdmin(email) ? 'Email Config' : 'Existing Status'})`);
+      console.log(`✅ User sync successful:`, {
+        action,
+        email,
+        clerk_id: id,
+        is_admin: isAdmin,
+        admin_source: adminSource,
+        user_id: result.id
+      });
+
+      // Log admin status changes for audit
+      if (isAdmin) {
+        console.log(`🛡️  ADMIN ACCESS GRANTED: ${email} (Source: ${adminSource})`);
+      }
+
     } catch (error) {
-      console.error('Database error:', error);
+      console.error('❌ Database error during user sync:', error);
       return new Response('Database error', { status: 500 });
     }
   }

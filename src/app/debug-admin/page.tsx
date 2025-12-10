@@ -30,8 +30,8 @@ export default function DebugAdminPage() {
   const forceAdminSync = async () => {
     setLoading(true);
     try {
-      // Force admin creation/update
-      const response = await fetch('/api/admin/force-admin', {
+      // Use the new enhanced sync system
+      const response = await fetch('/api/admin/sync-user', {
         method: 'POST'
       });
       const result = await response.json();
@@ -43,8 +43,8 @@ export default function DebugAdminPage() {
       // Re-run debug
       await runDebug();
     } catch (error) {
-      console.error('Force admin failed:', error);
-      setSyncResult({ error: 'Failed to force admin status' });
+      console.error('Enhanced sync failed:', error);
+      setSyncResult({ error: 'Failed to sync user with enhanced system' });
     } finally {
       setLoading(false);
     }
@@ -155,7 +155,7 @@ export default function DebugAdminPage() {
             className="flex items-center justify-center gap-2 px-6 py-3 btn-glossy rounded-lg text-dark-900 font-medium"
           >
             <Shield className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-            {loading ? 'Syncing...' : 'Force Admin Access'}
+            {loading ? 'Syncing...' : 'Smart Sync User'}
           </button>
         </div>
       </div>
