@@ -14,7 +14,7 @@ export function isAdminEmail(email: string): boolean {
 }
 
 // You can also add admin by domain if needed
-export const ADMIN_DOMAINS = [
+export const ADMIN_DOMAINS: string[] = [
   // 'naveentextiles.com', // Uncomment to make all emails from this domain admin
 ];
 
