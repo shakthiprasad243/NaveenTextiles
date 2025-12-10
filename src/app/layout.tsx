@@ -1,5 +1,5 @@
 import './globals.css';
-import { ClerkProvider } from '@clerk/nextjs';
+import ConditionalClerkProvider from '@/components/ConditionalClerkProvider';
 import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header';
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ConditionalClerkProvider>
       <html lang="en">
         <head>
           <link rel="icon" type="image/png" href="/logo.png" />
@@ -83,6 +83,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </AuthProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ConditionalClerkProvider>
   );
 }
