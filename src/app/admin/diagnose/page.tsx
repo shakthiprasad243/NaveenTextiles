@@ -307,7 +307,7 @@ export default function DiagnosePage() {
       <div className="glass-card-gold rounded-xl p-6">
         <h2 className="text-white font-medium mb-4">Recommendations</h2>
         <div className="space-y-3 text-sm">
-          {!diagnostics.database?.connection?.status === 'success' && (
+          {diagnostics.database?.connection?.status !== 'success' && (
             <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
               <XCircle className="w-4 h-4 text-red-400 mt-0.5" />
               <div>
