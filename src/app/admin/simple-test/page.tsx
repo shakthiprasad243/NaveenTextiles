@@ -60,7 +60,7 @@ export default function SimpleTestPage() {
 
     } catch (error) {
       console.error('Test failed:', error);
-      setResult({ error: error.message });
+      setResult({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   };
 

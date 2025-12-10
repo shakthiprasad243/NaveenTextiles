@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
     // Check webhook endpoint
     try {
       const webhookUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/webhooks/clerk`;
-      diagnostics.clerk.webhookUrl = webhookUrl;
+      (diagnostics.clerk as any).webhookUrl = webhookUrl;
     } catch (err) {
       // Ignore webhook URL errors
     }
