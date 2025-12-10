@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 import { createClient } from '@supabase/supabase-js';
+import { shouldBeAdmin } from '@/lib/admin-config';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -66,7 +67,10 @@ export async function POST(req: Request) {
         .eq('clerk_user_id', id)
         .single();
 
-      // Only sync profile data, preserve existing admin status
+      // Determine admin status: preserve existing admin status or check if email should be admin
+      const isAdmin = existingUser?.is_admin || (email ? shouldBeAdmin(email) : false);
+
+      // Sync profile data with automatic admin assignment
       const { error } = await supabase
         .from('users')
         .upsert({
@@ -75,8 +79,7 @@ export async function POST(req: Request) {
           name,
           phone,
           profile_image_url: image_url,
-          // Preserve existing admin status or default to false for new users
-          is_admin: existingUser?.is_admin || false,
+          is_admin: isAdmin,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'clerk_user_id'
@@ -87,7 +90,7 @@ export async function POST(req: Request) {
         return new Response('Error syncing user', { status: 500 });
       }
 
-      console.log(`User profile synced successfully to Supabase (Admin status preserved)`);
+      console.log(`User profile synced successfully to Supabase (Admin: ${isAdmin})`);
     } catch (error) {
       console.error('Database error:', error);
       return new Response('Database error', { status: 500 });
