@@ -1,6 +1,6 @@
 # Naveen Textiles - E-commerce Platform
 
-A modern e-commerce platform built with Next.js 15, featuring authentication, cart management, order processing, and coupon system.
+A modern e-commerce platform built with Next.js 15, featuring authentication, cart management, order processing, and coupon system. Updated with latest fixes!
 
 ## Features
 
