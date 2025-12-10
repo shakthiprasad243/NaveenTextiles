@@ -17,19 +17,19 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <div className="text-center mb-12">
-        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-medium">Get in Touch</p>
-        <h1 className="text-4xl font-serif text-white mt-2">Contact Us</h1>
-        <p className="text-gray-600 mb-8">Have questions? We&apos;re here to help. Send us a message and we&apos;ll respond as soon as possible.</p>
+    <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+      <div className="text-center mb-8 md:mb-12">
+        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-xs md:text-sm uppercase tracking-wider font-medium">Get in Touch</p>
+        <h1 className="text-3xl md:text-4xl font-serif text-white mt-2">Contact Us</h1>
+        <p className="text-dark-400 text-sm md:text-base mt-3 md:mt-4 max-w-2xl mx-auto">Have questions? We&apos;re here to help. Send us a message and we&apos;ll respond as soon as possible.</p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-10">
+      <div className="grid lg:grid-cols-2 gap-6 md:gap-10">
         {/* Contact Info */}
-        <div className="space-y-6">
-          <div className="glass-card-gold rounded-xl p-6">
-            <h3 className="text-primary font-medium mb-6">Contact Information</h3>
-            <div className="space-y-5">
+        <div className="space-y-4 md:space-y-6">
+          <div className="glass-card-gold rounded-xl p-5 md:p-6">
+            <h3 className="text-primary font-medium mb-4 md:mb-6 text-sm md:text-base">Contact Information</h3>
+            <div className="space-y-4 md:space-y-5">
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-5 h-5 text-primary" />
@@ -70,18 +70,18 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Map placeholder */}
-          <div className="glass-card-gold rounded-xl p-6 h-48 flex items-center justify-center">
+          {/* Map placeholder - Better mobile height */}
+          <div className="glass-card-gold rounded-xl p-5 md:p-6 h-40 md:h-48 flex items-center justify-center">
             <div className="text-center">
-              <MapPin className="w-8 h-8 text-primary mx-auto mb-2" />
-              <p className="text-dark-400 text-sm">Visit our store in Surat, Gujarat</p>
+              <MapPin className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-2" />
+              <p className="text-dark-400 text-xs md:text-sm">Visit our store in Surat, Gujarat</p>
             </div>
           </div>
         </div>
 
         {/* Contact Form */}
-        <div className="glass-card-gold rounded-xl p-6">
-          <h3 className="text-primary font-medium mb-6">Send us a Message</h3>
+        <div className="glass-card-gold rounded-xl p-5 md:p-6">
+          <h3 className="text-primary font-medium mb-4 md:mb-6 text-sm md:text-base">Send us a Message</h3>
           {submitted ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
@@ -111,7 +111,7 @@ export default function ContactPage() {
                 <label className="text-dark-300 text-sm mb-2 block">Message</label>
                 <textarea required rows={4} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className="w-full px-4 py-3 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 placeholder-dark-500 resize-none" placeholder="How can we help you?" />
               </div>
-              <button type="submit" className="w-full btn-glossy py-3 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2">
+              <button type="submit" className="w-full btn-glossy py-3 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2 min-h-[48px]">
                 <Send className="w-4 h-4" /> Send via WhatsApp
               </button>
             </form>

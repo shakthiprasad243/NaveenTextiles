@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import ProductCard from '@/components/ProductCard';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import ProductFilters from '@/components/ProductFilters';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -267,9 +268,31 @@ function ProductsContent() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center">
-        <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-        <p className="text-dark-400">Loading products...</p>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header skeleton */}
+        <div className="mb-6 space-y-3">
+          <div className="h-4 w-32 skeleton rounded" />
+          <div className="h-8 w-48 skeleton rounded" />
+        </div>
+        
+        {/* Search skeleton */}
+        <div className="mb-6">
+          <div className="h-14 max-w-2xl skeleton rounded-xl" />
+        </div>
+        
+        {/* Category pills skeleton */}
+        <div className="flex gap-3 mb-6 overflow-hidden">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-10 w-24 skeleton rounded-full flex-shrink-0" />
+          ))}
+        </div>
+        
+        {/* Products grid skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -288,24 +311,29 @@ function ProductsContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Page Header */}
-      <div className="mb-6">
-        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-medium">
+      {/* Enhanced Page Header - Better mobile spacing */}
+      <div className="mb-6 md:mb-8">
+        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-xs md:text-sm uppercase tracking-wider font-bold">
           Browse Collection
         </p>
-        <h1 className="text-3xl font-serif text-white mt-1">{pageTitle}</h1>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif text-white mt-2 mb-2">{pageTitle}</h1>
+        {products.length > 0 && (
+          <p className="text-dark-400 text-xs md:text-sm">
+            Showing {filteredProducts.length} of {categoryFiltered.length} products
+          </p>
+        )}
       </div>
 
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="mb-6">
+      {/* Search Bar - Better mobile UX */}
+      <form onSubmit={handleSearch} className="mb-4 md:mb-6">
         <div className="relative max-w-2xl">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
+          <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-dark-400" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search products by name, category, or description..."
-            className="w-full pl-12 pr-24 py-3.5 glass-card-gold rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition"
+            placeholder="Search products..."
+            className="w-full pl-10 md:pl-12 pr-20 md:pr-24 py-3 md:py-3.5 glass-card-gold rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition text-sm md:text-base"
           />
           {searchInput && (
             <button
@@ -318,7 +346,7 @@ function ProductsContent() {
           )}
           <button
             type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-4 py-2 rounded-lg text-sm font-medium text-dark-900"
+            className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium text-dark-900 min-h-[36px] md:min-h-[40px]"
           >
             Search
           </button>
@@ -331,11 +359,11 @@ function ProductsContent() {
         )}
       </form>
 
-      {/* Main Category Pills */}
-      <div className="flex gap-3 overflow-x-auto pb-4 mb-4 scrollbar-hide">
+      {/* Main Category Pills - Better mobile scroll */}
+      <div className="flex gap-2 md:gap-3 overflow-x-auto pb-3 md:pb-4 mb-3 md:mb-4 scrollbar-hide -mx-4 px-4">
         <Link
           href="/products"
-          className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm transition-all ${!mainCategory && !category
+          className={`flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm transition-all min-h-[40px] md:min-h-[44px] flex items-center ${!mainCategory && !category
               ? 'btn-glossy text-dark-900 font-medium'
               : 'glass-card-gold text-dark-200 hover:text-primary'
             }`}
@@ -346,7 +374,7 @@ function ProductsContent() {
           <Link
             key={cat}
             href={`/products?main=${encodeURIComponent(cat)}`}
-            className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm transition-all ${mainCategory === cat
+            className={`flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm transition-all min-h-[40px] md:min-h-[44px] flex items-center whitespace-nowrap ${mainCategory === cat
                 ? 'btn-glossy text-dark-900 font-medium'
                 : 'glass-card-gold text-dark-200 hover:text-primary'
               }`}
@@ -356,9 +384,9 @@ function ProductsContent() {
         ))}
       </div>
 
-      {/* Sub Category Pills */}
+      {/* Sub Category Pills - Better mobile scroll */}
       {mainCategory && availableSubCategories.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-3 md:pb-4 mb-4 md:mb-6 scrollbar-hide -mx-4 px-4">
           <Link
             href={`/products?main=${encodeURIComponent(mainCategory)}`}
             className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs transition-all ${!subCategory
@@ -429,11 +457,17 @@ function ProductsContent() {
             </div>
           </div>
 
-          {/* Products Grid */}
+          {/* Products Grid with stagger animation - Better mobile grid */}
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+              {filteredProducts.map((product, index) => (
+                <div 
+                  key={product.id}
+                  className="animate-fadeIn"
+                  style={{ animationDelay: `${(index % 12) * 0.05}s` }}
+                >
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
           ) : (
@@ -452,8 +486,8 @@ function ProductsContent() {
         </div>
       </div>
 
-      {/* Mobile Filter Button - Fixed at bottom */}
-      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+      {/* Mobile Filter Button - Fixed at bottom with better positioning */}
+      <div className="lg:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
         <MobileFilterSheet
           availableColors={availableColors}
           availableSizes={availableSizes}

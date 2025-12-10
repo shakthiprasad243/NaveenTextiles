@@ -23,17 +23,18 @@ export default function GoogleAnalytics() {
       <script
         async
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
-      />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
+        onLoad={() => {
+          // Initialize gtag after script loads
+          if (typeof window !== 'undefined' && GA_TRACKING_ID) {
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_TRACKING_ID}', {
+            window.gtag = function gtag() {
+              window.dataLayer.push(arguments);
+            };
+            window.gtag('js', new Date());
+            window.gtag('config', GA_TRACKING_ID, {
               page_path: window.location.pathname,
             });
-          `,
+          }
         }}
       />
     </>

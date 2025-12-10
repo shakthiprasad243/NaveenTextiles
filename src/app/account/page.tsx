@@ -118,26 +118,26 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
+      {/* Header - Better mobile layout */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-medium">
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-xs md:text-sm uppercase tracking-wider font-medium">
             My Account
           </p>
-          <h1 className="text-3xl font-serif text-white mt-1">Welcome, {user.name.split(' ')[0]}!</h1>
+          <h1 className="text-2xl md:text-3xl font-serif text-white mt-1">Welcome, {user.name.split(' ')[0]}!</h1>
         </div>
         {user.isAdmin && (
-          <Link href="/admin" className="btn-glossy px-4 py-2 rounded-lg text-sm font-medium text-dark-900 flex items-center gap-2">
+          <Link href="/admin" className="btn-glossy px-4 py-2.5 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2 min-h-[44px]">
             <Shield className="w-4 h-4" /> Admin Panel
           </Link>
         )}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
         {/* Profile Card */}
         <div className="lg:col-span-1">
-          <div className="glass-card-gold rounded-xl p-6">
+          <div className="glass-card-gold rounded-xl p-5 md:p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-primary font-medium">Profile</h3>
               <button
@@ -148,8 +148,8 @@ export default function AccountPage() {
               </button>
             </div>
 
-            <div className="flex flex-col items-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-gold-600 flex items-center justify-center text-dark-900 text-2xl font-bold mb-3">
+            <div className="flex flex-col items-center mb-5 md:mb-6">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-primary to-gold-600 flex items-center justify-center text-dark-900 text-xl md:text-2xl font-bold mb-3">
                 {user.name.charAt(0)}
               </div>
               {!isEditing ? (
@@ -228,11 +228,11 @@ export default function AccountPage() {
         </div>
 
         {/* Orders & Quick Links */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           {/* Quick Links */}
-          <div className="glass-card-gold rounded-xl p-6">
-            <h3 className="text-primary font-medium mb-4">Quick Links</h3>
-            <div className="grid sm:grid-cols-2 gap-3">
+          <div className="glass-card-gold rounded-xl p-5 md:p-6">
+            <h3 className="text-primary font-medium mb-3 md:mb-4 text-sm md:text-base">Quick Links</h3>
+            <div className="grid sm:grid-cols-2 gap-2 md:gap-3">
               {[
                 { icon: Package, label: 'My Orders', href: '/account/orders', desc: 'Track your orders' },
                 { icon: MapPin, label: 'Addresses', href: '/account/addresses', desc: 'Manage addresses' },
@@ -259,10 +259,10 @@ export default function AccountPage() {
           </div>
 
           {/* Recent Orders */}
-          <div className="glass-card-gold rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-primary font-medium">Recent Orders</h3>
-              <Link href="/account/orders" className="text-dark-400 hover:text-primary text-sm transition">
+          <div className="glass-card-gold rounded-xl p-5 md:p-6">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <h3 className="text-primary font-medium text-sm md:text-base">Recent Orders</h3>
+              <Link href="/account/orders" className="text-dark-400 hover:text-primary text-xs md:text-sm transition">
                 View All
               </Link>
             </div>

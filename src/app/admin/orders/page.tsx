@@ -299,11 +299,12 @@ export default function AdminOrdersPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      {/* Enhanced Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-serif text-white">Orders</h1>
-          <p className="text-primary/70 text-sm">{orders.length} total orders</p>
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-bold">Order Management</p>
+          <h1 className="text-3xl md:text-4xl font-serif text-white mt-2">Orders</h1>
+          <p className="text-dark-400 text-sm mt-1">{orders.length} total • {filteredOrders.length} showing</p>
         </div>
         {selectedIds.length > 0 && (
           <div className="flex gap-2">

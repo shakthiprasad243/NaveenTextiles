@@ -70,62 +70,82 @@ export default function HeroCarousel() {
 
   return (
     <section
-      className="relative h-72 md:h-[500px] overflow-hidden"
+      className="relative h-80 md:h-[550px] overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Background Images */}
+      {/* Background Images with Parallax */}
       {slides.map((s, i) => (
         <div
           key={s.id}
           className={`absolute inset-0 transition-opacity duration-1000 ${i === current ? 'opacity-100' : 'opacity-0'}`}
         >
           <div
-            className="absolute inset-0 bg-cover bg-center scale-105 transition-transform duration-[4000ms]"
+            className="absolute inset-0 bg-cover bg-center scale-105 transition-transform duration-[5000ms]"
             style={{ 
               backgroundImage: `url(${getGoogleDriveImageUrl(s.image)})`,
-              transform: i === current ? 'scale(1.1)' : 'scale(1.05)'
+              transform: i === current ? 'scale(1.15)' : 'scale(1.05)'
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-dark-900/95 via-dark-900/80 to-dark-900/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-dark-900/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-dark-900/95 via-dark-900/85 to-dark-900/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-dark-900/40" />
+          
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-gold-500/10 opacity-50" />
         </div>
       ))}
 
-      {/* Glossy overlay */}
-      <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
+      {/* Enhanced glossy overlay */}
+      <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent pointer-events-none" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-10 right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute bottom-10 left-10 w-40 h-40 bg-gold-500/5 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
 
       {/* Content */}
       <div className="absolute inset-0 flex items-center">
         <div className="max-w-6xl mx-auto px-4 w-full">
           <div key={current} className="max-w-xl">
-            <p 
-              className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-primary to-gold-300 uppercase tracking-[0.3em] text-xs md:text-sm mb-3 font-medium opacity-0 animate-slide-up"
-              style={{ animationDelay: '0.1s' }}
-            >
-              {slide.tagline}
-            </p>
+            <div className="inline-block mb-3 opacity-0 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <p className="text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-primary to-gold-400 uppercase tracking-[0.3em] text-xs md:text-sm font-bold relative">
+                {slide.tagline}
+                <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+              </p>
+            </div>
             <h1 
-              className="text-4xl md:text-6xl font-serif text-white mb-4 drop-shadow-2xl opacity-0 animate-slide-up"
-              style={{ animationDelay: '0.2s' }}
+              className="text-4xl md:text-7xl font-serif text-white mb-5 opacity-0 animate-slide-up"
+              style={{ 
+                animationDelay: '0.2s',
+                textShadow: '0 4px 20px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.2)'
+              }}
             >
               {slide.title.split(' ')[0]}{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-500">
+              <span className="block md:inline text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-400 animate-glow-pulse">
                 {slide.title.split(' ').slice(1).join(' ') || 'Collection'}
               </span>
             </h1>
             <p 
-              className="text-base md:text-lg text-dark-300 mb-6 md:mb-8 leading-relaxed opacity-0 animate-slide-up"
-              style={{ animationDelay: '0.3s' }}
+              className="text-base md:text-xl text-dark-200 mb-8 md:mb-10 leading-relaxed max-w-lg opacity-0 animate-slide-up"
+              style={{ 
+                animationDelay: '0.3s',
+                textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+              }}
             >
               {slide.description}
             </p>
-            <div className="opacity-0 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+            <div className="opacity-0 animate-slide-up flex flex-wrap gap-4" style={{ animationDelay: '0.4s' }}>
               <Link
                 href={slide.link}
-                className="btn-glossy inline-flex items-center gap-2 text-dark-900 px-6 md:px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105"
+                className="btn-glossy inline-flex items-center gap-2 text-dark-900 px-8 md:px-10 py-3.5 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all hover:scale-105 hover:shadow-2xl group"
               >
-                {slide.cta} <ArrowRight className="w-4 h-4" />
+                {slide.cta} 
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
+              </Link>
+              <Link
+                href="/products"
+                className="glass-card-gold inline-flex items-center gap-2 text-dark-100 hover:text-primary px-8 md:px-10 py-3.5 md:py-4 rounded-xl font-semibold text-sm md:text-base transition-all hover:scale-105 border border-primary/30 hover:border-primary/50"
+              >
+                View All Products
               </Link>
             </div>
           </div>
@@ -146,17 +166,18 @@ export default function HeroCarousel() {
         <ChevronRight className="w-6 h-6" />
       </button>
 
-      {/* Dots Indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      {/* Enhanced Dots Indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
         {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => goToSlide(i)}
-            className={`h-2 rounded-full transition-all ${
+            className={`h-2.5 rounded-full transition-all ${
               i === current
-                ? 'w-8 bg-gradient-to-r from-primary to-gold-400 shadow-lg shadow-primary/30'
-                : 'w-2 bg-white/30 hover:bg-white/50'
+                ? 'w-10 bg-gradient-to-r from-primary via-gold-400 to-primary shadow-lg shadow-primary/40 animate-glow-pulse'
+                : 'w-2.5 bg-white/40 hover:bg-white/60 hover:w-6'
             }`}
+            aria-label={`Go to slide ${i + 1}`}
           />
         ))}
       </div>

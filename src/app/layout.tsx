@@ -5,6 +5,8 @@ import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import BackToTop from '@/components/BackToTop';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -81,6 +83,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Header />
               <main className="pb-20">{children}</main>
               <Footer />
+              <FloatingWhatsApp />
+              <BackToTop />
             </CartProvider>
           </AuthProvider>
         </body>

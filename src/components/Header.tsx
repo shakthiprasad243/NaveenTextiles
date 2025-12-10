@@ -59,6 +59,16 @@ export default function Header() {
   const [isSearching, setIsSearching] = useState(false);
   const { itemCount } = useCart();
   const { user, logout } = useAuth();
+  const [cartBounce, setCartBounce] = useState(false);
+
+  // Trigger bounce animation when cart count changes
+  useEffect(() => {
+    if (itemCount > 0) {
+      setCartBounce(true);
+      const timer = setTimeout(() => setCartBounce(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [itemCount]);
 
   // Debounced search for suggestions
   const fetchSuggestions = useCallback(async (query: string) => {
@@ -139,17 +149,20 @@ export default function Header() {
       <div className="glass-card-gold relative z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 flex-shrink-0 relative z-50">
-              <Image 
-                src="/logo.png" 
-                alt="Naveen Textiles" 
-                width={60} 
-                height={60} 
-                className="h-12 md:h-14 w-auto rounded-lg"
-                priority
-              />
-              <span className="text-xl md:text-2xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-500 hidden sm:inline">
+            {/* Logo with hover effect - Improved mobile sizing */}
+            <Link href="/" className="flex items-center gap-2 md:gap-3 flex-shrink-0 relative z-50 group">
+              <div className="relative">
+                <Image 
+                  src="/logo.png" 
+                  alt="Naveen Textiles" 
+                  width={60} 
+                  height={60} 
+                  className="h-10 md:h-12 lg:h-14 w-auto rounded-lg group-hover:scale-105 transition-transform"
+                  priority
+                />
+                <div className="absolute inset-0 rounded-lg bg-primary/0 group-hover:bg-primary/10 transition-colors" />
+              </div>
+              <span className="text-base md:text-xl lg:text-2xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-500 hidden sm:inline group-hover:from-primary group-hover:to-gold-400 transition-all">
                 Naveen Textiles
               </span>
             </Link>
@@ -180,19 +193,20 @@ export default function Header() {
 
             {/* Right Section */}
             <div className="flex items-center gap-2 md:gap-4 relative z-50">
-              {/* Search Button */}
+              {/* Search Button with pulse effect - Better mobile touch target */}
               <button 
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 text-dark-200 hover:text-primary transition"
+                className="p-2.5 md:p-2 text-dark-200 hover:text-primary transition relative group min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Search products"
               >
-                <Search className="w-5 h-5 md:w-6 md:h-6" />
+                <Search className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
+                <span className="absolute inset-0 rounded-full bg-primary/0 group-hover:bg-primary/10 transition-colors" />
               </button>
 
-              <Link href="/cart" className="relative p-2 text-dark-200 hover:text-primary transition">
-                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6" />
+              <Link href="/cart" className="relative p-2.5 md:p-2 text-dark-200 hover:text-primary transition group min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-br from-primary-light to-primary text-dark-900 text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg shadow-primary/30">
+                  <span className={`absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 bg-gradient-to-br from-primary-light to-primary text-dark-900 text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg shadow-primary/40 ${cartBounce ? 'animate-bounce-once' : ''}`}>
                     {itemCount}
                   </span>
                 )}
@@ -267,7 +281,7 @@ export default function Header() {
                 </div>
               )}
 
-              <button className="lg:hidden p-2 text-dark-200" onClick={() => setMenuOpen(!menuOpen)}>
+              <button className="lg:hidden p-2.5 text-dark-200 min-w-[44px] min-h-[44px] flex items-center justify-center" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
                 {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
@@ -502,27 +516,27 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Improved spacing and touch targets */}
       {menuOpen && (
         <nav className="lg:hidden glass-card-gold gold-border-top px-4 py-4 max-h-[70vh] overflow-y-auto relative z-50">
           {mainCategories.map(category => (
-            <div key={category} className="mb-4">
+            <div key={category} className="mb-6">
               <Link
                 href={`/products?main=${encodeURIComponent(category)}`}
-                className="block text-primary font-medium mb-2 text-lg"
+                className="block text-primary font-medium mb-3 text-lg py-2 min-h-[44px] flex items-center"
                 onClick={() => setMenuOpen(false)}
               >
                 {category}
               </Link>
-              <div className="grid grid-cols-2 gap-2 pl-2">
+              <div className="grid grid-cols-2 gap-3 pl-2">
                 {megaMenuData[category]?.map((section, idx) => (
                   <div key={idx} className="mb-3">
-                    <p className="text-xs text-dark-400 uppercase tracking-wider mb-1">{section.title}</p>
+                    <p className="text-xs text-dark-400 uppercase tracking-wider mb-2 font-semibold">{section.title}</p>
                     {section.items.slice(0, 3).map((item, itemIdx) => (
                       <Link
                         key={itemIdx}
                         href={`/products?main=${encodeURIComponent(category)}&sub=${encodeURIComponent(item)}`}
-                        className="block text-sm text-dark-300 hover:text-primary py-1 px-2 rounded hover:bg-primary/10 transition"
+                        className="block text-sm text-dark-300 hover:text-primary py-2 px-2 rounded hover:bg-primary/10 transition min-h-[40px] flex items-center"
                         onClick={() => setMenuOpen(false)}
                       >
                         {item}

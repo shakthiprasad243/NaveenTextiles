@@ -301,122 +301,137 @@ export default function AdminProductsPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      {/* Enhanced Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-serif text-white">Products</h1>
-          <p className="text-primary/70 text-sm">{products.length} total products</p>
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-bold">Product Management</p>
+          <h1 className="text-3xl md:text-4xl font-serif text-white mt-2">Products</h1>
+          <p className="text-dark-400 text-sm mt-1">{products.length} total • {filteredProducts.length} showing</p>
         </div>
-        <button onClick={openAddModal} className="btn-glossy px-4 py-2.5 rounded-lg text-sm font-medium text-dark-900 flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Product
+        <button onClick={openAddModal} className="btn-glossy px-6 py-3.5 rounded-xl text-sm font-bold text-dark-900 flex items-center gap-2 hover:scale-105 transition-transform shadow-xl">
+          <Plus className="w-5 h-5" /> Add Product
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="glass-card-gold rounded-xl p-4 mb-6">
+      {/* Enhanced Filters */}
+      <div className="glass-card-enhanced rounded-2xl p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search by name or category..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50"
+              className="w-full pl-12 pr-4 py-3.5 glass-card rounded-xl text-dark-200 text-sm outline-none focus:ring-2 focus:ring-primary/50 transition"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-dark-400 hover:text-dark-200 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
           <div className="relative">
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-2.5 glass-card rounded-lg text-dark-200 text-sm outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer min-w-[150px]"
+              className="appearance-none pl-5 pr-12 py-3.5 glass-card rounded-xl text-dark-200 text-sm outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer min-w-[180px] font-medium"
             >
               <option value="">All Categories</option>
               {mainCategories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300 pointer-events-none" />
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400 pointer-events-none" />
           </div>
         </div>
       </div>
 
-      {/* Products Table */}
-      <div className="glass-card-gold rounded-xl overflow-hidden">
+      {/* Enhanced Products Table */}
+      <div className="glass-card-enhanced rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-primary/20 bg-dark-800/50">
-                <th className="text-left py-4 px-4 text-dark-400 font-medium">Product</th>
-                <th className="text-left py-4 px-4 text-dark-400 font-medium hidden md:table-cell">Category</th>
-                <th className="text-left py-4 px-4 text-dark-400 font-medium">Price</th>
-                <th className="text-left py-4 px-4 text-dark-400 font-medium hidden sm:table-cell">Stock</th>
-                <th className="text-left py-4 px-4 text-dark-400 font-medium">Status</th>
-                <th className="text-right py-4 px-4 text-dark-400 font-medium">Actions</th>
+              <tr className="border-b border-primary/30 bg-gradient-to-r from-dark-800/80 to-dark-700/80">
+                <th className="text-left py-5 px-6 text-dark-300 font-bold uppercase tracking-wider text-xs">Product</th>
+                <th className="text-left py-5 px-6 text-dark-300 font-bold uppercase tracking-wider text-xs hidden md:table-cell">Category</th>
+                <th className="text-left py-5 px-6 text-dark-300 font-bold uppercase tracking-wider text-xs">Price</th>
+                <th className="text-left py-5 px-6 text-dark-300 font-bold uppercase tracking-wider text-xs hidden sm:table-cell">Stock</th>
+                <th className="text-left py-5 px-6 text-dark-300 font-bold uppercase tracking-wider text-xs">Status</th>
+                <th className="text-right py-5 px-6 text-dark-300 font-bold uppercase tracking-wider text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredProducts.map(product => {
+              {filteredProducts.map((product, index) => {
                 const totalStock = product.variations.reduce((sum, v) => sum + v.stock, 0);
                 const isLowStock = totalStock < 10;
                 return (
-                  <tr key={product.id} className="border-b border-dark-700/50 hover:bg-dark-700/30 transition">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg bg-dark-700 overflow-hidden flex-shrink-0 relative">
+                  <tr 
+                    key={product.id} 
+                    className="border-b border-dark-700/50 hover:bg-primary/5 transition-all group animate-fadeIn"
+                    style={{ animationDelay: `${index * 0.03}s` }}
+                  >
+                    <td className="py-5 px-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-dark-700 overflow-hidden flex-shrink-0 relative group-hover:scale-105 transition-transform">
                           {product.images[0] ? (
-                            <GoogleDriveImage src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
+                            <GoogleDriveImage src={product.images[0]} alt={product.name} fill className="object-cover" sizes="56px" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-5 h-5 text-dark-300" />
+                              <Package className="w-6 h-6 text-dark-300" />
                             </div>
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-dark-200 font-medium truncate">{product.name}</p>
-                          <p className="text-primary/70 text-xs truncate md:hidden">{product.category}</p>
+                          <p className="text-dark-100 font-semibold truncate group-hover:text-white transition">{product.name}</p>
+                          <p className="text-dark-400 text-xs truncate md:hidden mt-0.5">{product.category}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-4 hidden md:table-cell">
-                      <span className="text-white">{product.mainCategory}</span>
-                      <span className="text-primary/70 text-xs block">{product.category}</span>
+                    <td className="py-5 px-6 hidden md:table-cell">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-white font-medium">{product.mainCategory}</span>
+                        <span className="text-dark-400 text-xs">{product.category}</span>
+                      </div>
                     </td>
-                    <td className="py-4 px-4">
-                      <span className="text-primary font-medium">₹{product.price.toLocaleString()}</span>
+                    <td className="py-5 px-6">
+                      <span className="text-primary font-bold text-base">₹{product.price.toLocaleString()}</span>
                     </td>
-                    <td className="py-4 px-4 hidden sm:table-cell">
-                      <span className={`px-2 py-1 rounded text-xs ${isLowStock ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
+                    <td className="py-5 px-6 hidden sm:table-cell">
+                      <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${isLowStock ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>
                         {totalStock} units
                       </span>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-5 px-6">
                       <button
                         onClick={() => toggleProductStatus(product.id)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition ${product.active
-                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                            : 'bg-dark-600 text-dark-400 hover:bg-dark-500'
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all hover:scale-105 ${product.active
+                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-500/30'
+                            : 'bg-dark-600 text-dark-400 hover:bg-dark-500 border border-dark-500'
                           }`}
                       >
-                        {product.active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                        {product.active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         {product.active ? 'Active' : 'Hidden'}
                       </button>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-5 px-6">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(product)}
-                          className="p-2 text-dark-400 hover:text-primary hover:bg-primary/10 rounded-lg transition"
+                          className="p-2.5 text-dark-400 hover:text-primary hover:bg-primary/10 rounded-xl transition-all hover:scale-110"
                           title="Edit"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(product.id)}
-                          className="p-2 text-dark-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                          className="p-2.5 text-dark-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all hover:scale-110"
                           title="Delete"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -428,42 +443,62 @@ export default function AdminProductsPage() {
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <Package className="w-12 h-12 text-dark-300 mx-auto mb-3" />
-            <p className="text-primary/70">No products found</p>
+          <div className="text-center py-16">
+            <div className="w-20 h-20 rounded-full bg-dark-700 flex items-center justify-center mx-auto mb-4">
+              <Package className="w-10 h-10 text-dark-400" />
+            </div>
+            <p className="text-dark-300 font-medium text-lg">No products found</p>
+            <p className="text-dark-400 text-sm mt-1">Try adjusting your search or filters</p>
           </div>
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Enhanced Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="glass-card-gold rounded-xl p-6 max-w-sm w-full animate-fadeIn">
-            <h3 className="text-dark-200 font-medium text-lg mb-2">Delete Product?</h3>
-            <p className="text-dark-300 text-sm mb-6">This action cannot be undone. The product will be permanently removed.</p>
+        <div className="fixed inset-0 backdrop-blur-custom flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="glass-card-enhanced rounded-2xl p-8 max-w-md w-full shadow-2xl">
+            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="text-white font-bold text-xl mb-2 text-center">Delete Product?</h3>
+            <p className="text-dark-300 text-sm mb-8 text-center">This action cannot be undone. The product will be permanently removed from your store.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 rounded-lg text-sm text-dark-300 border border-dark-600 hover:border-dark-500">
+              <button 
+                onClick={() => setDeleteConfirm(null)} 
+                className="flex-1 py-3.5 rounded-xl text-sm font-medium text-dark-300 border-2 border-dark-600 hover:border-dark-500 hover:bg-dark-700 transition-all"
+              >
                 Cancel
               </button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600">
-                Delete
+              <button 
+                onClick={() => handleDelete(deleteConfirm)} 
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-500 hover:to-red-400 transition-all shadow-lg hover:shadow-xl"
+              >
+                Delete Product
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add/Edit Product Modal */}
+      {/* Enhanced Add/Edit Product Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="glass-card-gold rounded-xl w-full max-w-2xl my-8 animate-fadeIn">
+        <div className="fixed inset-0 backdrop-blur-custom flex items-center justify-center z-50 p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card-enhanced rounded-2xl w-full max-w-3xl my-8 shadow-2xl">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-5 border-b border-primary/20">
-              <h3 className="text-primary font-medium text-lg">
-                {editingProduct ? 'Edit Product' : 'Add New Product'}
-              </h3>
-              <button onClick={() => setShowModal(false)} className="p-2 text-dark-400 hover:text-white transition">
-                <X className="w-5 h-5" />
+            <div className="flex items-center justify-between p-6 border-b border-primary/30">
+              <div>
+                <h3 className="text-white font-bold text-2xl">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <p className="text-dark-400 text-sm mt-1">
+                  {editingProduct ? 'Update product information' : 'Fill in the details below'}
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowModal(false)} 
+                className="p-2.5 text-dark-400 hover:text-white hover:bg-dark-700 rounded-xl transition-all"
+              >
+                <X className="w-6 h-6" />
               </button>
             </div>
 
@@ -602,17 +637,29 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex gap-3 p-5 border-t border-primary/20">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-3 rounded-lg text-sm text-dark-300 border border-dark-600 hover:border-dark-500">
+            <div className="flex gap-4 p-6 border-t border-primary/30 bg-dark-800/50">
+              <button 
+                onClick={() => setShowModal(false)} 
+                className="flex-1 py-4 rounded-xl text-sm font-medium text-dark-300 border-2 border-dark-600 hover:border-dark-500 hover:bg-dark-700 transition-all"
+              >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={!formData.name || !formData.price || !formData.mainCategory || saving}
-                className="flex-1 btn-glossy py-3 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 btn-glossy py-4 rounded-xl text-base font-bold text-dark-900 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform shadow-xl"
               >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {editingProduct ? 'Update Product' : 'Add Product'}
+                {saving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5" />
+                    {editingProduct ? 'Update Product' : 'Add Product'}
+                  </>
+                )}
               </button>
             </div>
           </div>

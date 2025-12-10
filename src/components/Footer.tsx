@@ -20,24 +20,28 @@ const YoutubeIcon = () => (
 
 export default function Footer() {
   return (
-    <footer className="glass-card-gold gold-border-top mt-12">
-      {/* Trust Badges */}
-      <div className="border-b border-primary/20">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <footer className="glass-card-enhanced gold-border-top mt-16 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+      
+      {/* Trust Badges - Improved mobile layout */}
+      <div className="border-b border-primary/20 relative">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
             {[
               { icon: Truck, title: 'Free Shipping', desc: 'On orders above ₹1000' },
               { icon: ShieldCheck, title: 'Secure Payment', desc: '100% secure checkout' },
               { icon: CreditCard, title: 'Easy Returns', desc: '7 days return policy' },
               { icon: HeadphonesIcon, title: '24/7 Support', desc: 'Dedicated support' }
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <item.icon className="w-5 h-5 text-primary" />
+              <div key={i} className="flex flex-col md:flex-row items-center md:items-start gap-3 md:gap-4 p-3 md:p-4 rounded-xl glass-card hover:bg-primary/5 transition-all group text-center md:text-left">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary/20 to-gold-600/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <item.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-dark-100">{item.title}</p>
-                  <p className="text-xs text-dark-400">{item.desc}</p>
+                  <p className="text-xs md:text-sm font-semibold text-dark-100 group-hover:text-white transition">{item.title}</p>
+                  <p className="text-xs text-dark-400 mt-0.5 hidden md:block">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -46,7 +50,7 @@ export default function Footer() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
@@ -65,18 +69,18 @@ export default function Footer() {
             <p className="text-dark-400 text-sm leading-relaxed mb-4">
               Your trusted destination for premium quality textiles since 1995. We bring you the finest fabrics from across India.
             </p>
-            {/* Social Links */}
+            {/* Social Links with better hover effects */}
             <div className="flex gap-3">
-              <a href="#" aria-label="Facebook" className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-dark-400 hover:text-primary hover:bg-primary/10 transition">
+              <a href="#" aria-label="Facebook" className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-dark-400 hover:text-white hover:bg-blue-600 transition-all hover:scale-110 hover:shadow-lg">
                 <FacebookIcon />
               </a>
-              <a href="#" aria-label="Instagram" className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-dark-400 hover:text-primary hover:bg-primary/10 transition">
+              <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-dark-400 hover:text-white hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-110 hover:shadow-lg">
                 <InstagramIcon />
               </a>
-              <a href="#" aria-label="Twitter" className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-dark-400 hover:text-primary hover:bg-primary/10 transition">
+              <a href="#" aria-label="Twitter" className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-dark-400 hover:text-white hover:bg-black transition-all hover:scale-110 hover:shadow-lg">
                 <TwitterIcon />
               </a>
-              <a href="#" aria-label="Youtube" className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-dark-400 hover:text-primary hover:bg-primary/10 transition">
+              <a href="#" aria-label="Youtube" className="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-dark-400 hover:text-white hover:bg-red-600 transition-all hover:scale-110 hover:shadow-lg">
                 <YoutubeIcon />
               </a>
             </div>
@@ -164,21 +168,21 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Newsletter */}
-      <div className="border-t border-primary/20">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h4 className="text-dark-100 font-medium">Subscribe to our Newsletter</h4>
-              <p className="text-dark-400 text-sm">Get updates on new arrivals and exclusive offers</p>
+      {/* Enhanced Newsletter - Better mobile layout */}
+      <div className="border-t border-primary/20 bg-gradient-to-r from-primary/5 to-gold-500/5 relative">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+            <div className="text-center md:text-left">
+              <h4 className="text-white font-bold text-base md:text-lg mb-1">Stay Updated</h4>
+              <p className="text-dark-300 text-xs md:text-sm">Get exclusive offers, new arrivals & style tips delivered to your inbox</p>
             </div>
-            <form className="flex gap-2 w-full md:w-auto">
+            <form className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 md:w-64 px-4 py-2 glass-card rounded-lg text-dark-100 placeholder-dark-400 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
+                className="flex-1 sm:w-64 md:w-72 px-4 md:px-5 py-2.5 md:py-3 glass-card-enhanced rounded-xl text-dark-100 placeholder-dark-400 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition"
               />
-              <button type="submit" className="btn-glossy px-6 py-2 rounded-lg text-sm font-medium text-dark-900">
+              <button type="submit" className="btn-glossy px-6 md:px-8 py-2.5 md:py-3 rounded-xl text-sm font-bold text-dark-900 hover:scale-105 transition-transform whitespace-nowrap min-h-[44px]">
                 Subscribe
               </button>
             </form>
@@ -186,18 +190,18 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-primary/20 bg-dark-800/50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* Enhanced Bottom Bar */}
+      <div className="border-t border-primary/20 bg-dark-900/50 relative">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <p className="text-dark-300 text-xs">
-              © 2024 Naveen Textiles. All rights reserved.
+            <p className="text-dark-300 text-sm">
+              © 2024 <span className="text-primary font-medium">Naveen Textiles</span>. All rights reserved.
             </p>
-            <div className="flex items-center gap-4">
-              <span className="text-dark-300 text-xs">We Accept:</span>
+            <div className="flex items-center gap-4 flex-wrap justify-center">
+              <span className="text-dark-300 text-sm font-medium">We Accept:</span>
               <div className="flex gap-2">
                 {['Visa', 'Mastercard', 'UPI', 'COD'].map((method, i) => (
-                  <span key={i} className="px-2 py-1 glass-card rounded text-xs text-dark-400">
+                  <span key={i} className="px-3 py-1.5 glass-card-enhanced rounded-lg text-xs text-dark-300 font-medium border border-primary/20 hover:border-primary/40 transition">
                     {method}
                   </span>
                 ))}

@@ -208,30 +208,30 @@ export default function CheckoutPage() {
   const grandTotal = discountedSubtotal + shipping;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center gap-2 mb-8">
-        <Sparkles className="w-6 h-6 text-primary" />
-        <h1 className="text-3xl font-serif text-white">Checkout</h1>
+    <div className="max-w-2xl mx-auto px-4 py-6 md:py-8">
+      <div className="flex items-center gap-2 mb-6 md:mb-8">
+        <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+        <h1 className="text-2xl md:text-3xl font-serif text-white">Checkout</h1>
       </div>
 
-      <div className="grid md:grid-cols-5 gap-6">
+      <div className="grid md:grid-cols-5 gap-4 md:gap-6">
         {/* Form */}
         <div className="md:col-span-3">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
             {/* Contact Info */}
-            <div className="glass-card-gold rounded-xl p-5">
-              <h2 className="font-medium text-primary mb-4 flex items-center gap-2">
+            <div className="glass-card-gold rounded-xl p-4 md:p-5">
+              <h2 className="font-medium text-primary mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
                 <User className="w-4 h-4" /> Contact Information
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <div>
-                  <label className="block text-sm text-dark-300 mb-2">Full Name *</label>
+                  <label className="block text-xs md:text-sm text-dark-300 mb-2">Full Name *</label>
                   <input
                     type="text"
                     required
                     value={form.name}
                     onChange={e => setForm({ ...form, name: e.target.value })}
-                    className="w-full px-4 py-3 glass-card rounded-lg text-dark-100 placeholder-dark-500 focus:ring-1 focus:ring-primary/50 outline-none"
+                    className="w-full px-3 md:px-4 py-2.5 md:py-3 glass-card rounded-lg text-dark-100 placeholder-dark-500 focus:ring-1 focus:ring-primary/50 outline-none text-sm md:text-base"
                     placeholder="Enter your name"
                   />
                 </div>
@@ -262,11 +262,11 @@ export default function CheckoutPage() {
             </div>
 
             {/* Shipping Address */}
-            <div className="glass-card-gold rounded-xl p-5">
-              <h2 className="font-medium text-primary mb-4 flex items-center gap-2">
+            <div className="glass-card-gold rounded-xl p-4 md:p-5">
+              <h2 className="font-medium text-primary mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
                 <MapPin className="w-4 h-4" /> Delivery Address
               </h2>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <div>
                   <label className="block text-sm text-dark-300 mb-2">Address Line 1 *</label>
                   <input
@@ -333,7 +333,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-green-500 hover:to-green-400 transition-all shadow-lg shadow-green-500/20 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-3 md:py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:from-green-500 hover:to-green-400 transition-all shadow-lg shadow-green-500/20 disabled:opacity-50 min-h-[52px] text-sm md:text-base"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -349,8 +349,8 @@ export default function CheckoutPage() {
 
         {/* Order Summary */}
         <div className="md:col-span-2">
-          <div className="glass-card-gold rounded-xl p-5 sticky top-24">
-            <h2 className="font-medium text-primary mb-4">Order Summary</h2>
+          <div className="glass-card-gold rounded-xl p-4 md:p-5 md:sticky md:top-24">
+            <h2 className="font-medium text-primary mb-3 md:mb-4 text-sm md:text-base">Order Summary</h2>
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {items.map(item => (
                 <div key={`${item.productId}-${item.size}-${item.color}`} className="flex justify-between text-sm py-2 border-b border-dark-700/50">
