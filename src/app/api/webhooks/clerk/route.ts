@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   console.log('Webhook body:', body);
 
   if (eventType === 'user.created' || eventType === 'user.updated') {
-    const { email_addresses, first_name, last_name, phone_numbers, image_url } = evt.data;
+    const { email_addresses, first_name, last_name, phone_numbers, image_url, public_metadata, private_metadata, unsafe_metadata } = evt.data;
     
     const email = email_addresses[0]?.email_address;
     const phone = phone_numbers[0]?.phone_number;
@@ -67,10 +67,30 @@ export async function POST(req: Request) {
         .eq('clerk_user_id', id)
         .single();
 
-      // Determine admin status: preserve existing admin status or check if email should be admin
-      const isAdmin = existingUser?.is_admin || (email ? shouldBeAdmin(email) : false);
+      // Determine admin status from multiple sources (priority order):
+      // 1. Clerk public metadata role
+      // 2. Clerk private metadata role  
+      // 3. Clerk unsafe metadata role
+      // 4. Email-based admin configuration
+      // 5. Preserve existing admin status
+      let isAdmin = false;
 
-      // Sync profile data with automatic admin assignment
+      // Check Clerk metadata for admin role
+      const clerkRole = public_metadata?.role || private_metadata?.role || unsafe_metadata?.role;
+      const clerkIsAdmin = public_metadata?.isAdmin || private_metadata?.isAdmin || unsafe_metadata?.isAdmin;
+      
+      if (clerkRole === 'admin' || clerkIsAdmin === true) {
+        isAdmin = true;
+        console.log(`Admin role detected in Clerk metadata for user ${email}`);
+      } else if (email && shouldBeAdmin(email)) {
+        isAdmin = true;
+        console.log(`Admin role assigned based on email configuration for ${email}`);
+      } else if (existingUser?.is_admin) {
+        isAdmin = true;
+        console.log(`Preserving existing admin status for user ${email}`);
+      }
+
+      // Sync profile data with role-based admin assignment
       const { error } = await supabase
         .from('users')
         .upsert({
@@ -90,7 +110,7 @@ export async function POST(req: Request) {
         return new Response('Error syncing user', { status: 500 });
       }
 
-      console.log(`User profile synced successfully to Supabase (Admin: ${isAdmin})`);
+      console.log(`User profile synced successfully to Supabase (Admin: ${isAdmin}, Source: ${clerkRole || clerkIsAdmin ? 'Clerk Role' : email && shouldBeAdmin(email) ? 'Email Config' : 'Existing Status'})`);
     } catch (error) {
       console.error('Database error:', error);
       return new Response('Database error', { status: 500 });

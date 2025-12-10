@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { supabase, DbProductVariant } from '@/lib/supabase';
-import { Package, ShoppingCart, AlertTriangle, TrendingUp, ArrowUpRight, Clock, Loader2 } from 'lucide-react';
+import { Package, ShoppingCart, AlertTriangle, TrendingUp, ArrowUpRight, Clock, Loader2, Users, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import GoogleDriveImage from '@/components/GoogleDriveImage';
 
@@ -30,6 +30,8 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncingRoles, setSyncingRoles] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -92,6 +94,35 @@ export default function AdminDashboard() {
 
   const recentOrders = orders.slice(0, 5);
   const lowStockProducts = products.filter(p => p.variations.some(v => v.stock < 5)).slice(0, 5);
+
+  // Sync admin roles from Clerk to Supabase
+  const handleSyncRoles = async () => {
+    setSyncingRoles(true);
+    setSyncResult(null);
+    
+    try {
+      const response = await fetch('/api/admin/sync-roles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setSyncResult(`✅ Successfully synced ${result.syncedCount} users`);
+      } else {
+        setSyncResult(`❌ Error: ${result.message || 'Failed to sync roles'}`);
+      }
+    } catch (error) {
+      setSyncResult(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setSyncingRoles(false);
+      // Clear result after 5 seconds
+      setTimeout(() => setSyncResult(null), 5000);
+    }
+  };
 
   return (
     <div>
