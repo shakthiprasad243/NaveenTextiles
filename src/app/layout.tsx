@@ -75,8 +75,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <link rel="icon" type="image/png" href="/logo.png" />
           <link rel="apple-touch-icon" href="/logo.png" />
           <meta name="theme-color" content="#D4AF37" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         </head>
-        <body className="min-h-screen">
+        <body className="min-h-screen overscroll-none">
           <GoogleAnalytics />
           <AuthProvider>
             <CartProvider>

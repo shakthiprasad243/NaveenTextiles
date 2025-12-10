@@ -11,6 +11,10 @@ body {
   background: linear-gradient(135deg, #0F0F0F 0%, #1a1a1a 50%, #0F0F0F 100%);
   color: #E8E8E8;
   min-height: 100vh;
+  /* Ensure background covers overscroll areas */
+  background-attachment: fixed;
+  /* Prevent overscroll bounce */
+  overscroll-behavior: none;
 }
 
 /* Golden border effect */
@@ -444,12 +448,52 @@ html {
   scroll-behavior: smooth;
   /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
+  /* Fix white background on overscroll */
+  background: linear-gradient(135deg, #0F0F0F 0%, #1a1a1a 50%, #0F0F0F 100%);
+  /* Prevent overscroll bounce on mobile */
+  overscroll-behavior: none;
 }
 
 body {
   /* Prevent horizontal scroll on mobile */
   overflow-x: hidden;
   width: 100%;
+  /* Additional overscroll prevention */
+  overscroll-behavior-y: none;
+}
+
+/* Overscroll behavior utilities */
+.overscroll-none {
+  overscroll-behavior: none;
+  /* Webkit specific for iOS Safari */
+  -webkit-overflow-scrolling: touch;
+}
+
+.overscroll-y-none {
+  overscroll-behavior-y: none;
+}
+
+.overscroll-x-none {
+  overscroll-behavior-x: none;
+}
+
+/* Prevent pull-to-refresh and overscroll glow */
+* {
+  overscroll-behavior: none;
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    /* Prevent rubber band scrolling on iOS */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent pull-to-refresh */
+  body {
+    touch-action: pan-x pan-y;
+  }
 }
 
 /* Improved button states */
