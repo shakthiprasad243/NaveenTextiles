@@ -106,7 +106,7 @@ export default async function HomePage() {
       <HeroCarousel />
 
       {/* Enhanced Features - Better mobile spacing */}
-      <section className="max-w-6xl mx-auto px-4 py-8 md:py-12 -mt-8 md:-mt-12 relative z-10">
+      <section className="max-w-6xl mx-auto px-4 py-8 md:py-12 mt-4 md:mt-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
           {[
             { icon: Truck, title: 'Free Delivery', desc: 'Orders above ₹1000', color: 'from-blue-500/20 to-blue-600/20', hoverColor: 'from-blue-500/30 to-blue-600/30' },

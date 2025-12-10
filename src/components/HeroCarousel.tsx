@@ -120,7 +120,7 @@ export default function HeroCarousel() {
               }}
             >
               {slide.title.split(' ')[0]}{' '}
-              <span className="block md:inline text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-400 animate-glow-pulse">
+              <span className="block md:inline text-primary">
                 {slide.title.split(' ').slice(1).join(' ') || 'Collection'}
               </span>
             </h1>
@@ -133,17 +133,17 @@ export default function HeroCarousel() {
             >
               {slide.description}
             </p>
-            <div className="opacity-0 animate-slide-up flex flex-wrap gap-4" style={{ animationDelay: '0.4s' }}>
+            <div className="opacity-0 animate-slide-up flex flex-wrap gap-3 md:gap-4" style={{ animationDelay: '0.4s' }}>
               <Link
                 href={slide.link}
-                className="btn-glossy inline-flex items-center gap-2 text-dark-900 px-8 md:px-10 py-3.5 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all hover:scale-105 hover:shadow-2xl group"
+                className="btn-glossy inline-flex items-center gap-2 text-dark-900 px-6 md:px-10 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base transition-all md:hover:scale-105 md:hover:shadow-2xl group"
               >
                 {slide.cta} 
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 md:group-hover:translate-x-1 transition" />
               </Link>
               <Link
                 href="/products"
-                className="glass-card-gold inline-flex items-center gap-2 text-dark-100 hover:text-primary px-8 md:px-10 py-3.5 md:py-4 rounded-xl font-semibold text-sm md:text-base transition-all hover:scale-105 border border-primary/30 hover:border-primary/50"
+                className="glass-card-gold inline-flex items-center gap-2 text-dark-100 md:hover:text-primary px-6 md:px-10 py-3 md:py-4 rounded-xl font-semibold text-sm md:text-base transition-all md:hover:scale-105 border border-primary/30 md:hover:border-primary/50"
               >
                 View All Products
               </Link>
@@ -166,15 +166,15 @@ export default function HeroCarousel() {
         <ChevronRight className="w-6 h-6" />
       </button>
 
-      {/* Enhanced Dots Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+      {/* Enhanced Dots Indicator - Hidden on mobile, visible on tablet+ */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex gap-3 z-10">
         {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => goToSlide(i)}
             className={`h-2.5 rounded-full transition-all ${
               i === current
-                ? 'w-10 bg-gradient-to-r from-primary via-gold-400 to-primary shadow-lg shadow-primary/40 animate-glow-pulse'
+                ? 'w-10 bg-gradient-to-r from-primary via-gold-400 to-primary shadow-lg shadow-primary/40'
                 : 'w-2.5 bg-white/40 hover:bg-white/60 hover:w-6'
             }`}
             aria-label={`Go to slide ${i + 1}`}

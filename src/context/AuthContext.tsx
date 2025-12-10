@@ -25,10 +25,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user: clerkUser, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const skipAuth = process.env.SKIP_AUTH === 'true';
+  const hasClerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('YOUR_DEVELOPMENT');
+
+  // Only use Clerk hooks if we have valid keys and not skipping auth
+  const clerkHooks = hasClerkKey && !skipAuth ? {
+    user: useUser().user,
+    isLoaded: useUser().isLoaded,
+    signOut: useClerk().signOut
+  } : {
+    user: null,
+    isLoaded: true,
+    signOut: async () => {}
+  };
+
+  const { user: clerkUser, isLoaded, signOut } = clerkHooks;
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!skipAuth);
 
   // Fetch user profile from Supabase using Clerk user ID
   const fetchUserProfile = async (clerkUserId: string): Promise<User | null> => {
@@ -83,11 +97,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Initialize auth state based on Clerk user
+  // Initialize auth state based on Clerk user or skip auth
   useEffect(() => {
     let mounted = true;
 
     const initAuth = async () => {
+      // If skipping auth, set loading to false immediately
+      if (skipAuth || !hasClerkKey) {
+        if (mounted) {
+          setUser(null);
+          setIsLoading(false);
+        }
+        return;
+      }
+
       if (!isLoaded) return;
 
       try {
@@ -110,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, [clerkUser, isLoaded]);
+  }, [clerkUser, isLoaded, skipAuth, hasClerkKey]);
 
   // Logout using Clerk
   const logout = async () => {

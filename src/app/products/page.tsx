@@ -6,7 +6,7 @@ import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 import ProductFilters from '@/components/ProductFilters';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Package, ChevronDown, Loader2, Search, X } from 'lucide-react';
+import { Package, ChevronDown, Loader2, X } from 'lucide-react';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Product } from '@/lib/types';
 
@@ -62,9 +62,9 @@ const subCategoriesMap: Record<string, string[]> = {
 // Loading fallback component
 function ProductsLoading() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-20 flex flex-col items-center justify-center">
-      <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-      <p className="text-dark-400">Loading products...</p>
+    <div className="max-w-7xl mx-auto px-4 py-12 lg:py-20 flex flex-col items-center justify-center">
+      <Loader2 className="w-8 h-8 lg:w-10 lg:h-10 text-primary animate-spin mb-3 lg:mb-4" />
+      <p className="text-dark-400 text-sm lg:text-base">Loading products...</p>
     </div>
   );
 }
@@ -81,30 +81,7 @@ function ProductsContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchInput, setSearchInput] = useState(searchQuery);
 
-  // Handle search submission
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchInput.trim()) {
-      params.set('search', searchInput.trim());
-    }
-    if (mainCategory) params.set('main', mainCategory);
-    if (subCategory) params.set('sub', subCategory);
-    if (category) params.set('category', category);
-    router.push(`/products?${params.toString()}`);
-  };
-
-  // Clear search
-  const clearSearch = () => {
-    setSearchInput('');
-    const params = new URLSearchParams();
-    if (mainCategory) params.set('main', mainCategory);
-    if (subCategory) params.set('sub', subCategory);
-    if (category) params.set('category', category);
-    router.push(`/products?${params.toString()}`);
-  };
 
   // Fetch products from Supabase with timeout
   useEffect(() => {
@@ -160,10 +137,7 @@ function ProductsContent() {
     };
   }, [mainCategory, subCategory, category, searchQuery]);
 
-  // Update search input when URL changes
-  useEffect(() => {
-    setSearchInput(searchQuery);
-  }, [searchQuery]);
+
 
   // const categories = mainCategories;
   const subCategories = subCategoriesMap;
@@ -270,25 +244,25 @@ function ProductsContent() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header skeleton */}
-        <div className="mb-6 space-y-3">
-          <div className="h-4 w-32 skeleton rounded" />
-          <div className="h-8 w-48 skeleton rounded" />
-        </div>
-        
-        {/* Search skeleton */}
-        <div className="mb-6">
-          <div className="h-14 max-w-2xl skeleton rounded-xl" />
+        <div className="mb-6 md:mb-8 space-y-2 md:space-y-3">
+          <div className="h-3 md:h-4 w-24 md:w-32 skeleton rounded" />
+          <div className="h-6 md:h-8 w-36 md:w-48 skeleton rounded" />
         </div>
         
         {/* Category pills skeleton */}
-        <div className="flex gap-3 mb-6 overflow-hidden">
+        <div className="flex gap-2 md:gap-3 mb-3 md:mb-4 overflow-hidden">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-10 w-24 skeleton rounded-full flex-shrink-0" />
+            <div key={i} className="h-8 md:h-10 w-16 md:w-24 skeleton rounded-full flex-shrink-0" />
           ))}
         </div>
+
+        {/* Mobile filter button skeleton */}
+        <div className="lg:hidden mb-4">
+          <div className="h-12 w-full skeleton rounded-lg" />
+        </div>
         
-        {/* Products grid skeleton */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Products grid skeleton - Mobile optimized */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <ProductCardSkeleton key={i} />
           ))}
@@ -299,10 +273,10 @@ function ProductsContent() {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <Package className="w-16 h-16 text-dark-300 mx-auto mb-4" />
-        <p className="text-dark-300 text-lg mb-2">{error}</p>
-        <button onClick={() => window.location.reload()} className="btn-glossy px-6 py-2.5 rounded-lg text-sm font-medium text-dark-900 mt-4">
+      <div className="max-w-7xl mx-auto px-4 py-12 lg:py-20 text-center">
+        <Package className="w-12 h-12 lg:w-16 lg:h-16 text-dark-300 mx-auto mb-3 lg:mb-4" />
+        <p className="text-dark-300 text-base lg:text-lg mb-2">{error}</p>
+        <button onClick={() => window.location.reload()} className="btn-glossy px-4 lg:px-6 py-2.5 rounded-lg text-xs lg:text-sm font-medium text-dark-900 mt-4">
           Try Again
         </button>
       </div>
@@ -313,7 +287,7 @@ function ProductsContent() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Enhanced Page Header - Better mobile spacing */}
       <div className="mb-6 md:mb-8">
-        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-xs md:text-sm uppercase tracking-wider font-bold">
+        <p className="text-primary text-xs md:text-sm uppercase tracking-wider font-bold">
           Browse Collection
         </p>
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif text-white mt-2 mb-2">{pageTitle}</h1>
@@ -324,40 +298,7 @@ function ProductsContent() {
         )}
       </div>
 
-      {/* Search Bar - Better mobile UX */}
-      <form onSubmit={handleSearch} className="mb-4 md:mb-6">
-        <div className="relative max-w-2xl">
-          <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-dark-400" />
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search products..."
-            className="w-full pl-10 md:pl-12 pr-20 md:pr-24 py-3 md:py-3.5 glass-card-gold rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition text-sm md:text-base"
-          />
-          {searchInput && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="absolute right-20 top-1/2 -translate-y-1/2 p-1.5 text-dark-400 hover:text-dark-200 transition"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-          <button
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium text-dark-900 min-h-[36px] md:min-h-[40px]"
-          >
-            Search
-          </button>
-        </div>
-        {searchQuery && (
-          <p className="mt-2 text-dark-400 text-sm">
-            Showing results for &quot;<span className="text-primary">{searchQuery}</span>&quot;
-            <button onClick={clearSearch} className="ml-2 text-primary hover:underline">Clear</button>
-          </p>
-        )}
-      </form>
+
 
       {/* Main Category Pills - Better mobile scroll */}
       <div className="flex gap-2 md:gap-3 overflow-x-auto pb-3 md:pb-4 mb-3 md:mb-4 scrollbar-hide -mx-4 px-4">
@@ -411,8 +352,28 @@ function ProductsContent() {
         </div>
       )}
 
+      {/* Mobile Filter Button - At the top for better accessibility */}
+      <div className="lg:hidden mb-4">
+        <MobileFilterSheet
+          availableColors={availableColors}
+          availableSizes={availableSizes}
+          priceRange={priceRange}
+          selectedColors={selectedColors}
+          selectedSizes={selectedSizes}
+          selectedPriceRange={selectedPriceRange}
+          sortBy={sortBy}
+          onColorChange={setSelectedColors}
+          onSizeChange={setSelectedSizes}
+          onPriceChange={setSelectedPriceRange}
+          onSortChange={setSortBy}
+          onClearAll={handleClearAll}
+          totalProducts={categoryFiltered.length}
+          filteredCount={filteredProducts.length}
+        />
+      </div>
+
       {/* Main Content - Sidebar + Products Grid */}
-      <div className="flex gap-6">
+      <div className="lg:flex lg:gap-6">
         {/* Left Sidebar Filters */}
         <aside className="hidden lg:block w-64 flex-shrink-0">
           <ProductFilters
@@ -432,14 +393,14 @@ function ProductsContent() {
         </aside>
 
         {/* Products Section */}
-        <div className="flex-1 min-w-0">
-          {/* Sort Bar */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-dark-700/50">
-            <p className="text-dark-400 text-sm">
-              Showing <span className="text-dark-200">{filteredProducts.length}</span> products
+        <div className="lg:flex-1 lg:min-w-0">
+          {/* Sort Bar - Simplified on mobile */}
+          <div className="flex items-center justify-between mb-4 lg:mb-6 pb-3 lg:pb-4 border-b border-dark-700/50">
+            <p className="text-dark-400 text-xs lg:text-sm">
+              Showing <span className="text-dark-200 font-medium">{filteredProducts.length}</span> products
             </p>
-            <div className="flex items-center gap-2">
-              <span className="text-dark-400 text-sm hidden sm:inline">Sort by:</span>
+            <div className="hidden lg:flex items-center gap-2">
+              <span className="text-dark-400 text-sm">Sort by:</span>
               <div className="relative">
                 <select
                   value={sortBy}
@@ -457,9 +418,9 @@ function ProductsContent() {
             </div>
           </div>
 
-          {/* Products Grid with stagger animation - Better mobile grid */}
+          {/* Products Grid with stagger animation - Optimized mobile grid */}
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
               {filteredProducts.map((product, index) => (
                 <div 
                   key={product.id}
@@ -471,13 +432,13 @@ function ProductsContent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 glass-card-gold rounded-xl">
-              <Package className="w-16 h-16 text-dark-300 mx-auto mb-4" />
-              <p className="text-dark-300 text-lg mb-2">No products found</p>
-              <p className="text-dark-300 text-sm mb-6">Try adjusting your filters or browse all products</p>
+            <div className="text-center py-12 lg:py-20 glass-card-gold rounded-xl mx-2 lg:mx-0">
+              <Package className="w-12 h-12 lg:w-16 lg:h-16 text-dark-300 mx-auto mb-3 lg:mb-4" />
+              <p className="text-dark-300 text-base lg:text-lg mb-2">No products found</p>
+              <p className="text-dark-300 text-xs lg:text-sm mb-4 lg:mb-6 px-4">Try adjusting your filters or browse all products</p>
               <button
                 onClick={handleClearAll}
-                className="btn-glossy px-6 py-2.5 rounded-lg text-sm font-medium text-dark-900"
+                className="btn-glossy px-4 lg:px-6 py-2.5 rounded-lg text-xs lg:text-sm font-medium text-dark-900"
               >
                 Clear Filters
               </button>
@@ -486,23 +447,7 @@ function ProductsContent() {
         </div>
       </div>
 
-      {/* Mobile Filter Button - Fixed at bottom with better positioning */}
-      <div className="lg:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
-        <MobileFilterSheet
-          availableColors={availableColors}
-          availableSizes={availableSizes}
-          priceRange={priceRange}
-          selectedColors={selectedColors}
-          selectedSizes={selectedSizes}
-          selectedPriceRange={selectedPriceRange}
-          onColorChange={setSelectedColors}
-          onSizeChange={setSelectedSizes}
-          onPriceChange={setSelectedPriceRange}
-          onClearAll={handleClearAll}
-          totalProducts={categoryFiltered.length}
-          filteredCount={filteredProducts.length}
-        />
-      </div>
+
     </div>
   );
 }
@@ -516,9 +461,11 @@ function MobileFilterSheet({
   selectedColors,
   selectedSizes,
   selectedPriceRange,
+  sortBy,
   onColorChange,
   onSizeChange,
   onPriceChange,
+  onSortChange,
   onClearAll,
   totalProducts,
   filteredCount
@@ -529,9 +476,11 @@ function MobileFilterSheet({
   selectedColors: string[];
   selectedSizes: string[];
   selectedPriceRange: { min: number; max: number };
+  sortBy: string;
   onColorChange: (colors: string[]) => void;
   onSizeChange: (sizes: string[]) => void;
   onPriceChange: (range: { min: number; max: number }) => void;
+  onSortChange: (sort: string) => void;
   onClearAll: () => void;
   totalProducts: number;
   filteredCount: number;
@@ -561,14 +510,14 @@ function MobileFilterSheet({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="btn-glossy px-6 py-3 rounded-full text-sm font-medium text-dark-900 shadow-lg flex items-center gap-2"
+        className="w-full glass-card-gold px-4 py-3 rounded-lg text-sm font-medium text-dark-200 hover:text-primary border border-primary/20 hover:border-primary/40 transition-all flex items-center justify-center gap-2 min-h-[48px]"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
         </svg>
-        Filters
+        <span>Filters & Sort</span>
         {activeFiltersCount > 0 && (
-          <span className="bg-dark-900/30 px-2 py-0.5 rounded-full text-xs">
+          <span className="bg-primary/20 text-primary px-2 py-0.5 rounded-full text-xs font-bold">
             {activeFiltersCount}
           </span>
         )}
@@ -583,16 +532,20 @@ function MobileFilterSheet({
       )}
 
       {/* Sheet */}
-      <div className={`fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-dark-800 z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 w-full max-w-sm bg-dark-800 z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-dark-700">
             <div>
-              <h3 className="text-primary font-medium">Filters</h3>
-              <p className="text-dark-300 text-xs">{filteredCount} of {totalProducts} products</p>
+              <h3 className="text-primary font-medium text-lg">Filters & Sort</h3>
+              <p className="text-dark-300 text-sm">{filteredCount} of {totalProducts} products</p>
             </div>
-            <button onClick={() => setIsOpen(false)} className="p-2 text-dark-400 hover:text-white">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button 
+              onClick={() => setIsOpen(false)} 
+              className="p-2 text-dark-400 hover:text-white rounded-lg hover:bg-dark-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close filters"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -600,6 +553,30 @@ function MobileFilterSheet({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {/* Sort */}
+            <div>
+              <h4 className="text-dark-200 font-medium text-sm mb-3">Sort By</h4>
+              <div className="space-y-2">
+                {[
+                  { value: 'featured', label: 'Featured' },
+                  { value: 'newest', label: 'Newest' },
+                  { value: 'price-low', label: 'Price: Low to High' },
+                  { value: 'price-high', label: 'Price: High to Low' },
+                  { value: 'name-az', label: 'Name: A to Z' }
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => onSortChange(option.value)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${
+                      sortBy === option.value ? 'bg-primary/20 text-primary' : 'text-dark-300 hover:bg-dark-700'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Price */}
             <div>
               <h4 className="text-dark-200 font-medium text-sm mb-3">Price Range</h4>
@@ -668,15 +645,15 @@ function MobileFilterSheet({
           <div className="p-4 border-t border-dark-700 flex gap-3">
             <button
               onClick={onClearAll}
-              className="flex-1 py-3 rounded-lg text-sm text-dark-300 border border-dark-600 hover:border-dark-500"
+              className="flex-1 py-4 rounded-lg text-sm text-dark-300 border border-dark-600 hover:border-dark-500 transition min-h-[48px] flex items-center justify-center"
             >
               Clear All
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="flex-1 btn-glossy py-3 rounded-lg text-sm font-medium text-dark-900"
+              className="flex-1 btn-glossy py-4 rounded-lg text-sm font-medium text-dark-900 min-h-[48px] flex items-center justify-center"
             >
-              Apply
+              Show Results ({filteredCount})
             </button>
           </div>
         </div>

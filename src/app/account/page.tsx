@@ -125,16 +125,16 @@ export default function AccountPage() {
           <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-xs md:text-sm uppercase tracking-wider font-medium">
             My Account
           </p>
-          <h1 className="text-2xl md:text-3xl font-serif text-white mt-1">Welcome, {user.name.split(' ')[0]}!</h1>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-serif text-white mt-1">Welcome, {user.name.split(' ')[0]}!</h1>
         </div>
         {user.isAdmin && (
-          <Link href="/admin" className="btn-glossy px-4 py-2.5 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2 min-h-[44px]">
+          <Link href="/admin" className="btn-glossy px-4 py-2.5 rounded-lg text-sm font-medium text-dark-900 flex items-center justify-center gap-2 min-h-[48px] w-full sm:w-auto">
             <Shield className="w-4 h-4" /> Admin Panel
           </Link>
         )}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
         {/* Profile Card */}
         <div className="lg:col-span-1">
           <div className="glass-card-gold rounded-xl p-5 md:p-6">
@@ -228,11 +228,11 @@ export default function AccountPage() {
         </div>
 
         {/* Orders & Quick Links */}
-        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+        <div className="lg:col-span-2 space-y-6 md:space-y-8">
           {/* Quick Links */}
           <div className="glass-card-gold rounded-xl p-5 md:p-6">
-            <h3 className="text-primary font-medium mb-3 md:mb-4 text-sm md:text-base">Quick Links</h3>
-            <div className="grid sm:grid-cols-2 gap-2 md:gap-3">
+            <h3 className="text-primary font-medium mb-4 md:mb-5 text-base md:text-lg">Quick Links</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
               {[
                 { icon: Package, label: 'My Orders', href: '/account/orders', desc: 'Track your orders' },
                 { icon: MapPin, label: 'Addresses', href: '/account/addresses', desc: 'Manage addresses' },
@@ -243,16 +243,16 @@ export default function AccountPage() {
                   key={i}
                   href={item.href}
                   onClick={item.onClick}
-                  className="flex items-center gap-4 p-4 glass-card rounded-lg hover:border-primary/30 transition group"
+                  className="flex items-center gap-4 p-4 md:p-5 glass-card rounded-lg hover:border-primary/30 transition group min-h-[72px]"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <item.icon className="w-5 h-5 text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <div className="flex-1">
-                    <p className="text-dark-200 text-sm font-medium group-hover:text-primary transition">{item.label}</p>
-                    <p className="text-dark-300 text-xs">{item.desc}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-dark-200 text-sm md:text-base font-medium group-hover:text-primary transition">{item.label}</p>
+                    <p className="text-dark-300 text-xs md:text-sm">{item.desc}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-dark-300 group-hover:text-primary transition" />
+                  <ChevronRight className="w-5 h-5 text-dark-300 group-hover:text-primary transition flex-shrink-0" />
                 </Link>
               ))}
             </div>

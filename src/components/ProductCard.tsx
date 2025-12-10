@@ -61,34 +61,34 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </div>
         
-        {/* Product Info - Fixed height container */}
-        <div className="p-4 md:p-5 relative h-[200px] flex flex-col">
+        {/* Product Info - Responsive height container */}
+        <div className="p-3 md:p-4 lg:p-5 relative min-h-[180px] md:min-h-[200px] flex flex-col">
           {/* Category - Fixed height */}
-          <div className="h-5 mb-2">
+          <div className="h-4 md:h-5 mb-2">
             <p className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold-400 to-primary uppercase tracking-wider font-bold truncate">
               {product.category || product.mainCategory}
             </p>
           </div>
           
-          {/* Product Name - Fixed height */}
-          <h3 className="font-semibold text-dark-100 group-hover:text-white transition-colors duration-300 line-clamp-2 h-12 text-base md:text-lg mb-3">
+          {/* Product Name - Responsive height */}
+          <h3 className="font-semibold text-dark-100 group-hover:text-white transition-colors duration-300 line-clamp-2 h-10 md:h-12 text-sm md:text-base lg:text-lg mb-2 md:mb-3 leading-tight">
             {product.name}
           </h3>
           
-          {/* Color swatches - Fixed height */}
-          <div className="h-8 flex items-center gap-1.5 mb-3">
+          {/* Color swatches - Responsive */}
+          <div className="h-6 md:h-8 flex items-center gap-1 md:gap-1.5 mb-2 md:mb-3">
             {colors.length > 0 && (
               <>
-                {colors.map((color, i) => (
+                {colors.slice(0, 3).map((color, i) => (
                   <div 
                     key={i}
-                    className="w-5 h-5 rounded-full border-2 border-dark-600 group-hover:border-dark-500 transition-colors"
+                    className="w-4 h-4 md:w-5 md:h-5 rounded-full border-2 border-dark-600 group-hover:border-dark-500 transition-colors"
                     style={{ backgroundColor: getColorHex(color) }}
                     title={color}
                   />
                 ))}
-                {colors.length >= 4 && (
-                  <span className="text-xs text-dark-400 ml-1">+</span>
+                {colors.length > 3 && (
+                  <span className="text-xs text-dark-400 ml-1">+{colors.length - 3}</span>
                 )}
               </>
             )}
@@ -98,17 +98,17 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="flex-1" />
           
           {/* Price and CTA - Fixed at bottom */}
-          <div className="flex items-center justify-between h-10">
+          <div className="flex items-center justify-between h-8 md:h-10">
             <div>
-              <p className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-400 leading-none">
+              <p className="text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-gold-400 leading-none">
                 {formatPrice(product.price)}
               </p>
             </div>
             
             {inStock && (
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-gold-500 flex items-center justify-center text-dark-900 hover:scale-110 transition-transform">
-                  <ShoppingCart className="w-5 h-5" />
+              <div className="opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-primary to-gold-500 flex items-center justify-center text-dark-900 hover:scale-110 transition-transform">
+                  <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
                 </div>
               </div>
             )}

@@ -71,10 +71,11 @@ export default function ContactPage() {
           </div>
 
           {/* Map placeholder - Better mobile height */}
-          <div className="glass-card-gold rounded-xl p-5 md:p-6 h-40 md:h-48 flex items-center justify-center">
+          <div className="glass-card-gold rounded-xl p-5 md:p-6 h-48 md:h-56 flex items-center justify-center">
             <div className="text-center">
-              <MapPin className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-2" />
-              <p className="text-dark-400 text-xs md:text-sm">Visit our store in Surat, Gujarat</p>
+              <MapPin className="w-8 h-8 md:w-10 md:h-10 text-primary mx-auto mb-3" />
+              <p className="text-dark-400 text-sm md:text-base font-medium">Visit our store</p>
+              <p className="text-dark-500 text-xs md:text-sm mt-1">Surat, Gujarat</p>
             </div>
           </div>
         </div>

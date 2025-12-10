@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Menu, X, User, ChevronDown, LogIn, Shield, LogOut, Package, Search, Loader2, Tag, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, ChevronDown, LogIn, Shield, LogOut, Package, Search, Loader2, Tag, TrendingUp, Phone } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -60,6 +60,7 @@ export default function Header() {
   const { itemCount } = useCart();
   const { user, logout } = useAuth();
   const [cartBounce, setCartBounce] = useState(false);
+  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Trigger bounce animation when cart count changes
   useEffect(() => {
@@ -69,6 +70,15 @@ export default function Header() {
       return () => clearTimeout(timer);
     }
   }, [itemCount]);
+
+  // Cleanup dropdown timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeout) {
+        clearTimeout(dropdownTimeout);
+      }
+    };
+  }, [dropdownTimeout]);
 
   // Debounced search for suggestions
   const fetchSuggestions = useCallback(async (query: string) => {
@@ -173,8 +183,21 @@ export default function Header() {
                 <div
                   key={category}
                   className="relative"
-                  onMouseEnter={() => setActiveDropdown(category)}
-                  onMouseLeave={() => setActiveDropdown(null)}
+                  onMouseEnter={() => {
+                    // Clear any existing timeout
+                    if (dropdownTimeout) {
+                      clearTimeout(dropdownTimeout);
+                      setDropdownTimeout(null);
+                    }
+                    setActiveDropdown(category);
+                  }}
+                  onMouseLeave={() => {
+                    // Set timeout to close dropdown after delay
+                    const timeout = setTimeout(() => {
+                      setActiveDropdown(null);
+                    }, 200);
+                    setDropdownTimeout(timeout);
+                  }}
                 >
                   <Link
                     href={`/products?main=${encodeURIComponent(category)}`} 
@@ -183,31 +206,26 @@ export default function Header() {
                     {category}
                     <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === category ? 'rotate-180' : ''}`} />
                   </Link>
-                  {/* Invisible bridge to connect button to dropdown */}
-                  {activeDropdown === category && (
-                    <div className="absolute left-0 right-0 h-4 bottom-0 translate-y-full" />
-                  )}
                 </div>
               ))}
             </nav>
 
             {/* Right Section */}
-            <div className="flex items-center gap-2 md:gap-4 relative z-50">
+            <div className="flex items-center gap-1 md:gap-4 relative z-50">
               {/* Search Button with pulse effect - Better mobile touch target */}
               <button 
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2.5 md:p-2 text-dark-200 hover:text-primary transition relative group min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-3 md:p-2 text-dark-200 hover:text-primary transition relative group min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg hover:bg-primary/10"
                 aria-label="Search products"
               >
                 <Search className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
-                <span className="absolute inset-0 rounded-full bg-primary/0 group-hover:bg-primary/10 transition-colors" />
               </button>
 
-              <Link href="/cart" className="relative p-2.5 md:p-2 text-dark-200 hover:text-primary transition group min-w-[44px] min-h-[44px] flex items-center justify-center">
+              <Link href="/cart" className="relative p-3 md:p-2 text-dark-200 hover:text-primary transition group min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg hover:bg-primary/10">
                 <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
                 {itemCount > 0 && (
-                  <span className={`absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 bg-gradient-to-br from-primary-light to-primary text-dark-900 text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg shadow-primary/40 ${cartBounce ? 'animate-bounce-once' : ''}`}>
-                    {itemCount}
+                  <span className={`absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 bg-gradient-to-br from-primary-light to-primary text-dark-900 text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-lg shadow-primary/40 ${cartBounce ? 'animate-bounce-once' : ''}`}>
+                    {itemCount > 99 ? '99+' : itemCount}
                   </span>
                 )}
               </Link>
@@ -231,8 +249,8 @@ export default function Header() {
                   onMouseEnter={() => setUserMenuOpen(true)}
                   onMouseLeave={() => setUserMenuOpen(false)}
                 >
-                  <button className="flex items-center gap-2 p-2 text-dark-200 hover:text-primary transition">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold-600 flex items-center justify-center text-dark-900 text-sm font-bold">
+                  <button className="flex items-center gap-2 p-2 text-dark-200 hover:text-primary transition min-h-[48px] rounded-lg hover:bg-primary/10">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-gold-600 flex items-center justify-center text-dark-900 text-sm font-bold">
                       {user.name.charAt(0)}
                     </div>
                     <span className="hidden md:inline text-sm max-w-[80px] truncate">{user.name.split(' ')[0]}</span>
@@ -269,19 +287,19 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-2" data-testid="auth-links">
-                  <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-dark-200 hover:text-primary transition md:gold-border md:rounded-lg md:hover:bg-primary/5">
+                <div className="flex items-center gap-1" data-testid="auth-links">
+                  <Link href="/login" className="flex items-center gap-2 px-3 py-2.5 text-dark-200 hover:text-primary transition gold-border rounded-lg hover:bg-primary/5 min-h-[48px]">
                     <LogIn className="w-5 h-5" />
-                    <span className="hidden md:inline text-sm">Sign In</span>
+                    <span className="hidden sm:inline text-sm">Sign In</span>
                   </Link>
-                  <Link href="/register" className="hidden md:flex items-center gap-2 px-3 py-2 btn-glossy rounded-lg text-sm font-medium text-dark-900">
+                  <Link href="/register" className="hidden sm:flex items-center gap-2 px-3 py-2.5 btn-glossy rounded-lg text-sm font-medium text-dark-900 min-h-[48px]">
                     <User className="w-4 h-4" />
                     Sign Up
                   </Link>
                 </div>
               )}
 
-              <button className="lg:hidden p-2.5 text-dark-200 min-w-[44px] min-h-[44px] flex items-center justify-center" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+              <button className="lg:hidden p-3 text-dark-200 min-w-[48px] min-h-[48px] flex items-center justify-center rounded-lg hover:bg-primary/10 transition" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
                 {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
@@ -293,7 +311,7 @@ export default function Header() {
       {searchOpen && (
         <div className="absolute left-0 right-0 top-full z-[100]">
           <div className="glass-card-gold border-t border-primary/20 shadow-xl">
-            <div className="max-w-3xl mx-auto px-4 py-4">
+            <div className="max-w-3xl mx-auto px-4 py-4 md:py-6">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
                 <input
@@ -301,26 +319,27 @@ export default function Header() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products, categories..."
-                  className="w-full pl-12 pr-24 py-3.5 glass-card rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition"
+                  className="w-full pl-12 pr-28 md:pr-24 py-4 md:py-3.5 glass-card rounded-xl text-dark-200 placeholder-dark-500 outline-none focus:ring-2 focus:ring-primary/50 transition text-base"
                   autoFocus
                 />
                 {isSearching && (
-                  <Loader2 className="absolute right-24 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
+                  <Loader2 className="absolute right-28 md:right-24 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
                 )}
                 {searchQuery && !isSearching && (
                   <button
                     type="button"
                     onClick={() => { setSearchQuery(''); setSuggestions([]); }}
-                    className="absolute right-20 top-1/2 -translate-y-1/2 p-1.5 text-dark-400 hover:text-dark-200 transition"
+                    className="absolute right-24 md:right-20 top-1/2 -translate-y-1/2 p-2 text-dark-400 hover:text-dark-200 transition min-w-[40px] min-h-[40px] flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-4 py-2 rounded-lg text-sm font-medium text-dark-900"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 btn-glossy px-3 md:px-4 py-2.5 md:py-2 rounded-lg text-sm font-medium text-dark-900 min-h-[44px]"
                 >
-                  Search
+                  <span className="hidden sm:inline">Search</span>
+                  <Search className="w-4 h-4 sm:hidden" />
                 </button>
               </form>
 
@@ -445,10 +464,22 @@ export default function Header() {
 
       {/* Mega Menu Dropdown */}
       <div 
-        className={`hidden lg:block absolute left-0 right-0 z-[100] ${activeDropdown ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
-        onMouseEnter={() => activeDropdown && setActiveDropdown(activeDropdown)}
-        onMouseLeave={() => setActiveDropdown(null)}
-        style={{ top: '60px' }}
+        className={`hidden lg:block absolute left-0 right-0 z-[100] transition-all duration-200 ${activeDropdown ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}
+        onMouseEnter={() => {
+          // Clear any pending close timeout when entering dropdown
+          if (dropdownTimeout) {
+            clearTimeout(dropdownTimeout);
+            setDropdownTimeout(null);
+          }
+        }}
+        onMouseLeave={() => {
+          // Set timeout to close dropdown after delay
+          const timeout = setTimeout(() => {
+            setActiveDropdown(null);
+          }, 200);
+          setDropdownTimeout(timeout);
+        }}
+        style={{ top: '64px' }}
       >
         {/* Invisible top padding to bridge the gap */}
         <div className="h-2" />
@@ -518,25 +549,80 @@ export default function Header() {
 
       {/* Mobile Menu - Improved spacing and touch targets */}
       {menuOpen && (
-        <nav className="lg:hidden glass-card-gold gold-border-top px-4 py-4 max-h-[70vh] overflow-y-auto relative z-50">
+        <nav className="lg:hidden glass-card-gold gold-border-top px-4 py-6 max-h-[75vh] overflow-y-auto relative z-50">
+          {/* User section for mobile */}
+          {user && (
+            <div className="mb-6 pb-6 border-b border-primary/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-gold-600 flex items-center justify-center text-dark-900 text-lg font-bold">
+                  {user.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-dark-200 font-medium">{user.name}</p>
+                  <p className="text-dark-400 text-sm">{user.email}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href="/account"
+                  className="flex items-center gap-2 px-3 py-2.5 glass-card rounded-lg text-sm text-dark-300 hover:text-primary transition min-h-[44px]"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <User className="w-4 h-4" /> Account
+                </Link>
+                <Link
+                  href="/account/orders"
+                  className="flex items-center gap-2 px-3 py-2.5 glass-card rounded-lg text-sm text-dark-300 hover:text-primary transition min-h-[44px]"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Package className="w-4 h-4" /> Orders
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Auth links for non-logged in users */}
+          {!user && (
+            <div className="mb-6 pb-6 border-b border-primary/20">
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center gap-2 px-4 py-3 gold-border rounded-lg text-dark-200 hover:text-primary transition min-h-[48px]"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <LogIn className="w-4 h-4" /> Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="flex items-center justify-center gap-2 px-4 py-3 btn-glossy rounded-lg text-dark-900 font-medium transition min-h-[48px]"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <User className="w-4 h-4" /> Sign Up
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Categories */}
           {mainCategories.map(category => (
             <div key={category} className="mb-6">
               <Link
                 href={`/products?main=${encodeURIComponent(category)}`}
-                className="block text-primary font-medium mb-3 text-lg py-2 min-h-[44px] flex items-center"
+                className="block text-primary font-medium mb-4 text-lg py-3 min-h-[48px] flex items-center justify-between glass-card px-4 rounded-lg hover:bg-primary/10 transition"
                 onClick={() => setMenuOpen(false)}
               >
                 {category}
+                <ChevronDown className="w-5 h-5 -rotate-90" />
               </Link>
-              <div className="grid grid-cols-2 gap-3 pl-2">
-                {megaMenuData[category]?.map((section, idx) => (
+              <div className="grid grid-cols-1 gap-2 pl-2">
+                {megaMenuData[category]?.slice(0, 2).map((section, idx) => (
                   <div key={idx} className="mb-3">
-                    <p className="text-xs text-dark-400 uppercase tracking-wider mb-2 font-semibold">{section.title}</p>
-                    {section.items.slice(0, 3).map((item, itemIdx) => (
+                    <p className="text-xs text-dark-400 uppercase tracking-wider mb-2 font-semibold px-2">{section.title}</p>
+                    {section.items.slice(0, 4).map((item, itemIdx) => (
                       <Link
                         key={itemIdx}
                         href={`/products?main=${encodeURIComponent(category)}&sub=${encodeURIComponent(item)}`}
-                        className="block text-sm text-dark-300 hover:text-primary py-2 px-2 rounded hover:bg-primary/10 transition min-h-[40px] flex items-center"
+                        className="block text-sm text-dark-300 hover:text-primary py-2.5 px-3 rounded-lg hover:bg-primary/10 transition min-h-[44px] flex items-center"
                         onClick={() => setMenuOpen(false)}
                       >
                         {item}
@@ -547,6 +633,44 @@ export default function Header() {
               </div>
             </div>
           ))}
+
+          {/* Quick Links */}
+          <div className="pt-6 border-t border-primary/20">
+            <p className="text-xs text-dark-400 uppercase tracking-wider mb-3 font-semibold px-2">Quick Links</p>
+            <div className="space-y-2">
+              {[
+                { label: 'Contact Us', href: '/contact', icon: Phone },
+                { label: 'Track Order', href: '/track-order', icon: Package },
+                { label: 'FAQs', href: '/faqs', icon: User }
+              ].map((link, i) => (
+                <Link
+                  key={i}
+                  href={link.href}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-dark-300 hover:text-primary transition min-h-[44px] rounded-lg hover:bg-primary/10"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <link.icon className="w-4 h-4" />
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Logout for logged in users */}
+          {user && (
+            <div className="pt-4 mt-4 border-t border-primary/20">
+              <button
+                onClick={async () => {
+                  setMenuOpen(false);
+                  await logout();
+                }}
+                className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition min-h-[44px] rounded-lg"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </nav>
       )}
     </header>

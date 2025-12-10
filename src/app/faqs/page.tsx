@@ -49,32 +49,34 @@ export default function FAQsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-12">
-        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-sm uppercase tracking-wider font-medium">Help Center</p>
-        <h1 className="text-4xl font-serif text-white mt-2">Frequently Asked Questions</h1>
-        <p className="text-dark-400 mt-3">Find answers to common questions about orders, shipping, and more.</p>
+    <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+      <div className="text-center mb-8 md:mb-12">
+        <p className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold-400 text-xs md:text-sm uppercase tracking-wider font-medium">Help Center</p>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif text-white mt-2">Frequently Asked Questions</h1>
+        <p className="text-dark-400 mt-3 text-sm md:text-base">Find answers to common questions about orders, shipping, and more.</p>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-4 md:space-y-6 lg:space-y-8">
         {faqs.map((section, sIdx) => (
-          <div key={sIdx} className="glass-card-gold rounded-xl p-6">
-            <h2 className="text-primary font-medium mb-4 flex items-center gap-2">
-              <HelpCircle className="w-5 h-5" />
+          <div key={sIdx} className="glass-card-gold rounded-xl p-4 md:p-5 lg:p-6">
+            <h2 className="text-primary font-medium mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
+              <HelpCircle className="w-4 h-4 md:w-5 md:h-5" />
               {section.category}
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {section.questions.map((item, qIdx) => {
                 const id = `${sIdx}-${qIdx}`;
                 const isOpen = openItems.includes(id);
                 return (
-                  <div key={qIdx} className="border-b border-dark-700/50 last:border-0 pb-3 last:pb-0">
-                    <button onClick={() => toggleItem(id)} className="w-full flex items-center justify-between text-left py-2 group">
-                      <span className="text-dark-200 text-sm group-hover:text-primary transition">{item.q}</span>
-                      <ChevronDown className={`w-4 h-4 text-dark-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  <div key={qIdx} className="border-b border-dark-700/50 last:border-0 pb-2 md:pb-3 last:pb-0">
+                    <button onClick={() => toggleItem(id)} className="w-full flex items-center justify-between text-left py-3 md:py-2 group min-h-[48px]">
+                      <span className="text-dark-200 text-sm md:text-base group-hover:text-primary transition pr-4 leading-relaxed">{item.q}</span>
+                      <ChevronDown className={`w-5 h-5 md:w-4 md:h-4 text-dark-400 transition-transform flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isOpen && (
-                      <p className="text-dark-400 text-sm pb-2 animate-fadeIn">{item.a}</p>
+                      <div className="pb-3 md:pb-2 animate-fadeIn">
+                        <p className="text-dark-400 text-sm md:text-base leading-relaxed">{item.a}</p>
+                      </div>
                     )}
                   </div>
                 );
@@ -84,10 +86,10 @@ export default function FAQsPage() {
         ))}
       </div>
 
-      <div className="mt-12 text-center glass-card-gold rounded-xl p-8">
-        <h3 className="text-dark-200 font-medium mb-2">Still have questions?</h3>
-        <p className="text-dark-400 text-sm mb-4">Our team is here to help you</p>
-        <Link href="/contact" className="btn-glossy px-6 py-3 rounded-lg text-sm font-medium text-dark-900 inline-block">Contact Us</Link>
+      <div className="mt-8 md:mt-12 text-center glass-card-gold rounded-xl p-6 md:p-8">
+        <h3 className="text-dark-200 font-medium mb-2 text-base md:text-lg">Still have questions?</h3>
+        <p className="text-dark-400 text-sm md:text-base mb-4 md:mb-6">Our team is here to help you</p>
+        <Link href="/contact" className="btn-glossy px-6 py-3 rounded-lg text-sm font-medium text-dark-900 inline-block min-h-[48px] flex items-center justify-center">Contact Us</Link>
       </div>
     </div>
   );
