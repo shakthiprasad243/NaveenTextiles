@@ -42,35 +42,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const { user: clerkUser, isLoaded, signOut } = clerkHooks;
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(!skipAuth);
+  const [isLoading, setIsLoading] = useState(true); // Always start with loading true to prevent hydration mismatch
 
   // Fetch user profile from Supabase using Clerk user ID
-  const fetchUserProfile = async (clerkUserId: string): Promise<User | null> => {
+  const fetchUserProfile = async (clerkUserId: string, clerkUserData: any): Promise<User | null> => {
     try {
+      console.log('Fetching user profile for Clerk ID:', clerkUserId);
+      
       const { data: dbUser } = await supabase
         .from('users')
-        .select('id, name, email, phone, is_admin, created_at')
+        .select('id, name, email, phone, is_admin, created_at, clerk_user_id')
         .eq('clerk_user_id', clerkUserId)
         .maybeSingle();
 
+      console.log('Supabase user found:', dbUser);
+
       if (dbUser) {
-        return {
+        const userProfile = {
           id: dbUser.id,
-          name: dbUser.name || clerkUser?.fullName || clerkUser?.firstName || 'User',
-          email: dbUser.email || clerkUser?.primaryEmailAddress?.emailAddress || '',
-          phone: dbUser.phone || clerkUser?.primaryPhoneNumber?.phoneNumber || '',
+          name: dbUser.name || clerkUserData?.fullName || clerkUserData?.firstName || 'User',
+          email: dbUser.email || clerkUserData?.primaryEmailAddress?.emailAddress || '',
+          phone: dbUser.phone || clerkUserData?.primaryPhoneNumber?.phoneNumber || '',
           isAdmin: dbUser.is_admin || false,
           createdAt: new Date(dbUser.created_at || Date.now())
         };
+        console.log('Returning user profile with admin status:', userProfile.isAdmin);
+        return userProfile;
+      }
+
+      // If user not found by Clerk ID, try to find by email and link
+      const email = clerkUserData?.primaryEmailAddress?.emailAddress;
+      if (email) {
+        console.log('User not found by Clerk ID, trying email:', email);
+        
+        const { data: emailUser } = await supabase
+          .from('users')
+          .select('id, name, email, phone, is_admin, created_at, clerk_user_id')
+          .eq('email', email)
+          .maybeSingle();
+
+        if (emailUser) {
+          console.log('Found user by email, linking with Clerk ID:', emailUser);
+          
+          // Update the user record to link with Clerk ID
+          const { data: updatedUser } = await supabase
+            .from('users')
+            .update({ clerk_user_id: clerkUserId })
+            .eq('email', email)
+            .select('id, name, email, phone, is_admin, created_at')
+            .single();
+
+          if (updatedUser) {
+            const linkedProfile = {
+              id: updatedUser.id,
+              name: updatedUser.name || clerkUserData?.fullName || clerkUserData?.firstName || 'User',
+              email: updatedUser.email || email,
+              phone: updatedUser.phone || clerkUserData?.primaryPhoneNumber?.phoneNumber || '',
+              isAdmin: updatedUser.is_admin || false,
+              createdAt: new Date(updatedUser.created_at || Date.now())
+            };
+            console.log('Successfully linked and returning profile with admin status:', linkedProfile.isAdmin);
+            return linkedProfile;
+          }
+        }
       }
 
       // If user not found in Supabase, return basic profile from Clerk
-      // The webhook should have created the user, but fallback to basic info
+      console.log('User not found in Supabase, returning basic Clerk profile');
       return {
         id: clerkUserId,
-        name: clerkUser?.fullName || clerkUser?.firstName || 'User',
-        email: clerkUser?.primaryEmailAddress?.emailAddress || '',
-        phone: clerkUser?.primaryPhoneNumber?.phoneNumber || '',
+        name: clerkUserData?.fullName || clerkUserData?.firstName || 'User',
+        email: clerkUserData?.primaryEmailAddress?.emailAddress || '',
+        phone: clerkUserData?.primaryPhoneNumber?.phoneNumber || '',
         isAdmin: false,
         createdAt: new Date()
       };
@@ -80,9 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fallback to Clerk data
       return {
         id: clerkUserId,
-        name: clerkUser?.fullName || clerkUser?.firstName || 'User',
-        email: clerkUser?.primaryEmailAddress?.emailAddress || '',
-        phone: clerkUser?.primaryPhoneNumber?.phoneNumber || '',
+        name: clerkUserData?.fullName || clerkUserData?.firstName || 'User',
+        email: clerkUserData?.primaryEmailAddress?.emailAddress || '',
+        phone: clerkUserData?.primaryPhoneNumber?.phoneNumber || '',
         isAdmin: false,
         createdAt: new Date()
       };
@@ -92,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Refresh user data
   const refreshUser = async () => {
     if (clerkUser?.id) {
-      const profile = await fetchUserProfile(clerkUser.id);
+      console.log('Refreshing user data for:', clerkUser.id);
+      const profile = await fetchUserProfile(clerkUser.id, clerkUser);
       setUser(profile);
     }
   };
@@ -111,11 +155,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (!isLoaded) return;
+      // Wait for Clerk to be loaded before proceeding
+      if (!isLoaded) {
+        return;
+      }
 
       try {
         if (clerkUser?.id && mounted) {
-          const profile = await fetchUserProfile(clerkUser.id);
+          console.log('Initializing auth for user:', clerkUser.id);
+          const profile = await fetchUserProfile(clerkUser.id, clerkUser);
           if (mounted) setUser(profile);
         } else {
           if (mounted) setUser(null);

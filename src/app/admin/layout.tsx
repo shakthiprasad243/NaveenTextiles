@@ -4,23 +4,31 @@ import Link from 'next/link';
 import { LayoutDashboard, Package, ShoppingCart, Users, Shield, ArrowLeft, TrendingUp, Tag } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // Fix hydration mismatch by ensuring component is mounted
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    if (!isLoading && (!user || !user.isAdmin)) {
+    if (mounted && !isLoading && (!user || !user.isAdmin)) {
       router.push('/login');
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, mounted]);
 
-  if (isLoading) {
+  // Show loading until mounted and auth is resolved
+  if (!mounted || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <LoadingSpinner />
       </div>
     );
   }
