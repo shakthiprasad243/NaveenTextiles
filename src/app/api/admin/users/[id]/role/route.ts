@@ -7,7 +7,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -47,7 +47,8 @@ export async function PATCH(
 
     const body = await request.json();
     const { makeAdmin } = body;
-    const targetUserId = params.id;
+    const resolvedParams = await params;
+    const targetUserId = resolvedParams.id;
 
     if (typeof makeAdmin !== 'boolean') {
       return NextResponse.json({ error: 'makeAdmin must be a boolean' }, { status: 400 });

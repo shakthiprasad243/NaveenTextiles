@@ -77,21 +77,21 @@ export async function GET(request: NextRequest) {
     const errorMessage = typeof error === 'string' ? error : 
                         error?.message || 'Failed to fetch products';
     return NextResponse.json(
-      { error: errorMessage, products: [], pagination: { page: 1, limit, total: 0, totalPages: 0 } },
+      { error: errorMessage, products: [], pagination: { page: 1, limit: 50, total: 0, totalPages: 0 } },
       { status: 500 }
     );
   }
 }
 
 // Create new product (admin only)
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Add timeout handling
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Product creation timeout after 25 seconds')), 25000)
     );
     
-    const createProductPromise = async () => {
+    const createProductPromise = async (): Promise<NextResponse> => {
       // Use admin client if available, otherwise try with regular client
       const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
 
@@ -172,8 +172,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Race between the operation and timeout
-    const result = await Promise.race([createProductPromise(), timeoutPromise]);
-    return result;
+    return await Promise.race([createProductPromise(), timeoutPromise]);
   } catch (error: any) {
     console.error('Product creation error:', error);
     

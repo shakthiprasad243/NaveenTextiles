@@ -10,14 +10,14 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // Get active offers
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     // Add timeout handling
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Request timeout after 25 seconds')), 25000)
     );
     
-    const fetchOffersPromise = async () => {
+    const fetchOffersPromise = async (): Promise<NextResponse> => {
       const client = createClient(
         supabaseUrl,
         supabaseServiceKey || supabaseAnonKey,
@@ -49,8 +49,7 @@ export async function GET() {
     };
 
     // Race between the operation and timeout
-    const result = await Promise.race([fetchOffersPromise(), timeoutPromise]);
-    return result;
+    return await Promise.race([fetchOffersPromise(), timeoutPromise]);
   } catch (error: any) {
     console.error('Error fetching offers:', error);
     

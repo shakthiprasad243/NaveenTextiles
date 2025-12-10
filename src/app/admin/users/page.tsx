@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Search, User, Shield, ShieldOff, Eye, Mail, Phone, Calendar, Package, X, Loader2, Crown, RefreshCw } from 'lucide-react';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth, useUser } from '@clerk/nextjs';
 
 interface UserData {
   id: string;
@@ -18,7 +18,8 @@ interface UserData {
 }
 
 export default function AdminUsersPage() {
-  const { isLoaded, isSignedIn, user: clerkUser } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { user: clerkUser } = useUser();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
