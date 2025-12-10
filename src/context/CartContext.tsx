@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CartItem } from '@/lib/types';
+import { trackAddToCart } from '@/lib/gtag';
 
 interface CartContextType {
   items: CartItem[];
@@ -54,6 +55,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find(
         i => i.productId === item.productId && i.size === item.size && i.color === item.color
       );
+      
+      // Track add to cart event
+      trackAddToCart({
+        value: item.price * item.quantity,
+        items: [{
+          item_id: item.productId,
+          item_name: item.name,
+          category: item.category || 'Product',
+          quantity: item.quantity,
+          price: item.price,
+        }],
+      });
+      
       if (existing) {
         return prev.map(i =>
           i.productId === item.productId && i.size === item.size && i.color === item.color
