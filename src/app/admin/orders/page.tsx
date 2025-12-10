@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid Clerk prerendering issues
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useRef } from 'react';
 import { DbOrderItem } from '@/lib/supabase';
 import { Search, ChevronDown, Eye, Package, Phone, MapPin, Clock, X, Truck, Loader2, Trash2, AlertTriangle, CheckSquare, Square, FileText, Printer } from 'lucide-react';

@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid Clerk prerendering issues
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Search, User, Shield, ShieldOff, Eye, Mail, Phone, Calendar, Package, X, Loader2, Crown, RefreshCw } from 'lucide-react';
