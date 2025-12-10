@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { auth, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
+import { createClerkClient } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -28,7 +29,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Get all users from Clerk
-    const clerkUsers = await clerkClient.users.getUserList();
+    const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+    const clerkUsers = await clerk.users.getUserList();
     
     let syncedCount = 0;
     let errors: string[] = [];
