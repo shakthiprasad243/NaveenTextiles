@@ -1,8 +1,7 @@
 // Admin Configuration
 // Add email addresses that should automatically get admin access
 export const ADMIN_EMAILS = [
-  // TODO: Replace with your actual admin email address
-  'your-email@example.com', // Replace this with your actual email
+  'shakthiprasad243@gmail.com', // Main admin email
   'admin@naveentextiles.com',
   'owner@naveentextiles.com',
   // Add more admin emails as needed
