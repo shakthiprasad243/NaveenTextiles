@@ -63,7 +63,7 @@ npx vercel --prod
 1. Visit your site: https://www.naveentextiles.online
 2. Try signing up/signing in
 3. Check browser console - no more development key warnings
-4. Test admin access at: https://www.naveentextiles.online/make-admin
+4. Test admin access by logging in with configured admin email
 
 ## Current Status
 
@@ -84,10 +84,11 @@ npx vercel --prod
 2. Make sure production domain is configured in Clerk
 3. Check that webhook endpoint is accessible
 
-### If admin access is lost:
-1. Visit: https://www.naveentextiles.online/make-admin
-2. Sign in and click "Make Me Admin"
-3. This will restore admin access with new keys
+### Admin Access:
+- Admin access is automatically assigned based on email configuration
+- Configured admin emails: shakthiprasad243@gmail.com
+- Admin panel appears in header when logged in with admin email
+- No manual admin assignment needed
 
 ## Benefits of Production Keys
 
