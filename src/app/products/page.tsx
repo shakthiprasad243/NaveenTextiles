@@ -9,20 +9,42 @@ import { Package, ChevronDown, Loader2, Search, X } from 'lucide-react';
 import { supabase, DbProduct, DbProductVariant } from '@/lib/supabase';
 import { Product } from '@/lib/types';
 
+// Partial product type for optimized query
+interface PartialDbProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  base_price: number;
+  category: string | null;
+  main_category: string | null;
+  active: boolean;
+  product_variants: Array<{
+    id: string;
+    size: string | null;
+    color: string | null;
+    stock_qty: number;
+    reserved_qty: number;
+    images: string[];
+  }>;
+}
+
 // Transform Supabase data to local Product type
-function transformProduct(dbProduct: DbProduct & { product_variants: DbProductVariant[] }): Product {
+function transformProduct(dbProduct: PartialDbProduct): Product {
+  // Get first available image from variants
+  const firstVariantWithImage = dbProduct.product_variants?.find(v => v.images?.length > 0);
+  
   return {
     id: dbProduct.id,
     name: dbProduct.name,
     description: dbProduct.description || '',
-    images: dbProduct.product_variants[0]?.images || [],
+    images: firstVariantWithImage?.images || [],
     category: dbProduct.category || '',
     mainCategory: dbProduct.main_category || '',
     price: dbProduct.base_price,
-    variations: dbProduct.product_variants.map(v => ({
+    variations: (dbProduct.product_variants || []).map(v => ({
       size: v.size || '',
       color: v.color || '',
-      stock: v.stock_qty - v.reserved_qty
+      stock: (v.stock_qty || 0) - (v.reserved_qty || 0)
     })),
     active: dbProduct.active
   };
@@ -83,14 +105,19 @@ function ProductsContent() {
     router.push(`/products?${params.toString()}`);
   };
 
-  // Fetch products from Supabase
+  // Fetch products from Supabase with timeout
   useEffect(() => {
+    let isCancelled = false;
+
     async function fetchProducts() {
       try {
         setLoading(true);
+        setError(null);
+
+        // Build query - only select needed fields for faster response
         let query = supabase
           .from('products')
-          .select(`*, product_variants (*)`)
+          .select(`id, name, description, base_price, category, main_category, active, product_variants (id, size, color, stock_qty, reserved_qty, images)`)
           .eq('active', true);
 
         if (mainCategory) {
@@ -105,21 +132,31 @@ function ProductsContent() {
           query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`);
         }
 
-        const { data, error: fetchError } = await query.order('created_at', { ascending: false });
+        // Add limit for better performance
+        const { data, error: fetchError } = await query
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (isCancelled) return;
 
         if (fetchError) throw fetchError;
 
         const transformedProducts = (data || []).map(transformProduct);
         setProducts(transformedProducts);
       } catch (err) {
+        if (isCancelled) return;
         console.error('Error fetching products:', err);
-        setError('Failed to load products');
+        setError('Failed to load products. Please try again.');
       } finally {
-        setLoading(false);
+        if (!isCancelled) setLoading(false);
       }
     }
 
     fetchProducts();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [mainCategory, subCategory, category, searchQuery]);
 
   // Update search input when URL changes
@@ -240,7 +277,7 @@ function ProductsContent() {
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <Package className="w-16 h-16 text-dark-500 mx-auto mb-4" />
+        <Package className="w-16 h-16 text-dark-300 mx-auto mb-4" />
         <p className="text-dark-300 text-lg mb-2">{error}</p>
         <button onClick={() => window.location.reload()} className="btn-glossy px-6 py-2.5 rounded-lg text-sm font-medium text-dark-900 mt-4">
           Try Again
@@ -401,9 +438,9 @@ function ProductsContent() {
             </div>
           ) : (
             <div className="text-center py-20 glass-card-gold rounded-xl">
-              <Package className="w-16 h-16 text-dark-500 mx-auto mb-4" />
+              <Package className="w-16 h-16 text-dark-300 mx-auto mb-4" />
               <p className="text-dark-300 text-lg mb-2">No products found</p>
-              <p className="text-dark-500 text-sm mb-6">Try adjusting your filters or browse all products</p>
+              <p className="text-dark-300 text-sm mb-6">Try adjusting your filters or browse all products</p>
               <button
                 onClick={handleClearAll}
                 className="btn-glossy px-6 py-2.5 rounded-lg text-sm font-medium text-dark-900"
@@ -518,7 +555,7 @@ function MobileFilterSheet({
           <div className="flex items-center justify-between p-4 border-b border-dark-700">
             <div>
               <h3 className="text-primary font-medium">Filters</h3>
-              <p className="text-dark-500 text-xs">{filteredCount} of {totalProducts} products</p>
+              <p className="text-dark-300 text-xs">{filteredCount} of {totalProducts} products</p>
             </div>
             <button onClick={() => setIsOpen(false)} className="p-2 text-dark-400 hover:text-white">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

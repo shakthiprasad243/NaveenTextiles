@@ -190,11 +190,11 @@ export default function Footer() {
       <div className="border-t border-primary/20 bg-dark-800/50">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <p className="text-dark-500 text-xs">
+            <p className="text-dark-300 text-xs">
               © 2024 Naveen Textiles. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
-              <span className="text-dark-500 text-xs">We Accept:</span>
+              <span className="text-dark-300 text-xs">We Accept:</span>
               <div className="flex gap-2">
                 {['Visa', 'Mastercard', 'UPI', 'COD'].map((method, i) => (
                   <span key={i} className="px-2 py-1 glass-card rounded text-xs text-dark-400">

@@ -12,35 +12,56 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 // Get active offers
 export async function GET() {
   try {
-    const client = createClient(
-      supabaseUrl,
-      supabaseServiceKey || supabaseAnonKey,
-      { auth: { autoRefreshToken: false, persistSession: false } }
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Request timeout after 25 seconds')), 25000)
     );
-
-    const now = new Date().toISOString();
     
-    const { data, error } = await client
-      .from('offers')
-      .select('*')
-      .eq('active', true)
-      .lte('valid_from', now)
-      .order('created_at', { ascending: false })
-      .limit(3);
+    const fetchOffersPromise = async () => {
+      const client = createClient(
+        supabaseUrl,
+        supabaseServiceKey || supabaseAnonKey,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      );
 
-    if (error) {
-      console.error('Error fetching offers:', error);
-      return NextResponse.json({ offers: [] });
-    }
+      const now = new Date().toISOString();
+      
+      // Optimized query with specific field selection
+      const { data, error } = await client
+        .from('offers')
+        .select('id, title, description, code, discount_type, discount_value, active, valid_from, valid_till, created_at')
+        .eq('active', true)
+        .lte('valid_from', now)
+        .order('created_at', { ascending: false })
+        .limit(10); // Increased limit but still reasonable
 
-    // Filter valid_till in JS
-    const validOffers = (data || []).filter(offer =>
-      !offer.valid_till || new Date(offer.valid_till) >= new Date()
-    );
+      if (error) {
+        console.error('Error fetching offers:', error);
+        return NextResponse.json({ offers: [] });
+      }
 
-    return NextResponse.json({ offers: validOffers });
-  } catch (error) {
+      // Filter valid_till in JS (more efficient than complex SQL)
+      const validOffers = (data || []).filter(offer =>
+        !offer.valid_till || new Date(offer.valid_till) >= new Date()
+      );
+
+      return NextResponse.json({ offers: validOffers });
+    };
+
+    // Race between the operation and timeout
+    const result = await Promise.race([fetchOffersPromise(), timeoutPromise]);
+    return result;
+  } catch (error: any) {
     console.error('Error fetching offers:', error);
+    
+    // Return appropriate error response
+    if (error.message?.includes('timeout')) {
+      return NextResponse.json(
+        { error: 'Request timeout', offers: [] }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json({ offers: [] });
   }
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useUser, useClerk } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase';
-import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
@@ -17,8 +17,6 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (data: { name: string; email: string; phone: string; password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -27,235 +25,122 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { user: clerkUser, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch user profile from database
-  const fetchUserProfile = async (authUser: SupabaseUser): Promise<User | null> => {
+  // Fetch user profile from Supabase using Clerk user ID
+  const fetchUserProfile = async (clerkUserId: string): Promise<User | null> => {
     try {
-      // Get user profile from users table
-      let { data: dbUser, error } = await supabase
+      const { data: dbUser } = await supabase
         .from('users')
-        .select('*')
-        .eq('email', authUser.email)
-        .single();
+        .select('id, name, email, phone, is_admin, created_at')
+        .eq('clerk_user_id', clerkUserId)
+        .maybeSingle();
 
-      // If user doesn't exist in users table, create one
-      if (error || !dbUser) {
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
-            email: authUser.email,
-            phone: authUser.user_metadata?.phone || '',
-            is_admin: false
-          })
-          .select()
-          .single();
-
-        if (createError || !newUser) {
-          console.error('Error creating user profile:', createError);
-          return null;
-        }
-        dbUser = newUser;
+      if (dbUser) {
+        return {
+          id: dbUser.id,
+          name: dbUser.name || clerkUser?.fullName || clerkUser?.firstName || 'User',
+          email: dbUser.email || clerkUser?.primaryEmailAddress?.emailAddress || '',
+          phone: dbUser.phone || clerkUser?.primaryPhoneNumber?.phoneNumber || '',
+          isAdmin: dbUser.is_admin || false,
+          createdAt: new Date(dbUser.created_at || Date.now())
+        };
       }
 
-      // Check if user is admin
-      const { data: adminData } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('user_id', dbUser.id)
-        .single();
-
+      // If user not found in Supabase, return basic profile from Clerk
+      // The webhook should have created the user, but fallback to basic info
       return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email || '',
-        phone: dbUser.phone || '',
-        isAdmin: dbUser.is_admin || !!adminData,
-        createdAt: new Date(dbUser.created_at)
+        id: clerkUserId,
+        name: clerkUser?.fullName || clerkUser?.firstName || 'User',
+        email: clerkUser?.primaryEmailAddress?.emailAddress || '',
+        phone: clerkUser?.primaryPhoneNumber?.phoneNumber || '',
+        isAdmin: false,
+        createdAt: new Date()
       };
-    } catch (err) {
-      console.error('Error fetching user profile:', err);
-      return null;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      
+      // Fallback to Clerk data
+      return {
+        id: clerkUserId,
+        name: clerkUser?.fullName || clerkUser?.firstName || 'User',
+        email: clerkUser?.primaryEmailAddress?.emailAddress || '',
+        phone: clerkUser?.primaryPhoneNumber?.phoneNumber || '',
+        isAdmin: false,
+        createdAt: new Date()
+      };
     }
   };
 
   // Refresh user data
   const refreshUser = async () => {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (authUser) {
-      const profile = await fetchUserProfile(authUser);
+    if (clerkUser?.id) {
+      const profile = await fetchUserProfile(clerkUser.id);
       setUser(profile);
     }
   };
 
-  // Initialize auth state
+  // Initialize auth state based on Clerk user
   useEffect(() => {
+    let mounted = true;
+
     const initAuth = async () => {
+      if (!isLoaded) return;
+
       try {
-        // Get current session
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session?.user) {
-          const profile = await fetchUserProfile(session.user);
-          setUser(profile);
+        if (clerkUser?.id && mounted) {
+          const profile = await fetchUserProfile(clerkUser.id);
+          if (mounted) setUser(profile);
+        } else {
+          if (mounted) setUser(null);
         }
       } catch (err) {
         console.error('Auth init error:', err);
+        if (mounted) setUser(null);
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
     initAuth();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
-      
-      if (event === 'SIGNED_IN' && session?.user) {
-        const profile = await fetchUserProfile(session.user);
-        setUser(profile);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-      }
-    });
-
     return () => {
-      subscription.unsubscribe();
+      mounted = false;
     };
-  }, []);
+  }, [clerkUser, isLoaded]);
 
-  // Login with email and password
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      // Use API endpoint for login (more reliable with service role key)
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        return { success: false, error: result.error || 'Login failed' };
-      }
-
-      // Set session in Supabase client if tokens are returned
-      if (result.session?.access_token && result.session?.refresh_token) {
-        await supabase.auth.setSession({
-          access_token: result.session.access_token,
-          refresh_token: result.session.refresh_token
-        });
-      }
-
-      // Fetch user profile
-      if (result.user) {
-        // Get full profile from database
-        const { data: dbUser } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', email)
-          .single();
-
-        // Check if admin
-        const { data: adminData } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('user_id', dbUser?.id)
-          .maybeSingle();
-
-        const profile: User = {
-          id: dbUser?.id || result.user.id,
-          name: dbUser?.name || result.user.name || email.split('@')[0],
-          email: email,
-          phone: dbUser?.phone || '',
-          isAdmin: dbUser?.is_admin || !!adminData,
-          createdAt: new Date(dbUser?.created_at || Date.now())
-        };
-
-        setUser(profile);
-        return { success: true };
-      }
-
-      return { success: false, error: 'Login failed' };
-    } catch (err) {
-      console.error('Login error:', err);
-      return { success: false, error: 'Login failed. Please try again.' };
-    }
-  };
-
-  // Register new user
-  const register = async (data: { name: string; email: string; phone: string; password: string }): Promise<{ success: boolean; error?: string }> => {
-    try {
-      // Use API to create user with auto-confirmation
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        return { success: false, error: result.error || 'Registration failed' };
-      }
-
-      // Now sign in the user
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password
-      });
-
-      if (signInError) {
-        console.error('Auto sign-in error:', signInError);
-        // Registration succeeded but auto-login failed - user can manually login
-        return { success: true };
-      }
-
-      if (authData.user) {
-        const profile = await fetchUserProfile(authData.user);
-        setUser(profile);
-      }
-
-      return { success: true };
-    } catch (err) {
-      console.error('Registration error:', err);
-      return { success: false, error: 'Registration failed. Please try again.' };
-    }
-  };
-
-  // Logout
+  // Logout using Clerk
   const logout = async () => {
-    await supabase.auth.signOut();
     setUser(null);
+    await signOut();
   };
 
-  // Update profile
+  // Update profile in Supabase
   const updateProfile = async (data: Partial<User>) => {
-    if (!user) return;
+    if (!user || !clerkUser?.id) return;
+    
+    // Update UI immediately
+    setUser(prev => prev ? { ...prev, ...data } : null);
 
+    // Update DB in background
     try {
-      const { error } = await supabase
+      await supabase
         .from('users')
         .update({
           name: data.name,
           phone: data.phone
         })
-        .eq('id', user.id);
-
-      if (!error) {
-        setUser(prev => prev ? { ...prev, ...data } : null);
-      }
-    } catch (err) {
-      console.error('Update profile error:', err);
+        .eq('clerk_user_id', clerkUser.id);
+    } catch (error) {
+      console.error('Error updating profile:', error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateProfile, refreshUser }}>
+    <AuthContext.Provider value={{ user, isLoading, logout, updateProfile, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

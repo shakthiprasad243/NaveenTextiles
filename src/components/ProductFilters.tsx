@@ -67,7 +67,7 @@ export default function ProductFilters({
       <div className="flex items-center justify-between mb-5 pb-4 border-b border-primary/20">
         <div>
           <h3 className="text-primary font-medium">Filters</h3>
-          <p className="text-dark-500 text-xs mt-0.5">
+          <p className="text-dark-300 text-xs mt-0.5">
             {filteredCount} of {totalProducts} products
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function ProductFilters({
                   max={priceRange.max}
                 />
               </div>
-              <span className="text-dark-500">—</span>
+              <span className="text-dark-300">—</span>
               <div className="flex-1">
                 <input
                   type="number"

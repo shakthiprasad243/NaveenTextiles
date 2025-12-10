@@ -20,7 +20,7 @@ const defaultConfig: RateLimitConfig = {
 
 const authConfig: RateLimitConfig = {
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  maxRequests: 10  // 10 attempts per 15 minutes
+  maxRequests: 10000  // Effectively unlimited for development
 };
 
 export function checkRateLimit(
@@ -96,4 +96,15 @@ export function getClientIP(request: Request): string {
     return realIP;
   }
   return 'unknown';
+}
+
+// Reset rate limit for a specific identifier (for testing/dev only)
+export function resetRateLimit(identifier: string): void {
+  rateLimitStore.delete(`auth:${identifier}`);
+  rateLimitStore.delete(`api:${identifier}`);
+}
+
+// Clear all rate limits (for testing/dev only)
+export function clearAllRateLimits(): void {
+  rateLimitStore.clear();
 }

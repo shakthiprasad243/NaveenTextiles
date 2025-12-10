@@ -1,4 +1,5 @@
 import './globals.css';
+import { ClerkProvider } from '@clerk/nextjs';
 import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header';
@@ -65,21 +66,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" type="image/png" href="/logo.png" />
-        <link rel="apple-touch-icon" href="/logo.png" />
-        <meta name="theme-color" content="#D4AF37" />
-      </head>
-      <body className="min-h-screen">
-        <AuthProvider>
-          <CartProvider>
-            <Header />
-            <main className="pb-20">{children}</main>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <head>
+          <link rel="icon" type="image/png" href="/logo.png" />
+          <link rel="apple-touch-icon" href="/logo.png" />
+          <meta name="theme-color" content="#D4AF37" />
+        </head>
+        <body className="min-h-screen">
+          <AuthProvider>
+            <CartProvider>
+              <Header />
+              <main className="pb-20">{children}</main>
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

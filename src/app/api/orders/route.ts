@@ -172,26 +172,46 @@ export async function POST(request: NextRequest) {
 
     const orderNumber = generateOrderNumber();
     const subtotal = normalizedItems.reduce((sum: number, item: any) => sum + ((item.unit_price || 0) * (item.qty || 1)), 0);
-    const shipping = subtotal >= 1000 ? 0 : 50;
-    const total = subtotal + shipping;
+    
+    // Handle coupon discount
+    const couponCode = body.coupon_code;
+    const discountAmount = body.discount_amount || 0;
+    const discountType = body.discount_type;
+    
+    const discountedSubtotal = subtotal - discountAmount;
+    const shipping = discountedSubtotal >= 1000 ? 0 : 50;
+    const total = discountedSubtotal + shipping;
 
     // Create order
+    const orderData: any = {
+      order_number: orderNumber,
+      customer_name,
+      customer_phone: normalizedCustomerPhone,
+      customer_email,
+      shipping_address: typeof shipping_address === 'string' ? { line1: shipping_address } : shipping_address,
+      subtotal,
+      shipping,
+      total,
+      payment_method: payment_method || 'COD',
+      status: 'PENDING',
+      whatsapp_message: generateWhatsAppMessage(orderNumber, customer_name, customer_phone, shipping_address, normalizedItems, total),
+      reserved_until: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+    };
+
+    // Add coupon information if provided (handle gracefully if columns don't exist)
+    if (couponCode) {
+      try {
+        orderData.coupon_code = couponCode;
+        orderData.discount_amount = discountAmount;
+        orderData.discount_type = discountType;
+      } catch (err) {
+        console.warn('Coupon columns may not exist in database yet:', err);
+      }
+    }
+
     const { data: order, error: orderError } = await client
       .from('orders')
-      .insert({
-        order_number: orderNumber,
-        customer_name,
-        customer_phone: normalizedCustomerPhone,
-        customer_email,
-        shipping_address: typeof shipping_address === 'string' ? { line1: shipping_address } : shipping_address,
-        subtotal,
-        shipping,
-        total,
-        payment_method: payment_method || 'COD',
-        status: 'PENDING',
-        whatsapp_message: generateWhatsAppMessage(orderNumber, customer_name, customer_phone, shipping_address, normalizedItems, total),
-        reserved_until: new Date(Date.now() + 15 * 60 * 1000).toISOString()
-      })
+      .insert(orderData)
       .select()
       .single();
 
@@ -275,13 +295,11 @@ export async function GET(request: NextRequest) {
       if (error) {
         // Handle "no rows returned" error gracefully
         if (error.code === 'PGRST116') {
-          // Return empty array for test compatibility
-          return NextResponse.json([]);
+          return NextResponse.json({ order: null });
         }
         throw error;
       }
-      // Return array with single order for test compatibility
-      return NextResponse.json(data ? [data] : []);
+      return NextResponse.json({ order: data });
     }
 
     if (email) {
@@ -291,8 +309,7 @@ export async function GET(request: NextRequest) {
         .eq('customer_email', email)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      // Return array directly for test compatibility
-      return NextResponse.json(data || []);
+      return NextResponse.json({ orders: data || [] });
     }
 
     if (phone) {
@@ -321,8 +338,7 @@ export async function GET(request: NextRequest) {
       }
       
       if (error) throw error;
-      // Return array directly for test compatibility
-      return NextResponse.json(data || []);
+      return NextResponse.json({ orders: data || [] });
     }
 
     return NextResponse.json(

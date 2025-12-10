@@ -105,7 +105,7 @@ export default function AdminDashboard() {
               <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
                 <stat.icon className="w-5 h-5 text-white" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-dark-500 group-hover:text-primary transition" />
+              <ArrowUpRight className="w-4 h-4 text-dark-300 group-hover:text-primary transition" />
             </div>
             <p className="text-2xl font-bold text-white">{stat.value}</p>
             <p className="text-sm text-dark-200">{stat.label}</p>
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
               </div>
             ))}
             {recentOrders.length === 0 && (
-              <p className="text-dark-500 text-center py-8">No orders yet</p>
+              <p className="text-dark-300 text-center py-8">No orders yet</p>
             )}
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
                         <GoogleDriveImage src={product.images[0]} alt={product.name} fill sizes="40px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-5 h-5 text-dark-500" />
+                          <Package className="w-5 h-5 text-dark-300" />
                         </div>
                       )}
                     </div>

@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "wiremock": {
+      "command": "npx",
+      "args": [
+        "@wiremock/mcp-server@latest"
+      ],
+      "disabled": false,
+      "autoApprove": []
+    },
     "TestSprite": {
       "command": "npx",
       "args": [
@@ -11,7 +19,11 @@
       "autoApprove": [
         "testsprite_generate_code_and_execute",
         "testsprite_generate_frontend_test_plan",
-        "testsprite_rerun_tests"
+        "testsprite_rerun_tests",
+        "testsprite_bootstrap_tests",
+        "testsprite_generate_code_summary",
+        "testsprite_generate_backend_test_plan",
+        "testsprite_generate_standardized_prd"
       ]
     },
     "playwright": {
@@ -20,7 +32,18 @@
         "@playwright/mcp@latest"
       ],
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": [
+        "browser_navigate",
+        "browser_click",
+        "browser_wait_for",
+        "browser_type",
+        "browser_close",
+        "browser_snapshot",
+        "browser_console_messages",
+        "browser_fill_form",
+        "browser_network_requests",
+        "browser_evaluate"
+      ]
     }
   }
 }

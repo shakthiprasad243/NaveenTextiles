@@ -313,7 +313,7 @@ export default function AdminProductsPage() {
       <div className="glass-card-gold rounded-xl p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
             <input
               type="text"
               placeholder="Search products..."
@@ -333,7 +333,7 @@ export default function AdminProductsPage() {
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300 pointer-events-none" />
           </div>
         </div>
       </div>
@@ -365,7 +365,7 @@ export default function AdminProductsPage() {
                             <GoogleDriveImage src={product.images[0]} alt={product.name} fill className="object-cover" sizes="48px" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-5 h-5 text-dark-500" />
+                              <Package className="w-5 h-5 text-dark-300" />
                             </div>
                           )}
                         </div>
@@ -426,7 +426,7 @@ export default function AdminProductsPage() {
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
+            <Package className="w-12 h-12 text-dark-300 mx-auto mb-3" />
             <p className="text-primary/70">No products found</p>
           </div>
         )}

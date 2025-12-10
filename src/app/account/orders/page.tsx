@@ -207,7 +207,7 @@ export default function OrdersPage() {
         {/* Search by Order Number */}
         <form onSubmit={handleSearch} className="mt-4 flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
             <input
               type="text"
               value={searchQuery}
@@ -229,7 +229,7 @@ export default function OrdersPage() {
 
       {/* Debug info - shows what identifiers are being used */}
       {user && orders.length === 0 && !loading && (
-        <div className="mb-4 p-3 glass-card rounded-lg text-xs text-dark-500">
+        <div className="mb-4 p-3 glass-card rounded-lg text-xs text-dark-300">
           <p>Looking for orders with:</p>
           <p>• Email: {user.email || 'Not set'}</p>
           <p>• Phone: {user.phone || 'Not set'}</p>
@@ -249,7 +249,7 @@ export default function OrdersPage() {
               <div className="p-4 border-b border-dark-700/50 flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="text-dark-200 font-medium">{order.order_number || order.id.slice(0, 8)}</p>
-                  <p className="text-dark-500 text-xs flex items-center gap-1 mt-1">
+                  <p className="text-dark-300 text-xs flex items-center gap-1 mt-1">
                     <Clock className="w-3 h-3" />
                     Ordered on {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
@@ -280,11 +280,11 @@ export default function OrdersPage() {
                       return (
                         <div key={step} className="flex flex-col items-center relative z-10">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                            isCompleted ? 'bg-primary text-dark-900' : 'glass-card text-dark-500'
+                            isCompleted ? 'bg-primary text-dark-900' : 'glass-card text-dark-300'
                           } ${isCurrent ? 'ring-2 ring-primary/50' : ''}`}>
                             {isCompleted ? '✓' : idx + 1}
                           </div>
-                          <span className={`text-xs mt-2 capitalize ${isCompleted ? 'text-primary' : 'text-dark-500'}`}>
+                          <span className={`text-xs mt-2 capitalize ${isCompleted ? 'text-primary' : 'text-dark-300'}`}>
                             {step.toLowerCase()}
                           </span>
                         </div>
@@ -307,11 +307,11 @@ export default function OrdersPage() {
                   {order.order_items?.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-lg bg-dark-700 flex items-center justify-center">
-                        <Package className="w-6 h-6 text-dark-500" />
+                        <Package className="w-6 h-6 text-dark-300" />
                       </div>
                       <div className="flex-1">
                         <p className="text-dark-200 text-sm font-medium">{item.product_name}</p>
-                        <p className="text-dark-500 text-xs">Size: {item.size} • Color: {item.color} • Qty: {item.qty}</p>
+                        <p className="text-dark-300 text-xs">Size: {item.size} • Color: {item.color} • Qty: {item.qty}</p>
                       </div>
                       <p className="text-primary font-medium">₹{(item.unit_price * item.qty).toLocaleString()}</p>
                     </div>
@@ -331,7 +331,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-dark-500 text-xs">Total Amount</p>
+                    <p className="text-dark-300 text-xs">Total Amount</p>
                     <p className="text-primary font-bold text-lg">₹{order.total.toLocaleString()}</p>
                   </div>
                 </div>
@@ -365,9 +365,9 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="text-center py-20 glass-card-gold rounded-xl">
-          <Package className="w-16 h-16 text-dark-500 mx-auto mb-4" />
+          <Package className="w-16 h-16 text-dark-300 mx-auto mb-4" />
           <h3 className="text-dark-200 font-medium text-lg mb-2">No orders yet</h3>
-          <p className="text-dark-500 text-sm mb-6">Start shopping to see your orders here</p>
+          <p className="text-dark-300 text-sm mb-6">Start shopping to see your orders here</p>
           <Link href="/products" className="btn-glossy px-6 py-3 rounded-lg text-sm font-medium text-dark-900 inline-block">
             Browse Products
           </Link>

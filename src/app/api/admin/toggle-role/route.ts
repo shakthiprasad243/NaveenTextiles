@@ -5,14 +5,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: Request) {
   try {
     // Check if user is authenticated and is admin
     const { userId } = await auth();
-    console.log('Role API - Clerk User ID:', userId);
+    console.log('Toggle Role API - Clerk User ID:', userId);
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -29,7 +26,7 @@ export async function PATCH(
       .eq('clerk_user_id', userId)
       .single();
 
-    console.log('Role API - Current user lookup:', { currentUser, currentUserError });
+    console.log('Toggle Role API - Current user lookup:', { currentUser, currentUserError });
 
     if (currentUserError || !currentUser) {
       return NextResponse.json({ 
@@ -46,15 +43,14 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { makeAdmin } = body;
-    const targetUserId = params.id;
+    const { targetUserId, makeAdmin } = body;
 
     if (typeof makeAdmin !== 'boolean') {
       return NextResponse.json({ error: 'makeAdmin must be a boolean' }, { status: 400 });
     }
 
     // Get target user info
-    console.log('Role API - Looking for target user ID:', targetUserId);
+    console.log('Toggle Role API - Looking for target user ID:', targetUserId);
     
     const { data: targetUser, error: userError } = await client
       .from('users')
@@ -62,7 +58,7 @@ export async function PATCH(
       .eq('id', targetUserId)
       .single();
 
-    console.log('Role API - Target user lookup:', { targetUser, userError });
+    console.log('Toggle Role API - Target user lookup:', { targetUser, userError });
 
     if (userError || !targetUser) {
       return NextResponse.json({ 
@@ -120,7 +116,7 @@ export async function PATCH(
     });
 
   } catch (error: unknown) {
-    console.error('Role management error:', error);
+    console.error('Toggle role error:', error);
     const message = error instanceof Error ? error.message : 'Failed to update user role';
     return NextResponse.json({ error: message }, { status: 500 });
   }

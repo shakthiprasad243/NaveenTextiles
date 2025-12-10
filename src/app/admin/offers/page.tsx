@@ -236,7 +236,7 @@ export default function AdminOffersPage() {
         </div>
       ) : filteredOffers.length === 0 ? (
         <div className="text-center py-20 glass-card rounded-xl">
-          <Tag className="w-12 h-12 text-dark-500 mx-auto mb-4" />
+          <Tag className="w-12 h-12 text-dark-300 mx-auto mb-4" />
           <p className="text-dark-400">No offers found</p>
           <button onClick={openCreateModal} className="text-primary text-sm mt-2 hover:underline">
             Create your first offer
@@ -257,15 +257,15 @@ export default function AdminOffersPage() {
                     <code className="text-sm bg-dark-600 text-primary px-3 py-1 rounded-lg font-mono">{offer.code}</code>
                     <span className="text-sm text-dark-400">{formatDiscount(offer)}</span>
                     {offer.min_order_value && (
-                      <span className="text-xs text-dark-500">Min: ₹{offer.min_order_value}</span>
+                      <span className="text-xs text-dark-300">Min: ₹{offer.min_order_value}</span>
                     )}
                     {offer.usage_limit && (
-                      <span className="text-xs text-dark-500">
+                      <span className="text-xs text-dark-300">
                         Used: {offer.used_count}/{offer.usage_limit}
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-dark-500 mt-2">
+                  <div className="text-xs text-dark-300 mt-2">
                     Valid: {new Date(offer.valid_from).toLocaleDateString()} 
                     {offer.valid_till ? ` - ${new Date(offer.valid_till).toLocaleDateString()}` : ' (No expiry)'}
                   </div>
@@ -423,7 +423,7 @@ export default function AdminOffersPage() {
                     onChange={(e) => setFormData({ ...formData, valid_till: e.target.value })}
                     className="w-full px-4 py-2 glass-card rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-primary/50"
                   />
-                  <p className="text-xs text-dark-500 mt-1">Leave empty for no expiry</p>
+                  <p className="text-xs text-dark-300 mt-1">Leave empty for no expiry</p>
                 </div>
               </div>
 

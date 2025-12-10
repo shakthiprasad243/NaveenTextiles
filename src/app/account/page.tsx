@@ -109,9 +109,9 @@ export default function AccountPage() {
     setIsEditing(false);
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/';
   };
 
   return (
@@ -152,7 +152,7 @@ export default function AccountPage() {
               {!isEditing ? (
                 <>
                   <h4 className="text-dark-200 font-medium">{user.name}</h4>
-                  <p className="text-dark-500 text-sm">{user.isAdmin ? 'Administrator' : 'Customer'}</p>
+                  <p className="text-dark-300 text-sm">{user.isAdmin ? 'Administrator' : 'Customer'}</p>
                 </>
               ) : (
                 <input
@@ -247,9 +247,9 @@ export default function AccountPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-dark-200 text-sm font-medium group-hover:text-primary transition">{item.label}</p>
-                    <p className="text-dark-500 text-xs">{item.desc}</p>
+                    <p className="text-dark-300 text-xs">{item.desc}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-dark-500 group-hover:text-primary transition" />
+                  <ChevronRight className="w-4 h-4 text-dark-300 group-hover:text-primary transition" />
                 </Link>
               ))}
             </div>
@@ -278,7 +278,7 @@ export default function AccountPage() {
                       </div>
                       <div>
                         <p className="text-dark-200 text-sm font-medium">{order.order_number || order.id.slice(0, 8)}</p>
-                        <p className="text-dark-500 text-xs">{order.order_items?.length || 0} item(s) • ₹{order.total?.toLocaleString()}</p>
+                        <p className="text-dark-300 text-xs">{order.order_items?.length || 0} item(s) • ₹{order.total?.toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -290,7 +290,7 @@ export default function AccountPage() {
                       }`}>
                         {order.status?.charAt(0).toUpperCase() + order.status?.slice(1).toLowerCase()}
                       </span>
-                      <p className="text-dark-500 text-xs mt-1 flex items-center justify-end gap-1">
+                      <p className="text-dark-300 text-xs mt-1 flex items-center justify-end gap-1">
                         <Clock className="w-3 h-3" />
                         {new Date(order.created_at).toLocaleDateString()}
                       </p>

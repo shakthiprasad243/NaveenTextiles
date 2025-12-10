@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Search, User, Shield, ShieldOff, Eye, Mail, Phone, Calendar, Package, X, Loader2 } from 'lucide-react';
+import { Search, User, Shield, ShieldOff, Eye, Mail, Phone, Calendar, Package, X, Loader2, Crown, RefreshCw } from 'lucide-react';
+import { useAuth } from '@clerk/nextjs';
 
 interface UserData {
   id: string;
@@ -17,15 +18,29 @@ interface UserData {
 }
 
 export default function AdminUsersPage() {
+  const { isLoaded, isSignedIn, user: clerkUser } = useAuth();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'admin' | 'blocked'>('all');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [currentUserStatus, setCurrentUserStatus] = useState<any>(null);
 
   useEffect(() => {
     fetchUsers();
+    checkCurrentUser();
   }, []);
+
+  async function checkCurrentUser() {
+    try {
+      const response = await fetch('/api/debug/current-user');
+      const data = await response.json();
+      setCurrentUserStatus(data);
+    } catch (error) {
+      console.error('Error checking current user:', error);
+    }
+  }
 
   async function fetchUsers() {
     try {
@@ -105,18 +120,30 @@ export default function AdminUsersPage() {
     if (!user) return;
 
     try {
+      console.log('Attempting to toggle admin for user:', { userId, user });
+      
       // Use API endpoint to toggle admin role (uses admin client on server)
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
-        method: 'PATCH',
+      const response = await fetch('/api/admin/toggle-role', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ makeAdmin: !user.isAdmin }),
+        body: JSON.stringify({ 
+          targetUserId: userId, 
+          makeAdmin: !user.isAdmin 
+        }),
       });
 
+      console.log('API Response status:', response.status);
       const result = await response.json();
+      console.log('API Response data:', result);
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Please login as admin to manage user roles');
+        } else if (response.status === 403) {
+          throw new Error('Admin access required to manage user roles');
+        }
         throw new Error(result.error || 'Failed to update user role');
       }
 
@@ -131,6 +158,33 @@ export default function AdminUsersPage() {
     } catch (err: any) {
       console.error('Error toggling admin:', err);
       alert(err.message || 'Failed to update user role');
+    }
+  };
+
+  const syncUsers = async () => {
+    try {
+      setSyncing(true);
+      const response = await fetch('/api/admin/users/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to sync users');
+      }
+
+      // Refresh the user list after sync
+      await fetchUsers();
+      alert(`${result.message}\nProcessed: ${result.totalProcessed} users`);
+    } catch (err: any) {
+      console.error('Error syncing users:', err);
+      alert(err.message || 'Failed to sync users');
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -152,9 +206,40 @@ export default function AdminUsersPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-serif text-white">Users</h1>
-        <p className="text-primary/70 text-sm">{users.length} registered users</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-serif text-white">Users</h1>
+          <p className="text-primary/70 text-sm">{users.length} registered users</p>
+          {/* Clerk Auth Status */}
+          {!isLoaded && (
+            <p className="text-yellow-400 text-xs mt-1">🔄 Loading authentication...</p>
+          )}
+          {isLoaded && !isSignedIn && (
+            <p className="text-red-400 text-xs mt-1">❌ Not signed in to Clerk</p>
+          )}
+          {isLoaded && isSignedIn && clerkUser && (
+            <p className="text-blue-400 text-xs mt-1">🔵 Clerk: {clerkUser.primaryEmailAddress?.emailAddress}</p>
+          )}
+          
+          {/* Supabase Status */}
+          {currentUserStatus && !currentUserStatus.authenticated && (
+            <p className="text-red-400 text-xs mt-1">⚠️ Not authenticated in API - Role management disabled</p>
+          )}
+          {currentUserStatus && currentUserStatus.authenticated && !currentUserStatus.isAdmin && (
+            <p className="text-red-400 text-xs mt-1">⚠️ Admin access required for role management</p>
+          )}
+          {currentUserStatus && currentUserStatus.authenticated && currentUserStatus.isAdmin && (
+            <p className="text-green-400 text-xs mt-1">✅ Logged in as admin: {currentUserStatus.supabaseUser?.email}</p>
+          )}
+        </div>
+        <button
+          onClick={syncUsers}
+          disabled={syncing}
+          className="btn-glossy px-4 py-2 rounded-lg text-sm font-medium text-dark-900 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync Users'}
+        </button>
       </div>
 
       {/* Stats */}
@@ -176,7 +261,7 @@ export default function AdminUsersPage() {
       <div className="glass-card-gold rounded-xl p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
             <input
               type="text"
               placeholder="Search by name, email, or phone..."
@@ -260,6 +345,16 @@ export default function AdminUsersPage() {
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => toggleAdmin(user.id)}
+                        className={`p-2 rounded-lg transition ${user.isAdmin
+                            ? 'text-blue-400 hover:bg-blue-500/10'
+                            : 'text-gray-400 hover:bg-gray-500/10'
+                          }`}
+                        title={user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                      >
+                        <Crown className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => toggleBlock(user.id)}
                         className={`p-2 rounded-lg transition ${user.isBlocked
                             ? 'text-green-400 hover:bg-green-500/10'
@@ -279,7 +374,7 @@ export default function AdminUsersPage() {
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-12">
-            <User className="w-12 h-12 text-dark-500 mx-auto mb-3" />
+            <User className="w-12 h-12 text-dark-300 mx-auto mb-3" />
             <p className="text-primary/70">No users found</p>
           </div>
         )}

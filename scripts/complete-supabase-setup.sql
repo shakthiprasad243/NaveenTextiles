@@ -1,9 +1,10 @@
 -- =====================================================
 -- COMPLETE SUPABASE SETUP SCRIPT FOR NAVEEN TEXTILES
+-- WITH CLERK AUTHENTICATION INTEGRATION
 -- =====================================================
 -- This script will:
 -- 1. Drop all existing tables (clean slate)
--- 2. Create all required tables
+-- 2. Create all required tables optimized for Clerk
 -- 3. Set up RLS policies
 -- 4. Seed initial data
 -- 
@@ -14,6 +15,7 @@
 -- STEP 1: DROP EXISTING TABLES (in correct order due to foreign keys)
 -- =====================================================
 
+DROP TABLE IF EXISTS inventory_reservations CASCADE;
 DROP TABLE IF EXISTS order_items CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS product_variants CASCADE;
@@ -27,14 +29,17 @@ DROP TABLE IF EXISTS offers CASCADE;
 -- STEP 2: CREATE TABLES
 -- =====================================================
 
--- 2.1 Users Table
+-- 2.1 Users Table (Clerk Integration)
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_user_id VARCHAR(255) UNIQUE NOT NULL, -- Clerk user ID
   name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) UNIQUE,
+  email VARCHAR(255) UNIQUE NOT NULL,
   phone VARCHAR(20),
   is_admin BOOLEAN DEFAULT false,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  profile_image_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 2.2 Admin Users Table (for additional admin tracking)
@@ -119,7 +124,17 @@ CREATE TABLE order_items (
   line_total NUMERIC(10, 2)
 );
 
--- 2.8 Offers Table
+-- 2.8 Inventory Reservations Table
+CREATE TABLE inventory_reservations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_variant_id UUID REFERENCES product_variants(id) ON DELETE CASCADE,
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+  qty INTEGER,
+  reserved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  reserved_until TIMESTAMP WITH TIME ZONE
+);
+
+-- 2.9 Offers Table
 CREATE TABLE offers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title VARCHAR(255) NOT NULL,
@@ -141,6 +156,7 @@ CREATE TABLE offers (
 -- STEP 3: CREATE INDEXES
 -- =====================================================
 
+CREATE INDEX idx_users_clerk_id ON users(clerk_user_id);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_products_slug ON products(slug);
@@ -154,6 +170,8 @@ CREATE INDEX idx_orders_customer_phone ON orders(customer_phone);
 CREATE INDEX idx_orders_customer_email ON orders(customer_email);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX idx_inventory_reservations_variant_id ON inventory_reservations(product_variant_id);
+CREATE INDEX idx_inventory_reservations_order_id ON inventory_reservations(order_id);
 CREATE INDEX idx_offers_code ON offers(code);
 CREATE INDEX idx_offers_active ON offers(active);
 
@@ -207,7 +225,14 @@ CREATE POLICY "Anyone can insert order_items" ON order_items FOR INSERT WITH CHE
 CREATE POLICY "Anyone can update order_items" ON order_items FOR UPDATE USING (true) WITH CHECK (true);
 CREATE POLICY "Anyone can delete order_items" ON order_items FOR DELETE USING (true);
 
--- 4.8 Offers Table RLS
+-- 4.8 Inventory Reservations Table RLS
+ALTER TABLE inventory_reservations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read reservations" ON inventory_reservations FOR SELECT USING (true);
+CREATE POLICY "Anyone can insert reservations" ON inventory_reservations FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can update reservations" ON inventory_reservations FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Anyone can delete reservations" ON inventory_reservations FOR DELETE USING (true);
+
+-- 4.9 Offers Table RLS
 ALTER TABLE offers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read offers" ON offers FOR SELECT USING (true);
 CREATE POLICY "Anyone can insert offers" ON offers FOR INSERT WITH CHECK (true);
@@ -218,9 +243,10 @@ CREATE POLICY "Anyone can delete offers" ON offers FOR DELETE USING (true);
 -- STEP 5: SEED INITIAL DATA
 -- =====================================================
 
--- 5.1 Create Admin User
-INSERT INTO users (name, email, phone, is_admin) VALUES
-('Admin', 'admin@naveentextiles.com', '9876543210', true);
+-- 5.1 Create Admin User (Clerk Integration)
+-- Note: This will be created via Clerk, but we'll add a placeholder
+INSERT INTO users (clerk_user_id, name, email, phone, is_admin) VALUES
+('clerk_admin_placeholder', 'Admin', 'admin@naveentextiles.com', '9876543210', true);
 
 -- Add to admin_users table
 INSERT INTO admin_users (user_id, role)
@@ -381,16 +407,16 @@ UNION ALL SELECT 'products', COUNT(*) FROM products
 UNION ALL SELECT 'product_variants', COUNT(*) FROM product_variants
 UNION ALL SELECT 'orders', COUNT(*) FROM orders
 UNION ALL SELECT 'order_items', COUNT(*) FROM order_items
+UNION ALL SELECT 'inventory_reservations', COUNT(*) FROM inventory_reservations
 UNION ALL SELECT 'offers', COUNT(*) FROM offers
 UNION ALL SELECT 'addresses', COUNT(*) FROM addresses;
 
 -- =====================================================
--- IMPORTANT NOTES:
+-- IMPORTANT NOTES FOR CLERK INTEGRATION:
 -- =====================================================
--- 1. After running this script, create an admin user in Supabase Auth:
---    - Go to Authentication > Users > Add User
---    - Email: admin@naveentextiles.com
---    - Password: Admin@123
+-- 1. Authentication is now handled by Clerk, not Supabase Auth
+--    - Users will sign up/login through Clerk
+--    - Clerk user data will be synced to our users table
 --
 -- 2. Create Storage Bucket:
 --    - Go to Storage > New Bucket
@@ -402,4 +428,12 @@ UNION ALL SELECT 'addresses', COUNT(*) FROM addresses;
 --    CREATE POLICY "Anyone can upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images');
 --    CREATE POLICY "Anyone can update" ON storage.objects FOR UPDATE USING (bucket_id = 'product-images');
 --    CREATE POLICY "Anyone can delete" ON storage.objects FOR DELETE USING (bucket_id = 'product-images');
+--
+-- 4. Clerk Configuration:
+--    - Set up Clerk project at https://clerk.com
+--    - Add Clerk keys to .env.local
+--    - Configure webhooks to sync user data
+--
+-- 5. Database Connection String:
+--    postgresql://postgres:shakthi@db.urczffuuejarmpbdqevj.supabase.co:5432/postgres
 -- =====================================================

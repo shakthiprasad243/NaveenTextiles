@@ -162,7 +162,7 @@ export default function SalesReportPage() {
           <div>
             <label className="text-dark-400 text-xs mb-1 block">From Date</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
               <input
                 type="date"
                 value={fromDate}
@@ -174,7 +174,7 @@ export default function SalesReportPage() {
           <div>
             <label className="text-dark-400 text-xs mb-1 block">To Date</label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
               <input
                 type="date"
                 value={toDate}
@@ -303,7 +303,7 @@ export default function SalesReportPage() {
                     </td>
                     <td className="py-4 px-4 hidden md:table-cell">
                       <p className="text-white">{order.customer_name}</p>
-                      <p className="text-dark-500 text-xs">{order.customer_phone}</p>
+                      <p className="text-dark-300 text-xs">{order.customer_phone}</p>
                     </td>
                     <td className="py-4 px-4 hidden sm:table-cell">
                       <p className="text-dark-300">{order.order_items?.length || 0}</p>
@@ -342,7 +342,7 @@ export default function SalesReportPage() {
 
         {!loading && filteredOrders.length === 0 && (
           <div className="text-center py-12">
-            <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
+            <Package className="w-12 h-12 text-dark-300 mx-auto mb-3" />
             <p className="text-primary/70">No orders found for selected period</p>
           </div>
         )}

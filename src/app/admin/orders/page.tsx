@@ -338,7 +338,7 @@ export default function AdminOrdersPage() {
       <div className="glass-card-gold rounded-xl p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300" />
             <input
               type="text"
               placeholder="Search by Order ID, Name, or Phone..."
@@ -358,7 +358,7 @@ export default function AdminOrdersPage() {
                 <option key={status} value={status} className="capitalize">{status.toLowerCase()}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-500 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-300 pointer-events-none" />
           </div>
         </div>
       </div>
@@ -467,7 +467,7 @@ export default function AdminOrdersPage() {
 
         {filteredOrders.length === 0 && (
           <div className="text-center py-12">
-            <Package className="w-12 h-12 text-dark-500 mx-auto mb-3" />
+            <Package className="w-12 h-12 text-dark-300 mx-auto mb-3" />
             <p className="text-primary/70">No orders found</p>
           </div>
         )}
@@ -568,7 +568,7 @@ export default function AdminOrdersPage() {
                     <div key={idx} className="flex items-center justify-between glass-card rounded-lg p-3">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-lg bg-dark-700 flex items-center justify-center">
-                          <Package className="w-5 h-5 text-dark-500" />
+                          <Package className="w-5 h-5 text-dark-300" />
                         </div>
                         <div>
                           <p className="text-white text-sm font-medium">{item.product_name}</p>

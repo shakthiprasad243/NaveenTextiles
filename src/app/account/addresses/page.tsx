@@ -241,7 +241,7 @@ export default function AddressesPage() {
                   <p className="text-dark-200 text-sm">{address.name}</p>
                   <p className="text-dark-400 text-sm mt-1">{address.address}</p>
                   <p className="text-dark-400 text-sm">{address.city}, {address.state} - {address.pincode}</p>
-                  <p className="text-dark-500 text-sm mt-2">Phone: {address.phone}</p>
+                  <p className="text-dark-300 text-sm mt-2">Phone: {address.phone}</p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <button onClick={() => handleEdit(address)} className="p-2 text-dark-400 hover:text-primary transition">
@@ -265,9 +265,9 @@ export default function AddressesPage() {
         </div>
       ) : (
         <div className="text-center py-16 glass-card-gold rounded-xl">
-          <MapPin className="w-12 h-12 text-dark-500 mx-auto mb-4" />
+          <MapPin className="w-12 h-12 text-dark-300 mx-auto mb-4" />
           <h3 className="text-dark-200 font-medium mb-2">No addresses saved</h3>
-          <p className="text-dark-500 text-sm mb-6">Add an address for faster checkout</p>
+          <p className="text-dark-300 text-sm mb-6">Add an address for faster checkout</p>
           <button
             onClick={() => setIsAdding(true)}
             className="btn-glossy px-6 py-3 rounded-lg text-sm font-medium text-dark-900 inline-flex items-center gap-2"

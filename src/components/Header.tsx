@@ -198,9 +198,22 @@ export default function Header() {
                 )}
               </Link>
 
+              {/* Admin Panel Button - Visible when user is admin */}
+              {user?.isAdmin && (
+                <Link 
+                  href="/admin" 
+                  className="hidden md:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-primary/20 to-gold-500/20 border border-primary/30 rounded-lg text-primary hover:bg-primary/10 transition text-sm font-medium"
+                  title="Admin Panel"
+                >
+                  <Shield className="w-4 h-4" />
+                  <span className="hidden lg:inline">Admin</span>
+                </Link>
+              )}
+
               {user ? (
                 <div 
                   className="relative"
+                  data-testid="user-menu"
                   onMouseEnter={() => setUserMenuOpen(true)}
                   onMouseLeave={() => setUserMenuOpen(false)}
                 >
@@ -215,7 +228,7 @@ export default function Header() {
                     <div className="absolute top-full right-0 mt-1 w-56 glass-card-gold rounded-xl py-2 shadow-xl z-[60]">
                       <div className="px-4 py-3 border-b border-dark-700/50">
                         <p className="text-dark-200 font-medium text-sm">{user.name}</p>
-                        <p className="text-dark-500 text-xs truncate">{user.email}</p>
+                        <p className="text-dark-300 text-xs truncate">{user.email}</p>
                       </div>
                       <Link href="/account" className="flex items-center gap-3 px-4 py-2.5 text-sm text-dark-200 hover:text-primary hover:bg-primary/5 transition">
                         <User className="w-4 h-4" /> My Account
@@ -230,7 +243,10 @@ export default function Header() {
                       )}
                       <div className="h-px bg-primary/20 my-1" />
                       <button 
-                        onClick={() => { logout(); setUserMenuOpen(false); }} 
+                        onClick={async () => { 
+                          setUserMenuOpen(false);
+                          await logout();
+                        }} 
                         className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition"
                       >
                         <LogOut className="w-4 h-4" /> Sign Out
@@ -239,10 +255,16 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-dark-200 hover:text-primary transition md:gold-border md:rounded-lg md:hover:bg-primary/5">
-                  <LogIn className="w-5 h-5" />
-                  <span className="hidden md:inline text-sm">Login</span>
-                </Link>
+                <div className="flex items-center gap-2" data-testid="auth-links">
+                  <Link href="/login" className="flex items-center gap-2 px-3 py-2 text-dark-200 hover:text-primary transition md:gold-border md:rounded-lg md:hover:bg-primary/5">
+                    <LogIn className="w-5 h-5" />
+                    <span className="hidden md:inline text-sm">Sign In</span>
+                  </Link>
+                  <Link href="/register" className="hidden md:flex items-center gap-2 px-3 py-2 btn-glossy rounded-lg text-sm font-medium text-dark-900">
+                    <User className="w-4 h-4" />
+                    Sign Up
+                  </Link>
+                </div>
               )}
 
               <button className="lg:hidden p-2 text-dark-200" onClick={() => setMenuOpen(!menuOpen)}>
@@ -294,7 +316,7 @@ export default function Header() {
                   {/* Category Suggestions */}
                   {categorySuggestions.length > 0 && (
                     <div>
-                      <p className="text-xs text-dark-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                      <p className="text-xs text-dark-300 uppercase tracking-wider mb-2 flex items-center gap-1">
                         <Tag className="w-3 h-3" /> Categories
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -315,7 +337,7 @@ export default function Header() {
                   {/* Product Suggestions */}
                   {suggestions.length > 0 && (
                     <div>
-                      <p className="text-xs text-dark-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                      <p className="text-xs text-dark-300 uppercase tracking-wider mb-2 flex items-center gap-1">
                         <Package className="w-3 h-3" /> Products
                       </p>
                       <div className="space-y-2">
@@ -335,7 +357,7 @@ export default function Header() {
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
-                                  <Package className="w-5 h-5 text-dark-500" />
+                                  <Package className="w-5 h-5 text-dark-300" />
                                 </div>
                               )}
                             </div>
@@ -344,7 +366,7 @@ export default function Header() {
                               <p className="text-dark-200 text-sm font-medium truncate group-hover:text-primary transition">
                                 {product.name}
                               </p>
-                              <p className="text-dark-500 text-xs">
+                              <p className="text-dark-300 text-xs">
                                 {product.mainCategory} {product.category && `› ${product.category}`}
                               </p>
                             </div>
@@ -371,14 +393,14 @@ export default function Header() {
               {searchQuery.length >= 2 && !isSearching && suggestions.length === 0 && categorySuggestions.length === 0 && (
                 <div className="mt-4 text-center py-4">
                   <p className="text-dark-400 text-sm">No products found for &quot;{searchQuery}&quot;</p>
-                  <p className="text-dark-500 text-xs mt-1">Try a different search term</p>
+                  <p className="text-dark-300 text-xs mt-1">Try a different search term</p>
                 </div>
               )}
 
               {/* Popular Searches - Show when no query */}
               {searchQuery.length < 2 && (
                 <div className="mt-4">
-                  <p className="text-xs text-dark-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <p className="text-xs text-dark-300 uppercase tracking-wider mb-2 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" /> Popular Searches
                   </p>
                   <div className="flex flex-wrap gap-2">

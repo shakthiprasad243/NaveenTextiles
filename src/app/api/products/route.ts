@@ -16,9 +16,22 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active');
     const includeInactive = searchParams.get('include_inactive') === 'true';
     
-    // Pagination parameters
+    // Pagination parameters with validation
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50')));
+    
+    // Prevent excessive pagination that could cause performance issues
+    if (page > 1000) {
+      return NextResponse.json(
+        { 
+          error: 'Page number exceeds maximum limit of 1000',
+          products: [],
+          pagination: { page: 1, limit, total: 0, totalPages: 0 }
+        },
+        { status: 400 }
+      );
+    }
+    
     const offset = (page - 1) * limit;
 
     // Use admin client if we need to include inactive products
@@ -60,8 +73,11 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error: any) {
+    console.error('Products API error:', error);
+    const errorMessage = typeof error === 'string' ? error : 
+                        error?.message || 'Failed to fetch products';
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch products' },
+      { error: errorMessage, products: [], pagination: { page: 1, limit, total: 0, totalPages: 0 } },
       { status: 500 }
     );
   }
@@ -70,8 +86,14 @@ export async function GET(request: NextRequest) {
 // Create new product (admin only)
 export async function POST(request: NextRequest) {
   try {
-    // Use admin client if available, otherwise try with regular client
-    const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
+    // Add timeout handling
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Product creation timeout after 25 seconds')), 25000)
+    );
+    
+    const createProductPromise = async () => {
+      // Use admin client if available, otherwise try with regular client
+      const client = isAdminClientConfigured() ? supabaseAdmin : supabase;
 
     const body = await request.json();
     
@@ -137,18 +159,32 @@ export async function POST(request: NextRequest) {
       .eq('id', product.id)
       .single();
 
-    return NextResponse.json({ 
-      success: true, 
-      product: completeProduct,
-      // Also include at root level for easier access
-      id: completeProduct?.id,
-      product_id: completeProduct?.id,
-      name: completeProduct?.name,
-      slug: completeProduct?.slug,
-      base_price: completeProduct?.base_price
-    }, { status: 201 });
+      return NextResponse.json({ 
+        success: true, 
+        product: completeProduct,
+        // Also include at root level for easier access
+        id: completeProduct?.id,
+        product_id: completeProduct?.id,
+        name: completeProduct?.name,
+        slug: completeProduct?.slug,
+        base_price: completeProduct?.base_price
+      }, { status: 201 });
+    };
+
+    // Race between the operation and timeout
+    const result = await Promise.race([createProductPromise(), timeoutPromise]);
+    return result;
   } catch (error: any) {
     console.error('Product creation error:', error);
+    
+    // Return appropriate error response
+    if (error.message?.includes('timeout')) {
+      return NextResponse.json(
+        { error: 'Product creation timeout', success: false }, 
+        { status: 408 }
+      );
+    }
+    
     return NextResponse.json(
       { error: error.message || 'Failed to create product' },
       { status: 500 }

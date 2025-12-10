@@ -22,6 +22,12 @@ export default function CheckoutPage() {
     postal_code: ''
   });
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState('');
+
   // Pre-fill form with user profile data
   useEffect(() => {
     if (user) {
@@ -37,6 +43,47 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [error, setError] = useState('');
+
+  // Coupon functions
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    
+    setCouponLoading(true);
+    setCouponError('');
+    
+    try {
+      const response = await fetch('/api/offers/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          code: couponCode.trim(),
+          subtotal: total 
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.valid) {
+        setAppliedCoupon(data);
+        setCouponCode('');
+        setCouponError('');
+      } else {
+        setCouponError(data.error || 'Invalid coupon code');
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      setCouponError('Failed to validate coupon');
+      setAppliedCoupon(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
 
   if (items.length === 0 && !submitted) {
     return (
@@ -74,7 +121,13 @@ export default function CheckoutPage() {
           qty: item.quantity,
           unit_price: item.price
         })),
-        payment_method: 'COD'
+        payment_method: 'COD',
+        // Include coupon information if applied
+        ...(appliedCoupon && {
+          coupon_code: appliedCoupon.offer.code,
+          discount_amount: appliedCoupon.discount.amount,
+          discount_type: appliedCoupon.discount.type
+        })
       };
 
       // Create order via API
@@ -144,8 +197,12 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = total >= 1000 ? 0 : 50;
-  const grandTotal = total + shipping;
+  // Calculate totals with coupon
+  const subtotal = total;
+  const discountAmount = appliedCoupon ? appliedCoupon.discount.amount : 0;
+  const discountedSubtotal = subtotal - discountAmount;
+  const shipping = discountedSubtotal >= 1000 ? 0 : 50;
+  const grandTotal = discountedSubtotal + shipping;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -296,18 +353,75 @@ export default function CheckoutPage() {
                 <div key={`${item.productId}-${item.size}-${item.color}`} className="flex justify-between text-sm py-2 border-b border-dark-700/50">
                   <div>
                     <p className="text-dark-200">{item.name}</p>
-                    <p className="text-dark-500 text-xs">{item.size} • {item.color} • Qty: {item.quantity}</p>
+                    <p className="text-dark-300 text-xs">{item.size} • {item.color} • Qty: {item.quantity}</p>
                   </div>
                   <span className="text-dark-200">{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
 
+            {/* Coupon Section */}
+            <div className="mt-4 pt-4 border-t border-dark-700/50">
+              {!appliedCoupon ? (
+                <div className="space-y-2">
+                  <label className="block text-sm text-dark-300">Have a coupon code?</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Enter coupon code"
+                      className="flex-1 px-3 py-2 glass-card rounded-lg text-dark-100 placeholder-dark-500 text-sm focus:ring-1 focus:ring-primary/50 outline-none"
+                      onKeyPress={(e) => e.key === 'Enter' && applyCoupon()}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="px-4 py-2 btn-glossy rounded-lg text-sm font-medium text-dark-900 disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {couponLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Apply'}
+                    </button>
+                  </div>
+                  {couponError && (
+                    <p className="text-red-400 text-xs">{couponError}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-400 text-sm font-medium flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" />
+                        {appliedCoupon.offer.code} Applied
+                      </p>
+                      <p className="text-green-300 text-xs">{appliedCoupon.offer.description}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="text-green-300 hover:text-green-200 text-xs underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="mt-4 pt-4 border-t border-dark-700/50 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-dark-400">Subtotal</span>
-                <span className="text-dark-200">{formatPrice(total)}</span>
+                <span className="text-dark-200">{formatPrice(subtotal)}</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-400">
+                    Discount ({appliedCoupon.offer.code})
+                  </span>
+                  <span className="text-green-400">-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-dark-400">Shipping</span>
                 <span className={shipping === 0 ? 'text-green-400' : 'text-dark-200'}>
@@ -315,7 +429,7 @@ export default function CheckoutPage() {
                 </span>
               </div>
               {shipping > 0 && (
-                <p className="text-xs text-dark-500">Free shipping on orders above ₹1,000</p>
+                <p className="text-xs text-dark-300">Free shipping on orders above ₹1,000</p>
               )}
               <div className="flex justify-between font-bold pt-2 border-t border-dark-700/50">
                 <span className="text-dark-200">Total</span>
