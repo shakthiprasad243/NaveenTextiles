@@ -62,7 +62,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items: [{
           item_id: item.productId,
           item_name: item.name,
-          category: item.category || 'Product',
+          category: 'Product', // Default category since CartItem doesn't have category
           quantity: item.quantity,
           price: item.price,
         }],
